@@ -1,4 +1,4 @@
-##Monstrous Ambitions Quantified##
+## Monstrous Ambitions Quantified ##
 
 Here’s something with teeth — the kind of thing that forces your mind to widen its jaws and swallow a bigger universe whole.
 
