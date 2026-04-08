@@ -2,64 +2,121 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>100-Hour Command Deck</title>
+  <title>100-Hour Command Deck v2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <style>
+    :root {
+      --bg-ignition: radial-gradient(circle at top, #0b1b3b 0%, #05060a 55%, #020308 100%);
+      --bg-expansion: radial-gradient(circle at top, #1f2937 0%, #05060a 55%, #020308 100%);
+      --bg-consolidation: radial-gradient(circle at top, #05060a 0%, #020308 60%, #000000 100%);
+      --bg-surge: radial-gradient(circle at top, #3b0008 0%, #120008 45%, #000000 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body { 
-      font-family: system-ui, -apple-system, sans-serif; 
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; 
       display:flex; 
       flex-direction:column;
       height:100vh; 
       align-items:center; 
       justify-content:center; 
-      background:#05060a; 
+      background: var(--bg-ignition);
       color:#f5f5f5;
       margin:0;
+      padding: 0 14px;
+      -webkit-font-smoothing: antialiased;
+      transition: background 0.8s ease;
     }
+
     .timer {
       text-align:center;
-      letter-spacing:0.08em;
+      width:100%;
+      max-width: 480px;
     }
+
     #countdown {
-      font-size:5rem;
-      font-weight:600;
+      font-size: clamp(3rem, 9vw, 5.2rem);
+      font-weight:650;
+      letter-spacing:0.12em;
+      line-height: 1.1;
+      text-transform:uppercase;
+      margin-bottom: 0.25rem;
     }
+
     #countup {
-      font-size:1.4rem;
+      font-size: clamp(1.1rem, 3.5vw, 1.6rem);
       margin-top:10px;
       opacity:0.9;
     }
+
     .label {
-      font-size:0.9rem;
+      font-size: clamp(0.7rem, 2.4vw, 0.95rem);
       opacity:0.7;
-      margin-top:0.5rem;
+      margin-top:0.35rem;
+      text-transform:uppercase;
+      letter-spacing:0.16em;
     }
+
     #percent, #phase, #endtime {
       margin-top:8px;
-      font-size:1rem;
-      opacity:0.8;
+      font-size: clamp(0.9rem, 3vw, 1.15rem);
+      opacity:0.85;
     }
+
+    #phase {
+      text-transform:uppercase;
+      letter-spacing:0.12em;
+      font-weight:500;
+    }
+
     #progress-container {
-      width:80%;
-      max-width:700px;
-      height:14px;
-      background:#222;
-      border-radius:7px;
-      margin:24px auto 0;
+      width:100%;
+      height:16px;
+      background:#151515;
+      border-radius:999px;
+      margin:26px auto 0;
       overflow:hidden;
-      box-shadow:0 0 12px rgba(0,0,0,0.6);
+      box-shadow:0 0 16px rgba(0,0,0,0.7);
+      border:1px solid rgba(255,255,255,0.06);
     }
+
     #progress-bar {
       height:100%;
       width:0%;
       background:linear-gradient(90deg, #4caf50, #8bc34a);
       transition:width 0.2s linear;
     }
+
+    .meta-row {
+      margin-top: 18px;
+      font-size: clamp(0.8rem, 2.6vw, 1rem);
+      opacity:0.75;
+    }
+
+    .meta-row span {
+      display:inline-block;
+      margin:0 6px;
+    }
+
+    /* Micro-milestone pulse */
+    .milestone-pulse {
+      animation: milestonePulse 0.7s ease-out;
+    }
+
+    @keyframes milestonePulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0.0); }
+      40% { transform: scale(1.02); box-shadow: 0 0 22px rgba(255,255,255,0.25); }
+      100% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0.0); }
+    }
   </style>
 </head>
 <body>
-  <div class="timer">
+  <div class="timer" id="deck">
     <div id="countdown">--:--:--</div>
-    <div class="label">HOURS : MINUTES : SECONDS REMAINING</div>
+    <div class="label">HOURS · MINUTES · SECONDS REMAINING</div>
 
     <div id="countup">00:00:00 elapsed</div>
     <div id="percent">0.00% complete</div>
@@ -68,6 +125,10 @@
 
     <div id="progress-container">
       <div id="progress-bar"></div>
+    </div>
+
+    <div class="meta-row">
+      <span id="milestone-label">Next milestone: 10h</span>
     </div>
   </div>
 
@@ -82,8 +143,26 @@
     const phaseEl = document.getElementById("phase");
     const endtimeEl = document.getElementById("endtime");
     const progressBarEl = document.getElementById("progress-bar");
+    const deckEl = document.getElementById("deck");
+    const milestoneLabelEl = document.getElementById("milestone-label");
 
     endtimeEl.textContent = "Ends: " + new Date(end).toLocaleString();
+
+    let lastMilestoneBlock = -1; // for 10h blocks
+
+    function setAtmosphere(pct) {
+      let bg;
+      if (pct < 25) {
+        bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-ignition');
+      } else if (pct < 50) {
+        bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-expansion');
+      } else if (pct < 75) {
+        bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-consolidation');
+      } else {
+        bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-surge');
+      }
+      document.body.style.background = bg;
+    }
 
     function updateAll() {
       const now = Date.now();
@@ -101,18 +180,20 @@
       let elapsed = now - start;
       if (elapsed < 0) elapsed = 0;
       const totalSecondsEl = Math.floor(elapsed / 1000);
-      const hoursEl = String(Math.floor(totalSecondsEl / 3600)).padStart(2, '0');
+      const hoursEl = Math.floor(totalSecondsEl / 3600);
+      const hoursElStr = String(hoursEl).padStart(2, '0');
       const minutesEl = String(Math.floor((totalSecondsEl % 3600) / 60)).padStart(2, '0');
       const secondsEl = String(totalSecondsEl % 60).padStart(2, '0');
-      countupEl.textContent = `${hoursEl}:${minutesEl}:${secondsEl} elapsed`;
+      countupEl.textContent = `${hoursElStr}:${minutesEl}:${secondsEl} elapsed`;
 
       // Percent + progress
       const total = end - start;
-      const pct = Math.min(Math.max((elapsed / total) * 100, 0), 100);
+      const pctRaw = (elapsed / total) * 100;
+      const pct = Math.min(Math.max(pctRaw, 0), 100);
       percentEl.textContent = pct.toFixed(2) + "% complete";
       progressBarEl.style.width = pct + "%";
 
-      // Phase
+      // Phase text
       let phase = "";
       if (pct < 25) phase = "Phase I — Ignition";
       else if (pct < 50) phase = "Phase II — Expansion";
@@ -120,15 +201,43 @@
       else phase = "Phase IV — Surge";
       phaseEl.textContent = phase;
 
-      // Color shift
+      // Atmosphere background
+      setAtmosphere(pct);
+
+      // Countdown color shift
       let color = "#4caf50"; // green
       if (pct > 50) color = "#ffeb3b"; // yellow
       if (pct > 80) color = "#ff5252"; // red
       countdownEl.style.color = color;
 
-      if (remaining > 0) {
-        requestAnimationFrame(updateAll);
+      // Micro-milestone pulses every 10 hours
+      const milestoneBlock = Math.floor(hoursEl / 10); // 0-9 for 0-100h
+      if (milestoneBlock !== lastMilestoneBlock && hoursEl > 0 && hoursEl <= 100) {
+        lastMilestoneBlock = milestoneBlock;
+        deckEl.classList.remove("milestone-pulse");
+        void deckEl.offsetWidth; // force reflow
+        deckEl.classList.add("milestone-pulse");
       }
+
+      // Next milestone label
+      const nextMilestoneHours = Math.min(Math.ceil((hoursEl + 0.0001) / 10) * 10, 100);
+      if (hoursEl >= 100) {
+        milestoneLabelEl.textContent = "Arc complete at 100h";
+      } else {
+        milestoneLabelEl.textContent = `Next milestone: ${nextMilestoneHours}h`;
+      }
+
+      // End-of-arc signal
+      if (remaining === 0) {
+        countdownEl.textContent = "00:00:00";
+        phaseEl.textContent = "ARC COMPLETE";
+        document.body.style.background = "#000000";
+        deckEl.classList.remove("milestone-pulse");
+        deckEl.classList.add("milestone-pulse");
+        return;
+      }
+
+      requestAnimationFrame(updateAll);
     }
 
     updateAll();
