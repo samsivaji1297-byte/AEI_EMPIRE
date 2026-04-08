@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>100-Hour Command Deck</title>
+  <style>
+    body { 
+      font-family: system-ui, -apple-system, sans-serif; 
+      display:flex; 
+      flex-direction:column;
+      height:100vh; 
+      align-items:center; 
+      justify-content:center; 
+      background:#05060a; 
+      color:#f5f5f5;
+      margin:0;
+    }
+    .timer {
+      text-align:center;
+      letter-spacing:0.08em;
+    }
+    #countdown {
+      font-size:5rem;
+      font-weight:600;
+    }
+    #countup {
+      font-size:1.4rem;
+      margin-top:10px;
+      opacity:0.9;
+    }
+    .label {
+      font-size:0.9rem;
+      opacity:0.7;
+      margin-top:0.5rem;
+    }
+    #percent, #phase, #endtime {
+      margin-top:8px;
+      font-size:1rem;
+      opacity:0.8;
+    }
+    #progress-container {
+      width:80%;
+      max-width:700px;
+      height:14px;
+      background:#222;
+      border-radius:7px;
+      margin:24px auto 0;
+      overflow:hidden;
+      box-shadow:0 0 12px rgba(0,0,0,0.6);
+    }
+    #progress-bar {
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg, #4caf50, #8bc34a);
+      transition:width 0.2s linear;
+    }
+  </style>
+</head>
+<body>
+  <div class="timer">
+    <div id="countdown">--:--:--</div>
+    <div class="label">HOURS : MINUTES : SECONDS REMAINING</div>
+
+    <div id="countup">00:00:00 elapsed</div>
+    <div id="percent">0.00% complete</div>
+    <div id="phase">Phase I — Ignition</div>
+    <div id="endtime"></div>
+
+    <div id="progress-container">
+      <div id="progress-bar"></div>
+    </div>
+  </div>
+
+  <script>
+    // Fixed start time: 8 April 2026, 09:00 AEST (UTC+10)
+    const start = new Date("2026-04-08T09:00:00+10:00").getTime();
+    const end = start + (100 * 60 * 60 * 1000); // 100 hours in ms
+
+    const countdownEl = document.getElementById("countdown");
+    const countupEl = document.getElementById("countup");
+    const percentEl = document.getElementById("percent");
+    const phaseEl = document.getElementById("phase");
+    const endtimeEl = document.getElementById("endtime");
+    const progressBarEl = document.getElementById("progress-bar");
+
+    endtimeEl.textContent = "Ends: " + new Date(end).toLocaleString();
+
+    function updateAll() {
+      const now = Date.now();
+
+      // Remaining
+      let remaining = end - now;
+      if (remaining < 0) remaining = 0;
+      const totalSecondsRem = Math.floor(remaining / 1000);
+      const hoursRem = String(Math.floor(totalSecondsRem / 3600)).padStart(2, '0');
+      const minutesRem = String(Math.floor((totalSecondsRem % 3600) / 60)).padStart(2, '0');
+      const secondsRem = String(totalSecondsRem % 60).padStart(2, '0');
+      countdownEl.textContent = `${hoursRem}:${minutesRem}:${secondsRem}`;
+
+      // Elapsed
+      let elapsed = now - start;
+      if (elapsed < 0) elapsed = 0;
+      const totalSecondsEl = Math.floor(elapsed / 1000);
+      const hoursEl = String(Math.floor(totalSecondsEl / 3600)).padStart(2, '0');
+      const minutesEl = String(Math.floor((totalSecondsEl % 3600) / 60)).padStart(2, '0');
+      const secondsEl = String(totalSecondsEl % 60).padStart(2, '0');
+      countupEl.textContent = `${hoursEl}:${minutesEl}:${secondsEl} elapsed`;
+
+      // Percent + progress
+      const total = end - start;
+      const pct = Math.min(Math.max((elapsed / total) * 100, 0), 100);
+      percentEl.textContent = pct.toFixed(2) + "% complete";
+      progressBarEl.style.width = pct + "%";
+
+      // Phase
+      let phase = "";
+      if (pct < 25) phase = "Phase I — Ignition";
+      else if (pct < 50) phase = "Phase II — Expansion";
+      else if (pct < 75) phase = "Phase III — Consolidation";
+      else phase = "Phase IV — Surge";
+      phaseEl.textContent = phase;
+
+      // Color shift
+      let color = "#4caf50"; // green
+      if (pct > 50) color = "#ffeb3b"; // yellow
+      if (pct > 80) color = "#ff5252"; // red
+      countdownEl.style.color = color;
+
+      if (remaining > 0) {
+        requestAnimationFrame(updateAll);
+      }
+    }
+
+    updateAll();
+  </script>
+</body>
+</html>
