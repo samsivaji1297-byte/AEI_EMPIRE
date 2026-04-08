@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>100-Hour Command Deck v2</title>
+  <title>100-Hour Command Deck v3</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <style>
     :root {
@@ -12,9 +12,7 @@
       --bg-surge: radial-gradient(circle at top, #3b0008 0%, #120008 45%, #000000 100%);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body { 
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; 
@@ -29,14 +27,17 @@
       padding: 0 14px;
       -webkit-font-smoothing: antialiased;
       transition: background 0.8s ease;
+      overflow:hidden;
     }
 
     .timer {
       text-align:center;
       width:100%;
       max-width: 480px;
+      transition: opacity 0.4s ease, transform 0.4s ease;
     }
 
+    /* STANDARD MODE */
     #countdown {
       font-size: clamp(3rem, 9vw, 5.2rem);
       font-weight:650;
@@ -81,6 +82,7 @@
       overflow:hidden;
       box-shadow:0 0 16px rgba(0,0,0,0.7);
       border:1px solid rgba(255,255,255,0.06);
+      transition: opacity 0.4s ease;
     }
 
     #progress-bar {
@@ -94,14 +96,10 @@
       margin-top: 18px;
       font-size: clamp(0.8rem, 2.6vw, 1rem);
       opacity:0.75;
+      transition: opacity 0.4s ease;
     }
 
-    .meta-row span {
-      display:inline-block;
-      margin:0 6px;
-    }
-
-    /* Micro-milestone pulse */
+    /* MICRO-MILESTONE PULSE */
     .milestone-pulse {
       animation: milestonePulse 0.7s ease-out;
     }
@@ -111,8 +109,50 @@
       40% { transform: scale(1.02); box-shadow: 0 0 22px rgba(255,255,255,0.25); }
       100% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0.0); }
     }
+
+    /* CINEMATIC MODE */
+    .cinematic #countdown {
+      font-size: clamp(6rem, 18vw, 12rem);
+      letter-spacing:0.18em;
+      margin-bottom:0;
+    }
+
+    .cinematic #countup,
+    .cinematic .label,
+    .cinematic #phase,
+    .cinematic #endtime,
+    .cinematic .meta-row {
+      opacity:0;
+      pointer-events:none;
+    }
+
+    .cinematic #progress-container {
+      height:8px;
+      opacity:0.55;
+    }
+
+    .cinematic #percent {
+      position:fixed;
+      top:14px;
+      right:18px;
+      font-size: clamp(0.75rem, 2.2vw, 1rem);
+      opacity:0.55;
+    }
+
+    /* Breathing animation */
+    .cinematic #countdown {
+      animation: breathe 4.5s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0% { transform: scale(1); opacity:1; }
+      50% { transform: scale(1.015); opacity:0.92; }
+      100% { transform: scale(1); opacity:1; }
+    }
+
   </style>
 </head>
+
 <body>
   <div class="timer" id="deck">
     <div id="countdown">--:--:--</div>
@@ -135,7 +175,7 @@
   <script>
     // Fixed start time: 8 April 2026, 09:00 AEST (UTC+10)
     const start = new Date("2026-04-08T09:00:00+10:00").getTime();
-    const end = start + (100 * 60 * 60 * 1000); // 100 hours in ms
+    const end = start + (100 * 60 * 60 * 1000);
 
     const countdownEl = document.getElementById("countdown");
     const countupEl = document.getElementById("countup");
@@ -148,26 +188,26 @@
 
     endtimeEl.textContent = "Ends: " + new Date(end).toLocaleString();
 
-    let lastMilestoneBlock = -1; // for 10h blocks
+    let lastMilestoneBlock = -1;
 
     function setAtmosphere(pct) {
       let bg;
-      if (pct < 25) {
-        bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-ignition');
-      } else if (pct < 50) {
-        bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-expansion');
-      } else if (pct < 75) {
-        bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-consolidation');
-      } else {
-        bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-surge');
-      }
+      if (pct < 25) bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-ignition');
+      else if (pct < 50) bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-expansion');
+      else if (pct < 75) bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-consolidation');
+      else bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-surge');
       document.body.style.background = bg;
     }
+
+    function toggleMode() {
+      document.body.classList.toggle("cinematic");
+    }
+
+    document.body.addEventListener("click", toggleMode);
 
     function updateAll() {
       const now = Date.now();
 
-      // Remaining
       let remaining = end - now;
       if (remaining < 0) remaining = 0;
       const totalSecondsRem = Math.floor(remaining / 1000);
@@ -176,7 +216,6 @@
       const secondsRem = String(totalSecondsRem % 60).padStart(2, '0');
       countdownEl.textContent = `${hoursRem}:${minutesRem}:${secondsRem}`;
 
-      // Elapsed
       let elapsed = now - start;
       if (elapsed < 0) elapsed = 0;
       const totalSecondsEl = Math.floor(elapsed / 1000);
@@ -186,14 +225,12 @@
       const secondsEl = String(totalSecondsEl % 60).padStart(2, '0');
       countupEl.textContent = `${hoursElStr}:${minutesEl}:${secondsEl} elapsed`;
 
-      // Percent + progress
       const total = end - start;
       const pctRaw = (elapsed / total) * 100;
       const pct = Math.min(Math.max(pctRaw, 0), 100);
       percentEl.textContent = pct.toFixed(2) + "% complete";
       progressBarEl.style.width = pct + "%";
 
-      // Phase text
       let phase = "";
       if (pct < 25) phase = "Phase I — Ignition";
       else if (pct < 50) phase = "Phase II — Expansion";
@@ -201,33 +238,25 @@
       else phase = "Phase IV — Surge";
       phaseEl.textContent = phase;
 
-      // Atmosphere background
       setAtmosphere(pct);
 
-      // Countdown color shift
-      let color = "#4caf50"; // green
-      if (pct > 50) color = "#ffeb3b"; // yellow
-      if (pct > 80) color = "#ff5252"; // red
+      let color = "#4caf50";
+      if (pct > 50) color = "#ffeb3b";
+      if (pct > 80) color = "#ff5252";
       countdownEl.style.color = color;
 
-      // Micro-milestone pulses every 10 hours
-      const milestoneBlock = Math.floor(hoursEl / 10); // 0-9 for 0-100h
+      const milestoneBlock = Math.floor(hoursEl / 10);
       if (milestoneBlock !== lastMilestoneBlock && hoursEl > 0 && hoursEl <= 100) {
         lastMilestoneBlock = milestoneBlock;
         deckEl.classList.remove("milestone-pulse");
-        void deckEl.offsetWidth; // force reflow
+        void deckEl.offsetWidth;
         deckEl.classList.add("milestone-pulse");
       }
 
-      // Next milestone label
       const nextMilestoneHours = Math.min(Math.ceil((hoursEl + 0.0001) / 10) * 10, 100);
-      if (hoursEl >= 100) {
-        milestoneLabelEl.textContent = "Arc complete at 100h";
-      } else {
-        milestoneLabelEl.textContent = `Next milestone: ${nextMilestoneHours}h`;
-      }
+      if (hoursEl >= 100) milestoneLabelEl.textContent = "Arc complete at 100h";
+      else milestoneLabelEl.textContent = `Next milestone: ${nextMilestoneHours}h`;
 
-      // End-of-arc signal
       if (remaining === 0) {
         countdownEl.textContent = "00:00:00";
         phaseEl.textContent = "ARC COMPLETE";
