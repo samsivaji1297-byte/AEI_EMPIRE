@@ -19,7 +19,6 @@
       --border: #1a1d26;
       --accent-soft: #2a3040;
       --accent-strong: #e0ff6a;
-      --danger: #ff4b6b;
       --success: #6bffb5;
       --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
         "Inter", sans-serif;
@@ -46,6 +45,30 @@
       padding: 18px;
     }
 
+    /* ANIMATIONS */
+    @keyframes breathe {
+      0% { transform: scale(1); opacity: 0.85; }
+      50% { transform: scale(1.03); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.85; }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 6px rgba(107,255,181,0.6); }
+      50% { transform: scale(1.25); box-shadow: 0 0 14px rgba(107,255,181,1); }
+      100% { transform: scale(1); box-shadow: 0 0 6px rgba(107,255,181,0.6); }
+    }
+
+    @keyframes glow {
+      0% { text-shadow: 0 0 4px rgba(224,255,106,0.2); }
+      50% { text-shadow: 0 0 12px rgba(224,255,106,0.45); }
+      100% { text-shadow: 0 0 4px rgba(224,255,106,0.2); }
+    }
+
+    .breathe { animation: breathe 4.5s ease-in-out infinite; }
+    .pulse { animation: pulse 2.2s ease-in-out infinite; }
+    .glow { animation: glow 5s ease-in-out infinite; }
+
+    /* WIDGET CORE */
     .fm-widget {
       width: 100%;
       max-width: 420px;
@@ -68,10 +91,7 @@
       pointer-events: none;
     }
 
-    .fm-inner {
-      position: relative;
-      z-index: 1;
-    }
+    .fm-inner { position: relative; z-index: 1; }
 
     .fm-header {
       display: flex;
@@ -80,11 +100,7 @@
       margin-bottom: 10px;
     }
 
-    .fm-title-block {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
+    .fm-title-block { display: flex; flex-direction: column; gap: 2px; }
 
     .fm-label {
       font-size: 11px;
@@ -235,53 +251,32 @@
       text-overflow: ellipsis;
     }
 
-    .fm-cta {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      padding: 5px 9px;
-      border-radius: 999px;
-      border: 1px solid var(--accent-strong);
-      color: var(--accent-strong);
-      background: rgba(5, 6, 10, 0.9);
-      cursor: pointer;
-    }
-
-    .fm-cta:active {
-      transform: translateY(1px);
-      opacity: 0.85;
-    }
-
     @media (max-width: 360px) {
-      .fm-widget {
-        padding: 14px 14px 12px;
-      }
-      .fm-grid {
-        grid-template-columns: 1fr;
-      }
-      .fm-footer {
-        flex-direction: column;
-        align-items: flex-start;
-      }
+      .fm-widget { padding: 14px 14px 12px; }
+      .fm-grid { grid-template-columns: 1fr; }
+      .fm-footer { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
+
 <body>
   <div class="fm-widget">
     <div class="fm-inner">
+
       <header class="fm-header">
         <div class="fm-title-block">
           <div class="fm-label">FM MEDIA ENTERPRISES</div>
-          <div class="fm-title">SOVEREIGN MEDIA ORGANISM</div>
+          <div class="fm-title glow">SOVEREIGN MEDIA ORGANISM</div>
         </div>
-        <div class="fm-pill">
-          <span class="fm-pill-dot"></span>
+
+        <div class="fm-pill breathe">
+          <span class="fm-pill-dot pulse"></span>
           SYSTEMS ENGINE · ONLINE
         </div>
       </header>
 
-      <section class="fm-core">
-        <div class="fm-core-line-main">
+      <section class="fm-core breathe">
+        <div class="fm-core-line-main glow">
           A SOVEREIGN, AUTOMATED, COMPOUNDING MEDIA ORGANISM
         </div>
         <div class="fm-core-line-sub">
@@ -295,6 +290,7 @@
           <div class="fm-card-main">Pipelines: Operational</div>
           <div class="fm-card-sub">Automation layer stable · Drift minimal</div>
         </div>
+
         <div class="fm-card">
           <div class="fm-card-label">Output & Distribution</div>
           <div class="fm-card-main">Daily Broadcasts: 1</div>
@@ -304,27 +300,18 @@
 
       <section class="fm-territory">
         <div class="fm-territory-label">Territory Scan</div>
-        <span class="fm-tag fm-tag-strong">Market Position: Emerging</span>
+        <span class="fm-tag fm-tag-strong pulse">Market Position: Emerging</span>
         <span class="fm-tag">Signal Strength: High</span>
         <span class="fm-tag">Growth Window: Active</span>
       </section>
 
       <footer class="fm-footer">
-        <div class="fm-directive">
+        <div class="fm-directive glow">
           Operate like a media house, not a creator.
         </div>
-        <button class="fm-cta" onclick="openFMCinematic()">
-          OPEN FM COCKPIT
-        </button>
       </footer>
+
     </div>
   </div>
-
-  <script>
-    function openFMCinematic() {
-      // Placeholder: update this to point to your FM cockpit URL
-      window.location.href = "https://your-fm-cockpit-url.example";
-    }
-  </script>
 </body>
 </html>
