@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FM Media Enterprises — Widget</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- iOS home screen meta -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FM Media" />
+
+  <style>
+    :root {
+      --bg: #05060a;
+      --card: #0b0d14;
+      --accent: #f5f5f5;
+      --muted: #7b8190;
+      --border: #1a1d26;
+      --accent-soft: #2a3040;
+      --accent-strong: #e0ff6a;
+      --danger: #ff4b6b;
+      --success: #6bffb5;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Inter", sans-serif;
+      --radius-lg: 18px;
+      --radius-md: 10px;
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.65);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: radial-gradient(circle at top, #151827 0, #05060a 55%);
+      color: var(--accent);
+      font-family: var(--font-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .fm-widget {
+      width: 100%;
+      max-width: 420px;
+      background: linear-gradient(145deg, #05060a 0, #0b0d14 40%, #05060a 100%);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      padding: 18px 18px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fm-widget::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 0 0, rgba(224, 255, 106, 0.12), transparent 55%),
+                  radial-gradient(circle at 100% 100%, rgba(107, 255, 181, 0.12), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .fm-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .fm-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .fm-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .fm-label {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .fm-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .fm-pill {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--accent-soft);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(5, 6, 10, 0.8);
+      backdrop-filter: blur(10px);
+    }
+
+    .fm-pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--success);
+      box-shadow: 0 0 8px rgba(107, 255, 181, 0.8);
+    }
+
+    .fm-core {
+      margin: 10px 0 14px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background: radial-gradient(circle at top left, rgba(224, 255, 106, 0.08), transparent 60%),
+                  radial-gradient(circle at bottom right, rgba(107, 255, 181, 0.08), transparent 60%);
+      border: 1px solid var(--accent-soft);
+    }
+
+    .fm-core-line-main {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent-strong);
+      margin-bottom: 6px;
+    }
+
+    .fm-core-line-sub {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .fm-core-line-sub strong {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .fm-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .fm-card {
+      border-radius: var(--radius-md);
+      border: 1px solid var(--accent-soft);
+      padding: 8px 9px;
+      background: rgba(5, 6, 10, 0.85);
+    }
+
+    .fm-card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .fm-card-main {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .fm-card-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .fm-territory {
+      margin-bottom: 8px;
+      padding: 8px 9px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--accent-soft);
+      background: rgba(5, 6, 10, 0.9);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      align-items: center;
+    }
+
+    .fm-territory-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    .fm-tag {
+      font-size: 11px;
+      color: var(--accent);
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(21, 24, 39, 0.9);
+      border: 1px solid var(--accent-soft);
+    }
+
+    .fm-tag-strong {
+      border-color: var(--accent-strong);
+      color: var(--accent-strong);
+    }
+
+    .fm-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .fm-directive {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .fm-cta {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--accent-strong);
+      color: var(--accent-strong);
+      background: rgba(5, 6, 10, 0.9);
+      cursor: pointer;
+    }
+
+    .fm-cta:active {
+      transform: translateY(1px);
+      opacity: 0.85;
+    }
+
+    @media (max-width: 360px) {
+      .fm-widget {
+        padding: 14px 14px 12px;
+      }
+      .fm-grid {
+        grid-template-columns: 1fr;
+      }
+      .fm-footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="fm-widget">
+    <div class="fm-inner">
+      <header class="fm-header">
+        <div class="fm-title-block">
+          <div class="fm-label">FM MEDIA ENTERPRISES</div>
+          <div class="fm-title">SOVEREIGN MEDIA ORGANISM</div>
+        </div>
+        <div class="fm-pill">
+          <span class="fm-pill-dot"></span>
+          SYSTEMS ENGINE · ONLINE
+        </div>
+      </header>
+
+      <section class="fm-core">
+        <div class="fm-core-line-main">
+          A SOVEREIGN, AUTOMATED, COMPOUNDING MEDIA ORGANISM
+        </div>
+        <div class="fm-core-line-sub">
+          Designed to compete with <strong>Bloomberg</strong>, <strong>BuzzFeed</strong>, <strong>Vice</strong>, <strong>Vox</strong>, <strong>Morning Brew</strong>, and every modern media house.
+        </div>
+      </section>
+
+      <section class="fm-grid">
+        <div class="fm-card">
+          <div class="fm-card-label">Systems Engine</div>
+          <div class="fm-card-main">Pipelines: Operational</div>
+          <div class="fm-card-sub">Automation layer stable · Drift minimal</div>
+        </div>
+        <div class="fm-card">
+          <div class="fm-card-label">Output & Distribution</div>
+          <div class="fm-card-main">Daily Broadcasts: 1</div>
+          <div class="fm-card-sub">Micro‑scripts active · Arc in progress</div>
+        </div>
+      </section>
+
+      <section class="fm-territory">
+        <div class="fm-territory-label">Territory Scan</div>
+        <span class="fm-tag fm-tag-strong">Market Position: Emerging</span>
+        <span class="fm-tag">Signal Strength: High</span>
+        <span class="fm-tag">Growth Window: Active</span>
+      </section>
+
+      <footer class="fm-footer">
+        <div class="fm-directive">
+          Operate like a media house, not a creator.
+        </div>
+        <button class="fm-cta" onclick="openFMCinematic()">
+          OPEN FM COCKPIT
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    function openFMCinematic() {
+      // Placeholder: update this to point to your FM cockpit URL
+      window.location.href = "https://your-fm-cockpit-url.example";
+    }
+  </script>
+</body>
+</html>
