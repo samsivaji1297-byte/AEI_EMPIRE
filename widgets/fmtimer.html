@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FM Timer — Sovereign Session</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- iOS home screen meta -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FM Timer" />
+
+  <style>
+    :root {
+      --bg: #05060a;
+      --card: #0b0d14;
+      --accent: #f5f5f5;
+      --muted: #7b8190;
+      --border: #1a1d26;
+      --accent-strong: #e0ff6a;
+      --success: #6bffb5;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Inter", sans-serif;
+      --radius-lg: 18px;
+      --radius-md: 10px;
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.65);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #151827 0, #05060a 55%);
+      color: var(--accent);
+      font-family: var(--font-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    /* Animations */
+    @keyframes breathe {
+      0% { transform: scale(1); opacity: 0.85; }
+      50% { transform: scale(1.03); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.85; }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 6px rgba(107,255,181,0.6); }
+      50% { transform: scale(1.25); box-shadow: 0 0 14px rgba(107,255,181,1); }
+      100% { transform: scale(1); box-shadow: 0 0 6px rgba(107,255,181,0.6); }
+    }
+
+    .breathe { animation: breathe 4.5s ease-in-out infinite; }
+    .pulse { animation: pulse 2.2s ease-in-out infinite; }
+
+    /* Widget container */
+    .fm-widget {
+      width: 100%;
+      max-width: 420px;
+      background: linear-gradient(145deg, #05060a 0, #0b0d14 40%, #05060a 100%);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fm-widget::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 0 0, rgba(224,255,106,0.12), transparent 55%),
+                  radial-gradient(circle at 100% 100%, rgba(107,255,181,0.12), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .fm-inner { position: relative; z-index: 1; }
+
+    .fm-title {
+      font-size: 14px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .fm-session {
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent-strong);
+      margin-bottom: 20px;
+    }
+
+    .timer-display {
+      font-size: 48px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+
+    .timer-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: rgba(5, 6, 10, 0.85);
+      color: var(--accent);
+      font-size: 14px;
+      letter-spacing: 0.05em;
+    }
+
+    button {
+      cursor: pointer;
+      border-color: var(--accent-strong);
+      color: var(--accent-strong);
+    }
+
+    button:active {
+      transform: translateY(1px);
+      opacity: 0.85;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="fm-widget">
+    <div class="fm-inner">
+
+      <div class="fm-title">FM TIMER</div>
+      <div class="fm-session breathe" id="sessionName">Session: Not Set</div>
+
+      <div class="timer-display pulse" id="timer">00:00</div>
+
+      <div class="timer-controls">
+        <input id="sessionInput" placeholder="Session name (e.g., FM Build)" />
+        <input id="minutesInput" type="number" placeholder="Minutes (e.g., 25)" />
+
+        <button onclick="startTimer()">Start Timer</button>
+        <button onclick="resetTimer()">Reset</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let countdown;
+    let remaining = 0;
+
+    function startTimer() {
+      const mins = parseInt(document.getElementById("minutesInput").value);
+      const session = document.getElementById("sessionInput").value;
+
+      if (!mins) return;
+
+      remaining = mins * 60;
+      document.getElementById("sessionName").textContent = "Session: " + (session || "FM");
+
+      clearInterval(countdown);
+      countdown = setInterval(updateTimer, 1000);
+      updateTimer();
+    }
+
+    function updateTimer() {
+      const mins = Math.floor(remaining / 60);
+      const secs = remaining % 60;
+
+      document.getElementById("timer").textContent =
+        `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+
+      if (remaining <= 0) {
+        clearInterval(countdown);
+      } else {
+        remaining--;
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(countdown);
+      remaining = 0;
+      document.getElementById("timer").textContent = "00:00";
+      document.getElementById("sessionName").textContent = "Session: Not Set";
+    }
+  </script>
+</body>
+</html>
