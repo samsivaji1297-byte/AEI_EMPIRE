@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<body style="background:#05060a;color:white;font-family:system-ui;padding:20px">
+
+<h2>FM Ambient Feed — Update Manifest</h2>
+<p>Click the button below to scan the folder and update the manifest.</p>
+
+<button onclick="updateManifest()" style="padding:10px 20px;font-size:16px">
+  Update Manifest
+</button>
+
+<pre id="log" style="margin-top:20px;color:#9fb57a"></pre>
+
+<script>
+async function updateManifest() {
+  const log = document.getElementById("log");
+  log.textContent = "Scanning folder...";
+
+  try {
+    const res = await fetch(".");
+    const text = await res.text();
+
+    const matches = [...text.matchAll(/href="([^"]+\.(jpg|jpeg|png|webp|gif))"/gi)];
+    const files = matches.map(m => m[1]);
+
+    const manifest = { images: files };
+
+    await fetch("ambient/manifest.json", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(manifest, null, 2)
+    });
+
+    log.textContent = "Manifest updated:\n" + JSON.stringify(manifest, null, 2);
+
+  } catch (e) {
+    log.textContent = "Error: " + e;
+  }
+}
+</script>
+
+</body>
+</html>
