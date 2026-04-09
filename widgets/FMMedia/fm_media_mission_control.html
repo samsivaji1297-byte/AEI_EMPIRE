@@ -1,0 +1,275 @@
+
+<style>
+  :root {
+    --bg: transparent;
+    --card: rgba(11,13,20,0.92);
+    --border: #1e2130;
+    --muted: #6b7280;
+    --accent: #f0f2f5;
+    --lime: #c8f135;
+    --mint: #5bffc0;
+    --font: system-ui, -apple-system, "SF Pro Text", "Inter", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); color: var(--accent); background: var(--bg); padding: 0; }
+
+  .mc { max-width: 460px; margin: 0 auto; padding: 4px 0 12px; }
+
+  .mc-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 14px;
+    margin-bottom: 8px;
+  }
+  .mc-logo { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+  .mc-logo span { color: var(--lime); font-weight: 600; }
+  .mc-clock { font-size: 22px; font-weight: 300; letter-spacing: 0.06em; font-variant-numeric: tabular-nums; }
+  .mc-date { font-size: 10px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; text-align: right; margin-top: 1px; }
+
+  .mc-mission {
+    padding: 10px 14px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 14px;
+    margin-bottom: 8px;
+    position: relative; overflow: hidden;
+  }
+  .mc-mission::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--lime), transparent);
+    opacity: 0.6;
+  }
+  .mc-mission-label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .mc-mission-text { font-size: 13px; line-height: 1.5; color: var(--accent); font-style: italic; }
+  .mc-mission-text span { color: var(--lime); font-style: normal; font-weight: 500; }
+
+  .mc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+
+  .mc-stat {
+    padding: 10px 12px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 12px;
+  }
+  .mc-stat-label { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .mc-stat-val { font-size: 20px; font-weight: 300; font-variant-numeric: tabular-nums; }
+  .mc-stat-val.lime { color: var(--lime); }
+  .mc-stat-val.mint { color: var(--mint); }
+  .mc-stat-sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+  .mc-bar-wrap { margin-bottom: 8px; }
+  .mc-bar-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 14px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 12px;
+    margin-bottom: 6px;
+  }
+  .mc-bar-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); width: 80px; flex-shrink: 0; }
+  .mc-bar-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .mc-bar-fill { height: 100%; border-radius: 2px; transition: width 1.4s cubic-bezier(.22,1,.36,1); width: 0; }
+  .mc-bar-pct { font-size: 10px; color: var(--muted); width: 28px; text-align: right; font-variant-numeric: tabular-nums; }
+
+  .mc-checklist {
+    padding: 10px 14px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 14px;
+    margin-bottom: 8px;
+  }
+  .mc-check-label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .mc-check-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 5px 0; border-bottom: 1px solid var(--border);
+    cursor: pointer; user-select: none;
+  }
+  .mc-check-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .mc-check-box {
+    width: 14px; height: 14px; border-radius: 4px;
+    border: 1px solid #2e3245; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .mc-check-box.done { background: var(--lime); border-color: var(--lime); }
+  .mc-check-box.done::after { content: ""; display: block; width: 6px; height: 4px; border-left: 1.5px solid #05060a; border-bottom: 1.5px solid #05060a; transform: rotate(-45deg) translateY(-1px); }
+  .mc-check-text { font-size: 12px; color: var(--accent); transition: color 0.15s; }
+  .mc-check-text.done { color: var(--muted); text-decoration: line-through; }
+
+  .mc-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 14px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 12px;
+  }
+  .mc-streak { font-size: 10px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+  .mc-streak span { color: var(--lime); font-weight: 500; }
+  .mc-status { display: flex; align-items: center; gap: 6px; }
+  .mc-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); animation: blink 2.4s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:0.6} 50%{opacity:1} }
+  .mc-status-text { font-size: 10px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+
+  .mc-input-row {
+    display: flex; gap: 6px; margin-bottom: 8px;
+  }
+  .mc-input {
+    flex: 1; background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 12px; font-size: 12px;
+    color: var(--accent); font-family: var(--font); outline: none;
+  }
+  .mc-input::placeholder { color: var(--muted); }
+  .mc-btn {
+    background: var(--lime); color: #05060a; border: none;
+    border-radius: 10px; padding: 8px 14px; font-size: 11px;
+    font-weight: 600; font-family: var(--font); cursor: pointer;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    transition: opacity 0.15s;
+  }
+  .mc-btn:hover { opacity: 0.85; }
+</style>
+
+<div class="mc">
+
+  <div class="mc-topbar">
+    <div>
+      <div class="mc-logo">FM Media <span>Enterprises</span></div>
+      <div style="font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#3a3f52;margin-top:2px;">Mission Control</div>
+    </div>
+    <div>
+      <div class="mc-clock" id="clock">--:--:--</div>
+      <div class="mc-date" id="datestr">--- --, ----</div>
+    </div>
+  </div>
+
+  <div class="mc-mission">
+    <div class="mc-mission-label">Today's directive</div>
+    <div class="mc-mission-text" id="directive">
+      Operate like a <span>media house</span>, not a creator. One broadcast ships today.
+    </div>
+  </div>
+
+  <div class="mc-grid">
+    <div class="mc-stat">
+      <div class="mc-stat-label">Day of year</div>
+      <div class="mc-stat-val lime" id="day-of-year">--</div>
+      <div class="mc-stat-sub" id="days-left">-- days remaining</div>
+    </div>
+    <div class="mc-stat">
+      <div class="mc-stat-label">Year complete</div>
+      <div class="mc-stat-val mint" id="year-pct">--%</div>
+      <div class="mc-stat-sub">of 2026 elapsed</div>
+    </div>
+  </div>
+
+  <div class="mc-bar-wrap">
+    <div class="mc-bar-row">
+      <div class="mc-bar-label">Q2 Progress</div>
+      <div class="mc-bar-track"><div class="mc-bar-fill" id="q2bar" style="background:var(--lime)"></div></div>
+      <div class="mc-bar-pct" id="q2pct">--%</div>
+    </div>
+    <div class="mc-bar-row">
+      <div class="mc-bar-label">Week</div>
+      <div class="mc-bar-track"><div class="mc-bar-fill" id="weekbar" style="background:var(--mint)"></div></div>
+      <div class="mc-bar-pct" id="weekpct">--%</div>
+    </div>
+  </div>
+
+  <div class="mc-checklist">
+    <div class="mc-check-label">Today's ops checklist</div>
+    <div id="checklist"></div>
+    <div class="mc-input-row" style="margin-top:8px;margin-bottom:0;">
+      <input class="mc-input" id="task-input" placeholder="Add a task..." />
+      <button class="mc-btn" onclick="addTask()">Add</button>
+    </div>
+  </div>
+
+  <div class="mc-footer">
+    <div class="mc-streak">Tasks done today: <span id="done-count">0</span></div>
+    <div class="mc-status">
+      <div class="mc-dot"></div>
+      <div class="mc-status-text">Systems online</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const defaultTasks = [
+  { text: "Write today's content arc", done: false },
+  { text: "Schedule broadcast", done: false },
+  { text: "Review pipeline metrics", done: false },
+  { text: "Ship one thing", done: false }
+];
+
+let tasks = JSON.parse(localStorage.getItem('fm_tasks') || 'null') || defaultTasks.map(t => ({...t}));
+
+function saveTasks() {
+  try { localStorage.setItem('fm_tasks', JSON.stringify(tasks)); } catch(e) {}
+}
+
+function renderChecklist() {
+  const el = document.getElementById('checklist');
+  el.innerHTML = '';
+  tasks.forEach((task, i) => {
+    const row = document.createElement('div');
+    row.className = 'mc-check-item';
+    row.innerHTML = `<div class="mc-check-box${task.done ? ' done' : ''}"></div><div class="mc-check-text${task.done ? ' done' : ''}">${task.text}</div>`;
+    row.onclick = () => { tasks[i].done = !tasks[i].done; saveTasks(); renderChecklist(); updateDone(); };
+    el.appendChild(row);
+  });
+  updateDone();
+}
+
+function updateDone() {
+  document.getElementById('done-count').textContent = tasks.filter(t => t.done).length;
+}
+
+function addTask() {
+  const inp = document.getElementById('task-input');
+  const val = inp.value.trim();
+  if (!val) return;
+  tasks.push({ text: val, done: false });
+  saveTasks();
+  renderChecklist();
+  inp.value = '';
+}
+
+document.getElementById('task-input').addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('datestr').textContent = `${days[now.getDay()]} · ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff = now - start;
+  const oneDay = 86400000;
+  const dayOfYear = Math.floor(diff / oneDay);
+  const daysInYear = (now.getFullYear() % 4 === 0) ? 366 : 365;
+  const daysLeft = daysInYear - dayOfYear;
+  document.getElementById('day-of-year').textContent = dayOfYear;
+  document.getElementById('days-left').textContent = `${daysLeft} days remaining`;
+  const yearPct = Math.round((dayOfYear / daysInYear) * 100);
+  document.getElementById('year-pct').textContent = `${yearPct}%`;
+
+  // Q2: Apr 1 – Jun 30
+  const q2start = new Date(now.getFullYear(), 3, 1);
+  const q2end = new Date(now.getFullYear(), 6, 0);
+  let q2pct = 0;
+  if (now >= q2start && now <= q2end) {
+    q2pct = Math.round(((now - q2start) / (q2end - q2start)) * 100);
+  } else if (now > q2end) { q2pct = 100; }
+  document.getElementById('q2pct').textContent = `${q2pct}%`;
+  document.getElementById('q2bar').style.width = `${q2pct}%`;
+
+  // Week progress (Mon–Sun)
+  const dow = now.getDay();
+  const daysSinceMon = (dow === 0) ? 6 : dow - 1;
+  const secondsIntoDay = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  const weekElapsed = daysSinceMon * 86400 + secondsIntoDay;
+  const weekPct = Math.round((weekElapsed / (7 * 86400)) * 100);
+  document.getElementById('weekpct').textContent = `${weekPct}%`;
+  document.getElementById('weekbar').style.width = `${weekPct}%`;
+}
+
+updateClock();
+setInterval(updateClock, 1000);
+renderChecklist();
+</script>
