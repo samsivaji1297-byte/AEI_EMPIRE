@@ -1,3 +1,6 @@
+---
+---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,34 +47,14 @@
 
 <body>
 
-  <div id="feed"></div>
+  {% assign files = site.static_files | where_exp: "f", "f.path contains '/widgets/FMMedia/ambient/'" %}
 
-  <script>
-    async function loadImages() {
-      try {
-        const res = await fetch("ambient/manifest.json");
-        const data = await res.json();
-
-        const container = document.getElementById("feed");
-
-        data.images.forEach(img => {
-          const frame = document.createElement("div");
-          frame.className = "frame";
-
-          frame.innerHTML = `
-            <img src="ambient/${img}" />
-            <div class="overlay"></div>
-          `;
-
-          container.appendChild(frame);
-        });
-      } catch (e) {
-        console.error("Error loading images", e);
-      }
-    }
-
-    loadImages();
-  </script>
+  {% for file in files %}
+    <div class="frame">
+      <img src="{{ file.path }}" />
+      <div class="overlay"></div>
+    </div>
+  {% endfor %}
 
 </body>
 </html>
