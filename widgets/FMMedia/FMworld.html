@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FM Ambient Feed</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg: #05060a;
+      --overlay: rgba(0,0,0,0.35);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      font-family: system-ui, -apple-system, "Inter", sans-serif;
+      overflow-y: scroll;
+      height: 100vh;
+    }
+
+    .frame {
+      width: 100%;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.78) contrast(1.1);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--overlay);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- DROP YOUR IMAGES IN THIS FOLDER:
+       widgets/FMMedia/ambient/ -->
+
+  <div class="frame">
+    <img src="ambient/img1.jpg" />
+    <div class="overlay"></div>
+  </div>
+
+  <div class="frame">
+    <img src="ambient/img2.jpg" />
+    <div class="overlay"></div>
+  </div>
+
+  <div class="frame">
+    <img src="ambient/img3.jpg" />
+    <div class="overlay"></div>
+  </div>
+
+  <div class="frame">
+    <img src="ambient/img4.jpg" />
+    <div class="overlay"></div>
+  </div>
+
+</body>
+</html>
