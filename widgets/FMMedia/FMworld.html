@@ -44,28 +44,34 @@
 
 <body>
 
-  <!-- DROP YOUR IMAGES IN THIS FOLDER:
-       widgets/FMMedia/ambient/ -->
+  <div id="feed"></div>
 
-  <div class="frame">
-    <img src="ambient/img1.jpg" />
-    <div class="overlay"></div>
-  </div>
+  <script>
+    async function loadImages() {
+      try {
+        const res = await fetch("ambient/manifest.json");
+        const data = await res.json();
 
-  <div class="frame">
-    <img src="ambient/img2.jpg" />
-    <div class="overlay"></div>
-  </div>
+        const container = document.getElementById("feed");
 
-  <div class="frame">
-    <img src="ambient/img3.jpg" />
-    <div class="overlay"></div>
-  </div>
+        data.images.forEach(img => {
+          const frame = document.createElement("div");
+          frame.className = "frame";
 
-  <div class="frame">
-    <img src="ambient/img4.jpg" />
-    <div class="overlay"></div>
-  </div>
+          frame.innerHTML = `
+            <img src="ambient/${img}" />
+            <div class="overlay"></div>
+          `;
+
+          container.appendChild(frame);
+        });
+      } catch (e) {
+        console.error("Error loading images", e);
+      }
+    }
+
+    loadImages();
+  </script>
 
 </body>
 </html>
