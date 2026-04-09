@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AEI Systems Timer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- iOS home screen meta -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AEI Timer" />
+
+  <style>
+    :root {
+      --bg: #05060a;
+      --card: #0b0d14;
+      --border: #1a1d26;
+      --muted: #7b8190;
+      --accent: #f5f5f5;
+      --lime: #e0ff6a;
+      --mint: #6bffb5;
+      --font: system-ui, -apple-system, "SF Pro Text", "Inter", sans-serif;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #151827 0, #05060a 55%);
+      color: var(--accent);
+      font-family: var(--font);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    /* Animations */
+    @keyframes breathe {
+      0% { transform: scale(1); opacity: 0.85; }
+      50% { transform: scale(1.03); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.85; }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 6px rgba(107,255,181,0.6); }
+      50% { transform: scale(1.25); box-shadow: 0 0 14px rgba(107,255,181,1); }
+      100% { transform: scale(1); box-shadow: 0 0 6px rgba(107,255,181,0.6); }
+    }
+
+    .breathe { animation: breathe 4.5s ease-in-out infinite; }
+    .pulse { animation: pulse 2.2s ease-in-out infinite; }
+
+    /* Container */
+    .wrap {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      position: relative;
+    }
+
+    /* System Time Bar */
+    .timebar {
+      background: rgba(11,13,20,0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .time-label {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .clock {
+      font-size: 22px;
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .date {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 2px;
+      text-align: right;
+    }
+
+    /* Title */
+    .title {
+      font-size: 14px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .session {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--lime);
+      margin-bottom: 20px;
+    }
+
+    /* Timer */
+    .timer {
+      font-size: 48px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 10px;
+      letter-spacing: 0.05em;
+    }
+
+    .endtime {
+      font-size: 12px;
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 20px;
+      letter-spacing: 0.08em;
+    }
+
+    /* Inputs */
+    input, button {
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: rgba(5,6,10,0.85);
+      color: var(--accent);
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+
+    button {
+      border-color: var(--lime);
+      color: var(--lime);
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: translateY(1px);
+      opacity: 0.85;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <!-- SYSTEM TIME -->
+    <div class="timebar">
+      <div>
+        <div class="time-label">AEI SYSTEM TIME</div>
+        <div class="clock" id="clock">--:--:--</div>
+      </div>
+      <div class="date" id="date">--- --, ----</div>
+    </div>
+
+    <!-- TITLE -->
+    <div class="title">AEI SYSTEMS TIMER</div>
+    <div class="session breathe" id="sessionName">Session: Not Set</div>
+
+    <!-- TIMER -->
+    <div class="timer pulse" id="timer">00:00</div>
+    <div class="endtime" id="endTime">End Time: --:--</div>
+
+    <!-- INPUTS -->
+    <input id="sessionInput" placeholder="Session name (e.g., FM Build)" />
+    <input id="minutesInput" type="number" placeholder="Minutes (e.g., 25)" />
+
+    <button onclick="startTimer()">Start Timer</button>
+    <button onclick="resetTimer()">Reset</button>
+
+  </div>
+
+  <script>
+    /* SYSTEM CLOCK */
+    function updateClock() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, "0");
+      const mm = String(now.getMinutes()).padStart(2, "0");
+      const ss = String(now.getSeconds()).padStart(2, "0");
+
+      document.getElementById("clock").textContent = `${hh}:${mm}:${ss}`;
+
+      const options = { weekday: "short", month: "short", day: "2-digit", year: "numeric" };
+      document.getElementById("date").textContent = now.toLocaleDateString("en-US", options).toUpperCase();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    /* TIMER LOGIC */
+    let countdown;
+    let remaining = 0;
+
+    function startTimer() {
+      const mins = parseInt(document.getElementById("minutesInput").value);
+      const session = document.getElementById("sessionInput").value;
+
+      if (!mins) return;
+
+      remaining = mins * 60;
+      document.getElementById("sessionName").textContent = "Session: " + (session || "AEI");
+
+      // Calculate end time
+      const now = new Date();
+      const end = new Date(now.getTime() + remaining * 1000);
+      const eh = String(end.getHours()).padStart(2, "0");
+      const em = String(end.getMinutes()).padStart(2, "0");
+
+      document.getElementById("endTime").textContent = `End Time: ${eh}:${em}`;
+
+      clearInterval(countdown);
+      countdown = setInterval(updateTimer, 1000);
+      updateTimer();
+    }
+
+    function updateTimer() {
+      const mins = Math.floor(remaining / 60);
+      const secs = remaining % 60;
+
+      document.getElementById("timer").textContent =
+        `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+
+      if (remaining <= 0) {
+        clearInterval(countdown);
+      } else {
+        remaining--;
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(countdown);
+      remaining = 0;
+      document.getElementById("timer").textContent = "00:00";
+      document.getElementById("sessionName").textContent = "Session: Not Set";
+      document.getElementById("endTime").textContent = "End Time: --:--";
+    }
+  </script>
+
+</body>
+</html>
