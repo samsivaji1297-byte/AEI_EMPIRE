@@ -1,6 +1,3 @@
----
----
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,14 +44,36 @@
 
 <body>
 
-  {% assign files = site.static_files | where_exp: "f", "f.path contains '/widgets/FMMedia/ambient/'" %}
+  <div id="feed"></div>
 
-  {% for file in files %}
-    <div class="frame">
-      <img src="{{ file.path }}" />
-      <div class="overlay"></div>
-    </div>
-  {% endfor %}
+  <script>
+    async function loadImages() {
+      const folder = "ambient/";
+      const feed = document.getElementById("feed");
+
+      // GitHub Pages trick: fetch the folder as HTML and scrape filenames
+      const res = await fetch(folder);
+      const text = await res.text();
+
+      // Match image files
+      const matches = [...text.matchAll(/href="([^"]+\.(jpg|jpeg|png|webp|gif))"/gi)];
+      const files = matches.map(m => m[1]);
+
+      files.forEach(file => {
+        const frame = document.createElement("div");
+        frame.className = "frame";
+
+        frame.innerHTML = `
+          <img src="${folder}${file}" />
+          <div class="overlay"></div>
+        `;
+
+        feed.appendChild(frame);
+      });
+    }
+
+    loadImages();
+  </script>
 
 </body>
 </html>
