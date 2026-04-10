@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FM Media Enterprises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg: #020204;
+      --fg: #f5f5f5;
+      --muted: #8b8f98;
+      --grid: #1a1b20;
+      --accent: #f0f2f5;
+      --danger: #f24b4b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: radial-gradient(circle at top, #151720 0, #020204 55%);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, "Inter", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .reel {
+      width: 100%;
+      max-width: 420px;
+      aspect-ratio: 9 / 16;
+      border-radius: 22px;
+      border: 1px solid #262832;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,0.75), rgba(0,0,0,0.96)),
+        radial-gradient(circle at top, #2a2d38 0, #05060a 55%);
+      position: relative;
+      overflow: hidden;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .scan-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mix-blend-mode: soft-light;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      z-index: 1;
+    }
+
+    .pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #30323c;
+    }
+
+    .pill--alert {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .title-block {
+      z-index: 1;
+      margin-top: 10px;
+    }
+
+    .title-main {
+      font-size: 18px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .title-sub {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .body-block {
+      z-index: 1;
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--accent);
+      max-width: 90%;
+      margin-top: 18px;
+    }
+
+    .body-block span {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 10px;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .footer-row {
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meter {
+      width: 96px;
+      height: 4px;
+      border-radius: 999px;
+      background: #15161d;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter-fill {
+      position: absolute;
+      inset: 0;
+      width: 82%;
+      background: linear-gradient(to right, #f5f5f5, #8b8f98);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="reel">
+    <div class="scan-grid"></div>
+
+    <div class="header-row">
+      <div class="pill">FM MEDIA ENTERPRISES</div>
+      <div class="pill pill--alert">SYSTEM: COLD / ACTIVE</div>
+    </div>
+
+    <div class="title-block">
+      <div class="title-main">Industrial Organism</div>
+      <div class="title-sub">Non‑human media infrastructure</div>
+    </div>
+
+    <div class="body-block">
+      <span>Operational brief</span>
+      FM Media Enterprises is treated as a hostile, clinical broadcast organism — designed to
+      out‑produce human creators, strip warmth from the signal, and flood the field with
+      precise, weaponised narrative output.
+    </div>
+
+    <div class="footer-row">
+      <div class="stack">
+        <div>Mode: Extraction / Expansion</div>
+        <div class="meter">
+          <div class="meter-fill"></div>
+        </div>
+      </div>
+      <div class="stack" style="align-items:flex-end;">
+        <div>Entity ID: FM‑00</div>
+        <div>Classification: Monstrous / Clinical</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
