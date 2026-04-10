@@ -47,29 +47,35 @@
   <div id="feed"></div>
 
   <script>
+    async function imageExists(url) {
+      try {
+        const res = await fetch(url, { method: "HEAD" });
+        return res.ok;
+      } catch {
+        return false;
+      }
+    }
+
     async function loadImages() {
-      const folder = "ambient/";
       const feed = document.getElementById("feed");
+      const folder = "ambient/";
 
-      // GitHub Pages trick: fetch the folder as HTML and scrape filenames
-      const res = await fetch(folder);
-      const text = await res.text();
+      // Try loading up to 200 images
+      for (let i = 1; i <= 200; i++) {
+        const url = `${folder}${i}.jpg`;
 
-      // Match image files
-      const matches = [...text.matchAll(/href="([^"]+\.(jpg|jpeg|png|webp|gif))"/gi)];
-      const files = matches.map(m => m[1]);
+        if (await imageExists(url)) {
+          const frame = document.createElement("div");
+          frame.className = "frame";
 
-      files.forEach(file => {
-        const frame = document.createElement("div");
-        frame.className = "frame";
+          frame.innerHTML = `
+            <img src="${url}" />
+            <div class="overlay"></div>
+          `;
 
-        frame.innerHTML = `
-          <img src="${folder}${file}" />
-          <div class="overlay"></div>
-        `;
-
-        feed.appendChild(frame);
-      });
+          feed.appendChild(frame);
+        }
+      }
     }
 
     loadImages();
