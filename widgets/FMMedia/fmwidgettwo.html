@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>FM Competitor Dossier</title>
+  <title>FM Competitor Dossier v2.0</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -13,6 +13,7 @@
       --border: #1a1b20;
       --accent: #ffffff;
       --alert: #ff4d4d;
+      --pulse: rgba(255,255,255,0.12);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -43,6 +44,13 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      animation: breathe 6s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0% { box-shadow: 0 0 12px rgba(255,255,255,0.04); }
+      50% { box-shadow: 0 0 22px rgba(255,255,255,0.09); }
+      100% { box-shadow: 0 0 12px rgba(255,255,255,0.04); }
     }
 
     .grid {
@@ -54,6 +62,25 @@
       background-size: 32px 32px;
       opacity: 0.7;
       pointer-events: none;
+    }
+
+    .scanlines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.03) 0px,
+        rgba(255,255,255,0.03) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      animation: scan 6s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
     }
 
     .header {
@@ -114,6 +141,44 @@
       margin-bottom: 4px;
     }
 
+    /* TARGET PULSE SYSTEM */
+    .target {
+      position: relative;
+      display: inline-block;
+      padding: 2px 4px;
+      border-radius: 6px;
+      color: var(--accent);
+      margin-right: 4px;
+    }
+
+    .target::after {
+      content: "";
+      position: absolute;
+      inset: -6px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      animation: pulseOutline 3.2s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulseOutline {
+      0% {
+        opacity: 0;
+        transform: scale(0.92);
+        border-color: rgba(255,255,255,0.05);
+      }
+      40% {
+        opacity: 1;
+        transform: scale(1);
+        border-color: rgba(255,255,255,0.18);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.12);
+        border-color: rgba(255,255,255,0.03);
+      }
+    }
+
     .footer {
       z-index: 1;
       display: flex;
@@ -130,20 +195,10 @@
       gap: 4px;
     }
 
-    .meter {
-      width: 96px;
-      height: 4px;
-      border-radius: 999px;
-      background: #15161d;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .meter-fill {
-      position: absolute;
-      inset: 0;
-      width: 94%;
-      background: linear-gradient(to right, #f5f5f5, #8b8f98);
+    .timestamp {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--accent);
     }
   </style>
 </head>
@@ -152,6 +207,7 @@
 
   <div class="card">
     <div class="grid"></div>
+    <div class="scanlines"></div>
 
     <div class="header">
       <div class="pill">FM INTELLIGENCE UNIT</div>
@@ -166,23 +222,40 @@
     <div class="body">
       <span>Assessment</span>
       FM Media Enterprises does not compete with creators or the 99%.  
-      The true field is the micro‑one‑percent: Bloomberg, Vox, Vice, Morning Brew —  
-      industrial‑scale media organisms with automated pipelines, capital density,  
+      The true field is the micro‑one‑percent:  
+      <div class="target">Bloomberg</div>
+      <div class="target">Vox</div>
+      <div class="target">Vice</div>
+      <div class="target">Morning Brew</div>  
+      — industrial‑scale media organisms with automated pipelines, capital density,  
       and narrative dominance.  
       FM is engineered to infiltrate and out‑accelerate them.
     </div>
 
     <div class="footer">
       <div class="stack">
-        <div>Mode: Counter‑Organism</div>
-        <div class="meter"><div class="meter-fill"></div></div>
+        <div>System Time</div>
+        <div class="timestamp" id="timestamp">--:--:--</div>
       </div>
       <div class="stack" style="align-items:flex-end;">
-        <div>File: FM‑C01</div>
+        <div>File: FM‑C02</div>
         <div>Classification: Monolithic</div>
       </div>
     </div>
   </div>
+
+  <script>
+    function updateTimestamp() {
+      const el = document.getElementById("timestamp");
+      const now = new Date();
+      const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const date = now.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
+      el.textContent = `${date} • ${time}`;
+    }
+
+    setInterval(updateTimestamp, 1000);
+    updateTimestamp();
+  </script>
 
 </body>
 </html>
