@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>FM Competitor Dossier v2.1</title>
+  <title>FM Competitor Dossier v2.2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -35,7 +35,7 @@
       border-radius: 22px;
       border: 1px solid var(--border);
       background:
-        linear-gradient(to bottom, rgba(0,0,0,0.75), rgba(0,0,0,0.96)),
+        linear-gradient(to bottom, rgba(0,0,0,0.78), rgba(0,0,0,0.97)),
         radial-gradient(circle at top, #2a2d38 0, #05060a 55%);
       padding: 18px 16px;
       position: relative;
@@ -105,7 +105,7 @@
 
     .title {
       z-index: 1;
-      margin-top: 12px;
+      margin-top: 10px;
     }
 
     .title-main {
@@ -113,6 +113,7 @@
       letter-spacing: 0.22em;
       text-transform: uppercase;
       margin-bottom: 4px;
+      text-shadow: 0 0 10px rgba(255,255,255,0.18);
     }
 
     .title-sub {
@@ -124,7 +125,7 @@
 
     .body {
       z-index: 1;
-      margin-top: 14px;
+      margin-top: 10px;
       font-size: 12px;
       line-height: 1.6;
       color: var(--accent);
@@ -140,47 +141,78 @@
       margin-bottom: 4px;
     }
 
-    /* TARGET PULSE SYSTEM — upgraded */
+    /* TARGET SCAN + LOCK-ON SYSTEM */
+    .targets-line {
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
     .target {
       position: relative;
       display: inline-block;
-      padding: 2px 6px;
-      border-radius: 6px;
+      padding: 2px 8px;
+      border-radius: 999px;
       color: var(--accent);
       margin-right: 4px;
       font-weight: 500;
+      overflow: visible;
     }
 
-    .target::after {
-      content: "";
-      position: absolute;
-      inset: -6px;
-      border-radius: 10px;
-      border: 2px solid rgba(255,255,255,0.45);
-      animation: pulseOutline 2.8s ease-in-out infinite;
-      pointer-events: none;
-    }
-
+    .target::after,
     .target::before {
       content: "";
       position: absolute;
-      inset: -2px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.25);
-      animation: innerPulse 2.8s ease-in-out infinite;
+      border-radius: 999px;
       pointer-events: none;
     }
 
-    @keyframes pulseOutline {
-      0% { opacity: 0; transform: scale(0.9); }
-      40% { opacity: 1; transform: scale(1); }
-      100% { opacity: 0; transform: scale(1.18); }
+    /* Outer lock-on ring */
+    .target::after {
+      inset: -6px;
+      border: 2px solid rgba(255,255,255,0.9);
+      opacity: 0;
+      transform: scale(0.8);
+      animation: lockOn 8s ease-in-out infinite;
     }
 
-    @keyframes innerPulse {
-      0% { opacity: 0.4; transform: scale(1); }
-      50% { opacity: 0.9; transform: scale(1.04); }
-      100% { opacity: 0.4; transform: scale(1); }
+    /* Inner pulse ring */
+    .target::before {
+      inset: -2px;
+      border: 1px solid rgba(255,255,255,0.6);
+      opacity: 0;
+      transform: scale(1);
+      animation: innerLock 8s ease-in-out infinite;
+    }
+
+    /* Sequential timing */
+    .target--1::after,
+    .target--1::before { animation-delay: 0s; }
+
+    .target--2::after,
+    .target--2::before { animation-delay: 2s; }
+
+    .target--3::after,
+    .target--3::before { animation-delay: 4s; }
+
+    .target--4::after,
+    .target--4::before { animation-delay: 6s; }
+
+    @keyframes lockOn {
+      0%   { opacity: 0; transform: scale(0.8); }
+      5%   { opacity: 1; transform: scale(1); }      /* sharp flash */
+      20%  { opacity: 0.9; transform: scale(1.08); } /* heavy pulse */
+      35%  { opacity: 0.4; transform: scale(1.15); }
+      50%  { opacity: 0; transform: scale(1.2); }    /* fade out */
+      100% { opacity: 0; transform: scale(1.2); }
+    }
+
+    @keyframes innerLock {
+      0%   { opacity: 0; transform: scale(1); }
+      5%   { opacity: 1; transform: scale(1.02); }
+      20%  { opacity: 0.9; transform: scale(1.05); }
+      35%  { opacity: 0.5; transform: scale(1.03); }
+      50%  { opacity: 0; transform: scale(1.02); }
+      100% { opacity: 0; transform: scale(1.02); }
     }
 
     .footer {
@@ -191,6 +223,7 @@
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--muted);
+      margin-top: 10px;
     }
 
     .stack {
@@ -226,12 +259,14 @@
     <div class="body">
       <span>Assessment</span>
       FM Media Enterprises does not compete with creators or the 99%.  
-      The true field is the micro‑one‑percent:  
-      <div class="target">Bloomberg</div>
-      <div class="target">Vox</div>
-      <div class="target">Vice</div>
-      <div class="target">Morning Brew</div>  
-      — industrial‑scale media organisms with automated pipelines, capital density,  
+      The true field is the micro‑one‑percent:
+      <div class="targets-line">
+        <span class="target target--1">Bloomberg</span>
+        <span class="target target--2">Vox</span>
+        <span class="target target--3">Vice</span>
+        <span class="target target--4">Morning Brew</span>
+      </div>
+      industrial‑scale media organisms with automated pipelines, capital density,  
       and narrative dominance.  
       FM is engineered to infiltrate and out‑accelerate them.
     </div>
