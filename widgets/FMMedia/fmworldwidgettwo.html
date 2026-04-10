@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FM Competitor Dossier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg: #020204;
+      --fg: #f5f5f5;
+      --muted: #8b8f98;
+      --border: #1a1b20;
+      --accent: #ffffff;
+      --alert: #ff4d4d;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: radial-gradient(circle at top, #151720 0, #020204 55%);
+      font-family: system-ui, -apple-system, "Inter", sans-serif;
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      aspect-ratio: 9 / 16;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,0.75), rgba(0,0,0,0.96)),
+        radial-gradient(circle at top, #2a2d38 0, #05060a 55%);
+      padding: 18px 16px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      z-index: 1;
+    }
+
+    .pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    .pill--alert {
+      border-color: var(--alert);
+      color: var(--alert);
+    }
+
+    .title {
+      z-index: 1;
+      margin-top: 12px;
+    }
+
+    .title-main {
+      font-size: 18px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .title-sub {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .body {
+      z-index: 1;
+      margin-top: 18px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--accent);
+      max-width: 90%;
+    }
+
+    .body span {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .footer {
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meter {
+      width: 96px;
+      height: 4px;
+      border-radius: 999px;
+      background: #15161d;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter-fill {
+      position: absolute;
+      inset: 0;
+      width: 94%;
+      background: linear-gradient(to right, #f5f5f5, #8b8f98);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <div class="grid"></div>
+
+    <div class="header">
+      <div class="pill">FM INTELLIGENCE UNIT</div>
+      <div class="pill pill--alert">THREAT INDEX: ACTIVE</div>
+    </div>
+
+    <div class="title">
+      <div class="title-main">Micro‑One‑Percent</div>
+      <div class="title-sub">High‑density media organisms</div>
+    </div>
+
+    <div class="body">
+      <span>Assessment</span>
+      FM Media Enterprises does not compete with creators or the 99%.  
+      The true field is the micro‑one‑percent: Bloomberg, Vox, Vice, Morning Brew —  
+      industrial‑scale media organisms with automated pipelines, capital density,  
+      and narrative dominance.  
+      FM is engineered to infiltrate and out‑accelerate them.
+    </div>
+
+    <div class="footer">
+      <div class="stack">
+        <div>Mode: Counter‑Organism</div>
+        <div class="meter"><div class="meter-fill"></div></div>
+      </div>
+      <div class="stack" style="align-items:flex-end;">
+        <div>File: FM‑C01</div>
+        <div>Classification: Monolithic</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
