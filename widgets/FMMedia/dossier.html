@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FM Dossier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg: #05060a;
+      --card: #0b0d14;
+      --border: #1a1d26;
+      --muted: #7b8190;
+      --accent: #f0f2f5;
+      --tag: #9fb57a;
+      --highlight: #7ac9a3;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #10121a 0, #05060a 55%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      font-family: system-ui, -apple-system, "Inter", sans-serif;
+      color: var(--accent);
+    }
+
+    .dossier {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 18px 18px 16px;
+    }
+
+    .dossier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .dossier-label {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .dossier-id {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--tag);
+    }
+
+    .dossier-title {
+      font-size: 18px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .dossier-subtitle {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .dossier-body {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .meta-block {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 9px;
+    }
+
+    .meta-label {
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .meta-value {
+      font-size: 12px;
+      color: var(--accent);
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .tag {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .tag--primary {
+      border-color: var(--highlight);
+      color: var(--highlight);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="dossier">
+    <div class="dossier-header">
+      <div class="dossier-label">FM DOSSIER</div>
+      <div class="dossier-id">FILE: FM-01-ORIGIN</div>
+    </div>
+
+    <div class="dossier-title">Origin Field</div>
+    <div class="dossier-subtitle">Foundational mandate / core vector</div>
+
+    <div class="dossier-body">
+      This node defines the primary operating mandate of FM — the reason the organism exists,
+      the direction it refuses to drift away from, and the field it is sworn to expand.
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-block">
+        <div class="meta-label">Status</div>
+        <div class="meta-value">Active / Live Doctrine</div>
+      </div>
+      <div class="meta-block">
+        <div class="meta-label">Priority</div>
+        <div class="meta-value">Critical</div>
+      </div>
+    </div>
+
+    <div class="meta-block">
+      <div class="meta-label">Tags</div>
+      <div class="tag-row">
+        <div class="tag tag--primary">Origin</div>
+        <div class="tag">Mandate</div>
+        <div class="tag">Field</div>
+        <div class="tag">Non‑Negotiable</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
