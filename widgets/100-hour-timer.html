@@ -1,490 +1,754 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>100-Hour Command Deck v4.1</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta charset="UTF-8" />
+  <title>100-Hour Command Deck v4.3</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <style>
+    :root {
+      --ignition-bg: radial-gradient(circle at top, #0b1b3b 0%, #05060a 55%, #020308 100%);
+      --expansion-bg: radial-gradient(circle at top, #1f2937 0%, #05060a 55%, #020308 100%);
+      --consolidation-bg: radial-gradient(circle at top, #05060a 0%, #020308 60%, #000000 100%);
+      --surge-bg: radial-gradient(circle at top, #3b0008 0%, #120008 45%, #000000 100%);
 
-<style>
-  :root {
-    --ignition-bg: radial-gradient(circle at top, #0b1b3b 0%, #05060a 55%, #020308 100%);
-    --expansion-bg: radial-gradient(circle at top, #1f2937 0%, #05060a 55%, #020308 100%);
-    --consolidation-bg: radial-gradient(circle at top, #05060a 0%, #020308 60%, #000000 100%);
-    --surge-bg: radial-gradient(circle at top, #3b0008 0%, #120008 45%, #000000 100%);
+      --ignition-accent: #4fd1ff;
+      --expansion-accent: #8bc34a;
+      --consolidation-accent: #ffeb3b;
+      --surge-accent: #ff5252;
+    }
 
-    --ignition-accent: #4fd1ff;
-    --expansion-accent: #8bc34a;
-    --consolidation-accent: #ffeb3b;
-    --surge-accent: #ff5252;
-  }
+    * { box-sizing: border-box; }
 
-  * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0 14px;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      color: #f5f5f5;
+      background: var(--ignition-bg);
+      -webkit-font-smoothing: antialiased;
+      transition: background 1s ease;
+      overflow: hidden;
+      position: relative;
+    }
 
-  body {
-    margin: 0;
-    padding: 0 14px;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: system-ui, -apple-system, sans-serif;
-    color: #f5f5f5;
-    background: var(--ignition-bg);
-    -webkit-font-smoothing: antialiased;
-    transition: background 1s ease;
-    overflow: hidden;
-    position: relative;
-  }
+    /* System clock */
+    .system-clock {
+      position: fixed;
+      top: 12px;
+      right: 14px;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      opacity: 0.65;
+      text-transform: uppercase;
+      font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      z-index: 20;
+    }
 
-  /* Live timestamp */
-  .system-clock {
-    position: fixed;
-    top: 12px;
-    right: 14px;
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    opacity: 0.65;
-    text-transform: uppercase;
-    font-family: "SF Mono", monospace;
-    z-index: 20;
-  }
+    /* Grid + scanlines */
+    .grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 34px 34px;
+      opacity: 0.35;
+      pointer-events: none;
+      mix-blend-mode: soft-light;
+    }
 
-  /* Grid + scanlines */
-  .grid {
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
-    background-size: 34px 34px;
-    opacity: 0.35;
-    pointer-events: none;
-    mix-blend-mode: soft-light;
-  }
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.04) 0px,
+        rgba(255,255,255,0.04) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      opacity: 0.25;
+      pointer-events: none;
+      animation: scan 9s linear infinite;
+      mix-blend-mode: soft-light;
+    }
 
-  .scanlines {
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      to bottom,
-      rgba(255,255,255,0.04) 0px,
-      rgba(255,255,255,0.04) 2px,
-      transparent 2px,
-      transparent 4px
-    );
-    opacity: 0.25;
-    pointer-events: none;
-    animation: scan 9s linear infinite;
-    mix-blend-mode: soft-light;
-  }
+    @keyframes scan {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
 
-  @keyframes scan {
-    0% { transform: translateY(-100%); }
-    100% { transform: translateY(100%); }
-  }
+    /* Identity spine */
+    .spine {
+      position: fixed;
+      left: 10px;
+      top: 10px;
+      bottom: 10px;
+      width: 2px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.6), rgba(255,255,255,0.1));
+      opacity: 0.7;
+      border-radius: 999px;
+      overflow: hidden;
+    }
 
-  /* Identity spine */
-  .spine {
-    position: fixed;
-    left: 10px;
-    top: 10px;
-    bottom: 10px;
-    width: 2px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.6), rgba(255,255,255,0.1));
-    opacity: 0.7;
-    border-radius: 999px;
-    overflow: hidden;
-  }
+    .spine-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 0%;
+      background: linear-gradient(to top, #ffffff, rgba(255,255,255,0.2));
+      transition: height 0.4s ease-out;
+    }
 
-  .spine-fill {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 0%;
-    background: linear-gradient(to top, #ffffff, rgba(255,255,255,0.2));
-    transition: height 0.4s ease-out;
-  }
+    /* Deck */
+    .deck {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: radial-gradient(circle at top, rgba(255,255,255,0.06), rgba(0,0,0,0.96));
+      padding: 18px 18px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: space-between;
+      box-shadow: 0 0 26px rgba(0,0,0,0.8);
+      backdrop-filter: blur(10px);
+      animation: deckBreathe 6s ease-in-out infinite;
+      overflow: hidden;
+      z-index: 10;
+    }
 
-  /* Deck */
-  .deck {
-    position: relative;
-    width: 100%;
-    max-width: 480px;
-    border-radius: 22px;
-    border: 1px solid rgba(255,255,255,0.12);
-    background: radial-gradient(circle at top, rgba(255,255,255,0.06), rgba(0,0,0,0.96));
-    padding: 18px 18px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: space-between;
-    box-shadow: 0 0 26px rgba(0,0,0,0.8);
-    backdrop-filter: blur(10px);
-    animation: deckBreathe 6s ease-in-out infinite;
-    overflow: hidden;
-    z-index: 10;
-  }
+    @keyframes deckBreathe {
+      0% { transform: translateY(0); box-shadow: 0 0 18px rgba(0,0,0,0.7); }
+      50% { transform: translateY(-1px); box-shadow: 0 0 30px rgba(0,0,0,0.95); }
+      100% { transform: translateY(0); box-shadow: 0 0 18px rgba(0,0,0,0.7); }
+    }
 
-  @keyframes deckBreathe {
-    0% { transform: translateY(0); box-shadow: 0 0 18px rgba(0,0,0,0.7); }
-    50% { transform: translateY(-1px); box-shadow: 0 0 30px rgba(0,0,0,0.95); }
-    100% { transform: translateY(0); box-shadow: 0 0 18px rgba(0,0,0,0.7); }
-  }
+    .deck-inner { position: relative; z-index: 1; }
 
-  .deck-inner { position: relative; z-index: 1; }
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.75;
+      margin-bottom: 10px;
+    }
 
-  .header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.7rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    opacity: 0.75;
-    margin-bottom: 10px;
-  }
+    .pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      font-size: 0.65rem;
+    }
 
-  .pill {
-    padding: 4px 8px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.18);
-    font-size: 0.65rem;
-  }
+    .phase-sigil {
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-  .phase-sigil {
-    margin-top: 6px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+    .sigil-shape {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.7);
+      position: relative;
+      overflow: hidden;
+    }
 
-  .sigil-shape {
-    width: 26px;
-    height: 26px;
-    border-radius: 999px;
-    border: 2px solid rgba(255,255,255,0.7);
-    position: relative;
-    overflow: hidden;
-  }
+    .sigil-core {
+      position: absolute;
+      inset: 7px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.3);
+      opacity: 0.8;
+      animation: sigilPulse 4s ease-in-out infinite;
+    }
 
-  .sigil-core {
-    position: absolute;
-    inset: 7px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.3);
-    opacity: 0.8;
-    animation: sigilPulse 4s ease-in-out infinite;
-  }
+    @keyframes sigilPulse {
+      0% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.12); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.5; }
+    }
 
-  @keyframes sigilPulse {
-    0% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.12); opacity: 1; }
-    100% { transform: scale(1); opacity: 0.5; }
-  }
+    #countdown {
+      margin-top: 18px;
+      font-size: clamp(3.4rem, 10vw, 5.6rem);
+      font-weight: 650;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 1.1;
+      animation: countdownBreathe 4.5s ease-in-out infinite;
+    }
 
-  #countdown {
-    margin-top: 18px;
-    font-size: clamp(3.4rem, 10vw, 5.6rem);
-    font-weight: 650;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    text-align: center;
-    line-height: 1.1;
-    animation: countdownBreathe 4.5s ease-in-out infinite;
-  }
+    @keyframes countdownBreathe {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.01); opacity: 0.95; }
+      100% { transform: scale(1); opacity: 1; }
+    }
 
-  @keyframes countdownBreathe {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.01); opacity: 0.95; }
-    100% { transform: scale(1); opacity: 1; }
-  }
+    .countdown-label {
+      text-align: center;
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
 
-  .countdown-label {
-    text-align: center;
-    font-size: 0.7rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    opacity: 0.7;
-    margin-top: 4px;
-  }
+    #countup, #percent, #endtime {
+      text-align: center;
+      margin-top: 6px;
+      opacity: 0.85;
+      font-size: 0.9rem;
+    }
 
-  #countup, #percent, #endtime {
-    text-align: center;
-    margin-top: 6px;
-    opacity: 0.85;
-  }
+    #endtime {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
 
-  #progress-container {
-    margin-top: 18px;
-    width: 100%;
-    height: 14px;
-    background: rgba(0,0,0,0.8);
-    border-radius: 999px;
-    overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.12);
-    box-shadow: 0 0 16px rgba(0,0,0,0.8);
-  }
+    #progress-container {
+      margin-top: 18px;
+      width: 100%;
+      height: 14px;
+      background: rgba(0,0,0,0.8);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 0 16px rgba(0,0,0,0.8);
+    }
 
-  #progress-bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #4fd1ff, #8bc34a, #ffeb3b, #ff5252);
-    background-size: 300% 100%;
-    animation: progressFlow 6s linear infinite;
-    transition: width 0.2s linear;
-  }
+    #progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4fd1ff, #8bc34a, #ffeb3b, #ff5252);
+      background-size: 300% 100%;
+      animation: progressFlow 6s linear infinite;
+      transition: width 0.2s linear;
+    }
 
-  @keyframes progressFlow {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 100% 50%; }
-  }
+    @keyframes progressFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
 
-  .velocity-row {
-    margin-top: 14px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    opacity: 0.8;
-  }
+    .velocity-row {
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
 
-  .velocity-bar {
-    margin-top: 6px;
-    width: 100%;
-    height: 6px;
-    border-radius: 999px;
-    background: #0d0e12;
-    overflow: hidden;
-  }
+    .velocity-bar {
+      margin-top: 6px;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #0d0e12;
+      overflow: hidden;
+      position: relative;
+    }
 
-  .velocity-fill {
-    position: absolute;
-    inset: 0;
-    width: 0%;
-    background: linear-gradient(to right, #ffffff, rgba(255,255,255,0.4));
-    transition: width 0.4s ease-out;
-  }
+    .velocity-fill {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      background: linear-gradient(to right, #ffffff, rgba(255,255,255,0.4));
+      transition: width 0.4s ease-out;
+    }
 
-  .meta-row {
-    margin-top: 12px;
-    font-size: 0.8rem;
-    opacity: 0.75;
-    display: flex;
-    justify-content: space-between;
-  }
+    .meta-row {
+      margin-top: 12px;
+      font-size: 0.8rem;
+      opacity: 0.75;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-  /* Slide-up start panel */
-  .start-panel {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: -260px;
-    background: rgba(0,0,0,0.92);
-    border-top: 1px solid rgba(255,255,255,0.12);
-    padding: 22px 20px 28px;
-    box-shadow: 0 -8px 22px rgba(0,0,0,0.6);
-    backdrop-filter: blur(10px);
-    transition: bottom 0.45s ease;
-    z-index: 30;
-  }
+    .mode-hint {
+      opacity: 0.55;
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
 
-  .start-panel.visible {
-    bottom: 0;
-  }
+    /* Scheduled state */
+    #scheduledState {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.85rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.75;
+      display: none;
+    }
 
-  .panel-title {
-    font-size: 0.75rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    opacity: 0.75;
-    margin-bottom: 14px;
-  }
+    #scheduledTime {
+      margin-top: 6px;
+      opacity: 0.6;
+      font-size: 0.8rem;
+    }
 
-  .input-row {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 18px;
-  }
+    /* Milestone pulse */
+    .milestone-pulse {
+      animation: milestonePulse 0.7s ease-out;
+    }
 
-  input {
-    width: 100%;
-    padding: 10px 12px;
-    background: #0d0e12;
-    border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 8px;
-    color: #ffffff;
-    font-size: 0.95rem;
-    outline: none;
-  }
+    @keyframes milestonePulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0.0); }
+      40% { transform: scale(1.02); box-shadow: 0 0 26px rgba(255,255,255,0.35); }
+      100% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0.0); }
+    }
 
-  input:focus {
-    border-color: rgba(255,255,255,0.35);
-  }
+    /* Cinematic ritual mode */
+    .cinematic .header-row,
+    .cinematic .phase-sigil,
+    .cinematic #countup,
+    .cinematic #percent,
+    .cinematic #endtime,
+    .cinematic #progress-container,
+    .cinematic .velocity-row,
+    .cinematic .velocity-bar,
+    .cinematic .meta-row,
+    .cinematic #scheduledState {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
 
-  .init-btn {
-    width: 100%;
-    padding: 12px;
-    background: #ffffff;
-    color: #000000;
-    border-radius: 999px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    border: none;
-    cursor: pointer;
-  }
+    .cinematic #countdown {
+      font-size: clamp(4.5rem, 16vw, 7.5rem);
+      margin-top: 26px;
+    }
 
-  .init-btn:active {
-    transform: scale(0.98);
-  }
+    .cinematic .deck {
+      animation: deckBreathe 7s ease-in-out infinite;
+    }
 
-</style>
+    /* Slide-up start panel */
+    .start-panel {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: -260px;
+      background: rgba(0,0,0,0.92);
+      border-top: 1px solid rgba(255,255,255,0.12);
+      padding: 22px 20px 28px;
+      box-shadow: 0 -8px 22px rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      transition: bottom 0.45s ease;
+      z-index: 30;
+    }
+
+    .start-panel.visible {
+      bottom: 0;
+    }
+
+    .panel-title {
+      font-size: 0.75rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.75;
+      margin-bottom: 14px;
+    }
+
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    input[type="date"],
+    input[type="time"] {
+      width: 100%;
+      padding: 10px 12px;
+      background: #0d0e12;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    input[type="date"]:focus,
+    input[type="time"]:focus {
+      border-color: rgba(255,255,255,0.35);
+    }
+
+    .init-btn {
+      width: 100%;
+      padding: 12px;
+      background: #ffffff;
+      color: #000000;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+    }
+
+    .init-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* ARC COMPLETE banner */
+    #completeBanner {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.85rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.8;
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="system-clock" id="systemClock">--:--:--</div>
 
-<div class="system-clock" id="systemClock">--:--:--</div>
+  <div class="grid"></div>
+  <div class="scanlines"></div>
 
-<div class="grid"></div>
-<div class="scanlines"></div>
-
-<div class="spine">
-  <div class="spine-fill" id="spine-fill"></div>
-</div>
-
-<div class="deck" id="deck">
-  <div class="deck-inner">
-
-    <div class="header-row">
-      <div class="pill">100-HOUR COMMAND DECK</div>
-      <div class="pill" id="phase-tag">IGNITION</div>
-    </div>
-
-    <div class="phase-sigil">
-      <div class="sigil-shape">
-        <div class="sigil-core" id="sigil-core"></div>
-      </div>
-      <div>
-        <div style="font-size:0.7rem;opacity:0.7;letter-spacing:0.16em;">Current Phase</div>
-        <div id="phase" style="font-size:0.85rem;font-weight:500;">Phase I — Ignition</div>
-      </div>
-    </div>
-
-    <div id="countdown">--:--:--</div>
-    <div class="countdown-label">HOURS · MINUTES · SECONDS REMAINING</div>
-
-    <div id="countup">00:00:00 elapsed</div>
-    <div id="percent">0.00% complete</div>
-    <div id="endtime"></div>
-
-    <div id="progress-container">
-      <div id="progress-bar"></div>
-    </div>
-
-    <div class="velocity-row">
-      <div>Time conquered today</div>
-      <div id="velocity-label">0.0h</div>
-    </div>
-    <div class="velocity-bar">
-      <div class="velocity-fill" id="velocity-fill"></div>
-    </div>
-
-    <div class="meta-row">
-      <span id="milestone-label">Next milestone: 10h</span>
-      <span style="opacity:0.55;font-size:0.7rem;letter-spacing:0.16em;">Tap anywhere · Ritual mode</span>
-    </div>
-
-  </div>
-</div>
-
-<!-- Slide-up start panel -->
-<div class="start-panel" id="startPanel">
-  <div class="panel-title">Initialise 100‑Hour Arc</div>
-
-  <div class="input-row">
-    <input type="date" id="startDate" />
-    <input type="time" id="startTime" />
+  <div class="spine">
+    <div class="spine-fill" id="spine-fill"></div>
   </div>
 
-  <button class="init-btn" id="initBtn">Init Arc</button>
-</div>
+  <div class="deck" id="deck">
+    <div class="deck-inner">
+      <div class="header-row">
+        <div class="pill">100-HOUR COMMAND DECK</div>
+        <div class="pill" id="phase-tag">IGNITION</div>
+      </div>
 
-<script>
-  const systemClockEl = document.getElementById("systemClock");
-  const startPanel = document.getElementById("startPanel");
-  const initBtn = document.getElementById("initBtn");
+      <div class="phase-sigil">
+        <div class="sigil-shape">
+          <div class="sigil-core" id="sigil-core"></div>
+        </div>
+        <div>
+          <div style="font-size:0.7rem;opacity:0.7;letter-spacing:0.16em;text-transform:uppercase;">Current Phase</div>
+          <div id="phase" style="font-size:0.85rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;">Phase I — Ignition</div>
+        </div>
+      </div>
 
-  const countdownEl = document.getElementById("countdown");
-  const countupEl = document.getElementById("countup");
-  const percentEl = document.getElementById("percent");
-  const phaseEl = document.getElementById("phase");
-  const endtimeEl = document.getElementById("endtime");
-  const progressBarEl = document.getElementById("progress-bar");
-  const deckEl = document.getElementById("deck");
-  const milestoneLabelEl = document.getElementById("milestone-label");
-  const phaseTagEl = document.getElementById("phase-tag");
-  const sigilCoreEl = document.getElementById("sigil-core");
-  const spineFillEl = document.getElementById("spine-fill");
-  const velocityFillEl = document.getElementById("velocity-fill");
-  const velocityLabelEl = document.getElementById("velocity-label");
+      <div id="scheduledState">
+        <div>ARC SCHEDULED</div>
+        <div id="scheduledTime"></div>
+      </div>
 
-  let start = null;
-  let end = null;
-  let lastMilestoneBlock = -1;
+      <div id="countdown">--:--:--</div>
+      <div class="countdown-label">HOURS · MINUTES · SECONDS REMAINING</div>
 
-  function updateClock() {
-    const now = new Date();
-    const date = now.toLocaleDateString("en-AU", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
-    const time = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-    systemClockEl.textContent = `${date} • ${time}`;
-  }
-  setInterval(updateClock, 1000);
-  updateClock();
+      <div id="countup">00:00:00 elapsed</div>
+      <div id="percent">0.00% complete</div>
+      <div id="endtime"></div>
 
-  function showStartPanel() {
-    startPanel.classList.add("visible");
-  }
+      <div id="progress-container">
+        <div id="progress-bar"></div>
+      </div>
 
-  function hideStartPanel() {
-    startPanel.classList.remove("visible");
-  }
+      <div class="velocity-row">
+        <div>Time conquered today</div>
+        <div id="velocity-label">0.0h</div>
+      </div>
+      <div class="velocity-bar">
+        <div class="velocity-fill" id="velocity-fill"></div>
+      </div>
 
-  function loadStartTime() {
-    const saved = localStorage.getItem("fm_arc_start");
-    if (saved) {
-      start = parseInt(saved);
+      <div class="meta-row">
+        <span id="milestone-label">Next milestone: 10h</span>
+        <span class="mode-hint">Tap anywhere · Ritual mode</span>
+      </div>
+
+      <div id="completeBanner">ARC COMPLETE · INIT NEXT ARC TO RESTART</div>
+    </div>
+  </div>
+
+  <!-- Slide-up start panel -->
+  <div class="start-panel" id="startPanel">
+    <div class="panel-title">Initialise 100‑Hour Arc</div>
+    <div class="input-row">
+      <input type="date" id="startDate" />
+      <input type="time" id="startTime" />
+    </div>
+    <button class="init-btn" id="initBtn">Init Arc</button>
+  </div>
+
+  <script>
+    const systemClockEl = document.getElementById("systemClock");
+    const startPanel = document.getElementById("startPanel");
+    const initBtn = document.getElementById("initBtn");
+
+    const countdownEl = document.getElementById("countdown");
+    const countupEl = document.getElementById("countup");
+    const percentEl = document.getElementById("percent");
+    const phaseEl = document.getElementById("phase");
+    const endtimeEl = document.getElementById("endtime");
+    const progressBarEl = document.getElementById("progress-bar");
+    const deckEl = document.getElementById("deck");
+    const milestoneLabelEl = document.getElementById("milestone-label");
+    const phaseTagEl = document.getElementById("phase-tag");
+    const sigilCoreEl = document.getElementById("sigil-core");
+    const spineFillEl = document.getElementById("spine-fill");
+    const velocityFillEl = document.getElementById("velocity-fill");
+    const velocityLabelEl = document.getElementById("velocity-label");
+    const scheduledStateEl = document.getElementById("scheduledState");
+    const scheduledTimeEl = document.getElementById("scheduledTime");
+    const completeBannerEl = document.getElementById("completeBanner");
+
+    let start = null;
+    let end = null;
+    let lastMilestoneBlock = -1;
+
+    function updateClock() {
+      const now = new Date();
+      const date = now.toLocaleDateString("en-AU", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
+      const time = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      systemClockEl.textContent = `${date} • ${time}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function showStartPanel() {
+      setTimeout(() => {
+        startPanel.classList.add("visible");
+      }, 300);
+    }
+
+    function hideStartPanel() {
+      startPanel.classList.remove("visible");
+    }
+
+    function prefillTodayDate() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      document.getElementById("startDate").value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    function loadStartTime() {
+      const saved = localStorage.getItem("fm_arc_start");
+      if (saved) {
+        start = parseInt(saved, 10);
+        end = start + 100 * 60 * 60 * 1000;
+        return true;
+      }
+      return false;
+    }
+
+    function clearArc() {
+      localStorage.removeItem("fm_arc_start");
+      start = null;
+      end = null;
+      lastMilestoneBlock = -1;
+      completeBannerEl.style.display = "none";
+      showStartPanel();
+      prefillTodayDate();
+      countdownEl.textContent = "--:--:--";
+      countupEl.textContent = "00:00:00 elapsed";
+      percentEl.textContent = "0.00% complete";
+      phaseEl.textContent = "Phase I — Ignition";
+      phaseTagEl.textContent = "IGNITION";
+      progressBarEl.style.width = "0%";
+      spineFillEl.style.height = "0%";
+      velocityFillEl.style.width = "0%";
+      velocityLabelEl.textContent = "0.0h";
+      scheduledStateEl.style.display = "none";
+      endtimeEl.textContent = "";
+    }
+
+    function initArc() {
+      const date = document.getElementById("startDate").value;
+      const time = document.getElementById("startTime").value;
+
+      if (!date || !time) {
+        alert("Select both date and time.");
+        return;
+      }
+
+      start = new Date(`${date}T${time}`).getTime();
       end = start + 100 * 60 * 60 * 1000;
+
+      localStorage.setItem("fm_arc_start", String(start));
       hideStartPanel();
-      return true;
-    }
-    return false;
-  }
-
-  function initArc() {
-    const date = document.getElementById("startDate").value;
-    const time = document.getElementById("startTime").value;
-
-    if (!date || !time) {
-      alert("Select both date and time.");
-      return;
+      completeBannerEl.style.display = "none";
+      endtimeEl.textContent = "Ends: " + new Date(end).toLocaleString();
     }
 
-    start = new Date(`${date}T${time}`).getTime();
-    end = start + 100 * 60 * 60 * 1000;
+    initBtn.addEventListener("click", initArc);
 
-    localStorage.setItem("fm_arc_start", start);
-    hideStartPanel();
-  }
+    function setAtmosphere(pct) {
+      let bg, accent;
+      if (pct < 25) {
+        bg = getComputedStyle(document.documentElement).getPropertyValue('--ignition-bg');
+        accent = getComputedStyle(document.documentElement).getPropertyValue('--ignition-accent');
+        phaseTagEl.textContent = "IGNITION";
+      } else if (pct < 50) {
+        bg = getComputedStyle(document.documentElement).getPropertyValue('--expansion-bg');
+        accent = getComputedStyle(document.documentElement).getPropertyValue('--expansion-accent');
+        phaseTagEl.textContent = "EXPANSION";
+      } else if (pct < 75) {
+        bg = getComputedStyle(document.documentElement).getPropertyValue('--consolidation-bg');
+        accent = getComputedStyle(document.documentElement).getPropertyValue('--consolidation-accent');
+        phaseTagEl.textContent = "CONSOLIDATION";
+      } else {
+        bg = getComputedStyle(document.documentElement).getPropertyValue('--surge-bg');
+        accent = getComputedStyle(document.documentElement).getPropertyValue('--surge-accent');
+        phaseTagEl.textContent = "SURGE";
+      }
+      document.body.style.background = bg;
+      countdownEl.style.color = accent;
+      sigilCoreEl.style.background = accent ? accent : "rgba(255,255,255,0.3)";
+    }
 
-  initBtn.addEventListener("click", initArc);
+    function updatePhaseText(pct) {
+      let phase = "";
+      if (pct < 25) phase = "Phase I — Ignition";
+      else if (pct < 50) phase = "Phase II — Expansion";
+      else if (pct < 75) phase = "Phase III — Consolidation";
+      else phase = "Phase IV — Surge";
+      phaseEl.textContent = phase;
+    }
 
-  function setAtmosphere(pct) {
-    let bg, accent;
-    if (pct < 25) {
-      bg = getComputedStyle(document.documentElement).getPropertyValue('--ignition-bg');
-      accent = getComputedStyle(document.documentElement).getPropertyValue('--ignition-accent');
-      phaseTagEl.textContent = "IGN
+    function getTodayHours() {
+      if (!start) return 0;
+      const now = Date.now();
+      const startOfDay = new Date();
+      startOfDay.setHours(0,0,0,0);
+      const dayStart = Math.max(start, startOfDay.getTime());
+      const dayElapsed = Math.max(0, Math.min(now, end) - dayStart);
+      return dayElapsed / (1000 * 60 * 60);
+    }
+
+    function updateAll() {
+      if (!start || !end) {
+        requestAnimationFrame(updateAll);
+        return;
+      }
+
+      const now = Date.now();
+
+      if (now < start) {
+        const startDateObj = new Date(start);
+        const timeStr = startDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        scheduledStateEl.style.display = "block";
+        scheduledTimeEl.textContent = `Begins at ${timeStr}`;
+        countdownEl.textContent = "100:00:00";
+        countupEl.textContent = "00:00:00 elapsed";
+        percentEl.textContent = "0.00% complete";
+        phaseEl.textContent = "Phase I — Ignition";
+        progressBarEl.style.width = "0%";
+        spineFillEl.style.height = "0%";
+        velocityFillEl.style.width = "0%";
+        velocityLabelEl.textContent = "0.0h";
+        endtimeEl.textContent = "Ends: " + new Date(end).toLocaleString();
+        requestAnimationFrame(updateAll);
+        return;
+      }
+
+      scheduledStateEl.style.display = "none";
+
+      let remaining = end - now;
+      if (remaining < 0) remaining = 0;
+      const totalSecondsRem = Math.floor(remaining / 1000);
+      const hoursRem = String(Math.floor(totalSecondsRem / 3600)).padStart(2, '0');
+      const minutesRem = String(Math.floor((totalSecondsRem % 3600) / 60)).padStart(2, '0');
+      const secondsRem = String(totalSecondsRem % 60).padStart(2, '0');
+      countdownEl.textContent = `${hoursRem}:${minutesRem}:${secondsRem}`;
+
+      let elapsed = now - start;
+      if (elapsed < 0) elapsed = 0;
+      const totalSecondsEl = Math.floor(elapsed / 1000);
+      const hoursEl = Math.floor(totalSecondsEl / 3600);
+      const hoursElStr = String(hoursEl).padStart(2, '0');
+      const minutesEl = String(Math.floor((totalSecondsEl % 3600) / 60)).padStart(2, '0');
+      const secondsEl = String(totalSecondsEl % 60).padStart(2, '0');
+      countupEl.textContent = `${hoursElStr}:${minutesEl}:${secondsEl} elapsed`;
+
+      const total = end - start;
+      const pctRaw = (elapsed / total) * 100;
+      const pct = Math.min(Math.max(pctRaw, 0), 100);
+      percentEl.textContent = pct.toFixed(2) + "% complete";
+      progressBarEl.style.width = pct + "%";
+
+      updatePhaseText(pct);
+      setAtmosphere(pct);
+
+      spineFillEl.style.height = pct + "%";
+
+      const todayHours = getTodayHours();
+      const todayPct = Math.min(todayHours / 16 * 100, 100);
+      velocityFillEl.style.width = todayPct + "%";
+      velocityLabelEl.textContent = `${todayHours.toFixed(1)}h`;
+
+      const milestoneBlock = Math.floor(hoursEl / 10);
+      if (milestoneBlock !== lastMilestoneBlock && hoursEl > 0 && hoursEl <= 100) {
+        lastMilestoneBlock = milestoneBlock;
+        deckEl.classList.remove("milestone-pulse");
+        void deckEl.offsetWidth;
+        deckEl.classList.add("milestone-pulse");
+      }
+
+      const nextMilestoneHours = Math.min(Math.ceil((hoursEl + 0.0001) / 10) * 10, 100);
+      if (hoursEl >= 100) milestoneLabelEl.textContent = "Arc complete at 100h";
+      else milestoneLabelEl.textContent = `Next milestone: ${nextMilestoneHours}h`;
+
+      if (remaining === 0) {
+        countdownEl.textContent = "00:00:00";
+        phaseEl.textContent = "ARC COMPLETE";
+        phaseTagEl.textContent = "COMPLETE";
+        document.body.style.background = "#000000";
+        deckEl.classList.remove("milestone-pulse");
+        deckEl.classList.add("milestone-pulse");
+        completeBannerEl.style.display = "block";
+        showStartPanel();
+        prefillTodayDate();
+        return;
+      }
+
+      requestAnimationFrame(updateAll);
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("cinematic");
+      deckEl.classList.toggle("cinematic");
+    }
+
+    document.body.addEventListener("click", (e) => {
+      if (e.target.closest(".start-panel")) return;
+      toggleMode();
+    });
+
+    const hasStart = loadStartTime();
+    if (!hasStart) {
+      showStartPanel();
+      prefillTodayDate();
+    } else {
+      endtimeEl.textContent = "Ends: " + new Date(end).toLocaleString();
+    }
+
+    updateAll();
+  </script>
+</body>
+</html>
