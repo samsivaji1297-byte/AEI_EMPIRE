@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Start Panel Prototype</title>
+
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: #05060a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f5f5f5;
+    font-family: system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+  }
+
+  /* Slide-up panel container */
+  .start-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: -260px; /* hidden by default */
+    background: rgba(0,0,0,0.92);
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding: 22px 20px 28px;
+    box-shadow: 0 -8px 22px rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    transition: bottom 0.45s ease;
+  }
+
+  .start-panel.visible {
+    bottom: 0;
+  }
+
+  .panel-title {
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-bottom: 14px;
+  }
+
+  .input-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    background: #0d0e12;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 0.95rem;
+    outline: none;
+  }
+
+  input:focus {
+    border-color: rgba(255,255,255,0.35);
+  }
+
+  .init-btn {
+    width: 100%;
+    padding: 12px;
+    background: #ffffff;
+    color: #000000;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+  }
+
+  .init-btn:active {
+    transform: scale(0.98);
+  }
+
+  /* Fake deck placeholder */
+  .deck-placeholder {
+    font-size: 1.2rem;
+    opacity: 0.4;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="deck-placeholder">Command Deck Placeholder</div>
+
+<div class="start-panel" id="startPanel">
+  <div class="panel-title">Initialise 100‑Hour Arc</div>
+
+  <div class="input-row">
+    <input type="date" id="startDate" />
+    <input type="time" id="startTime" />
+  </div>
+
+  <button class="init-btn" id="initBtn">Init Arc</button>
+</div>
+
+<script>
+  const panel = document.getElementById("startPanel");
+  const initBtn = document.getElementById("initBtn");
+
+  // Show panel immediately (in real version: only if no saved start time)
+  setTimeout(() => {
+    panel.classList.add("visible");
+  }, 300);
+
+  initBtn.addEventListener("click", () => {
+    const date = document.getElementById("startDate").value;
+    const time = document.getElementById("startTime").value;
+
+    if (!date || !time) {
+      alert("Select both date and time.");
+      return;
+    }
+
+    const startTimestamp = new Date(`${date}T${time}`).getTime();
+    localStorage.setItem("fm_arc_start", startTimestamp);
+
+    panel.classList.remove("visible");
+  });
+</script>
+
+</body>
+</html>
