@@ -6,6 +6,11 @@ in this folder location: widgets/Ghost-Deck OS
 
 ---
 
+ChatGPT: Jarvis V1 Build [Ghost-Deck OS], link: https://chatgpt.com/c/69dd89e6-1924-8320-a66c-de3b1bda0253
+was used to create the widget called: 100-hour-timer2.html
+in this folder location: widgets
+
+---
 
 https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/FMMedia/fm_media_mission_control.html
 
