@@ -11,35 +11,98 @@
     --fg: #f5f5f5;
     --muted: #8b8f98;
     --border: #1a1b20;
-    --card: #0a0b0f;
     --accent: #ffffff;
   }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     background: radial-gradient(circle at top, #151720 0, #020204 55%);
     font-family: system-ui, -apple-system, "Inter", sans-serif;
     color: var(--fg);
     padding: 30px;
+    position: relative;
+    overflow-x: hidden;
   }
 
-  h1 {
+  /* Animated Grid Background */
+  .grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+    animation: gridMove 22s linear infinite;
+    pointer-events: none;
+    opacity: 0.55;
+  }
+
+  @keyframes gridMove {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(32px); }
+  }
+
+  /* Scanlines */
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.03) 0px,
+      rgba(255,255,255,0.03) 2px,
+      transparent 2px,
+      transparent 4px
+    );
+    animation: scan 7s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+
+  /* Header */
+  .header {
     text-transform: uppercase;
     letter-spacing: 0.18em;
-    font-size: 18px;
-    margin-bottom: 20px;
-    color: var(--accent);
-    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
   }
 
-  .grid {
+  .timestamp {
+    color: var(--accent);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+  }
+
+  /* Title */
+  h1 {
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: var(--accent);
+    text-align: center;
+    text-shadow: 0 0 12px rgba(255,255,255,0.18);
+  }
+
+  /* Grid of Cards */
+  .widget-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 20px;
     margin-top: 30px;
+    position: relative;
+    z-index: 2;
   }
 
   .card {
-    background: var(--card);
+    background: rgba(10,11,15,0.85);
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 18px;
@@ -47,10 +110,10 @@
     color: var(--fg);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     transition: 0.25s ease;
     position: relative;
     overflow: hidden;
+    backdrop-filter: blur(4px);
   }
 
   .card:hover {
@@ -71,64 +134,61 @@
     color: var(--muted);
     letter-spacing: 0.12em;
   }
-
-  .scanlines {
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      to bottom,
-      rgba(255,255,255,0.03) 0px,
-      rgba(255,255,255,0.03) 2px,
-      transparent 2px,
-      transparent 4px
-    );
-    pointer-events: none;
-  }
 </style>
 </head>
 
 <body>
 
-<h1>Ghost‑Deck OS — Widget Directory</h1>
+<div class="grid"></div>
+<div class="scanlines"></div>
 
-<div class="grid">
+<div class="header">
+  <div>Ghost‑Deck OS</div>
+  <div id="timestamp" class="timestamp">--:--:--</div>
+</div>
 
-  <!-- FM Presence Monitor -->
+<h1>Widget Directory</h1>
+
+<div class="widget-grid">
+
   <a class="card" href="https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/FMMedia/fmwidgetfour.html" target="_blank">
     <div class="card-title">FM Presence Monitor</div>
     <div class="card-sub">fmwidgetfour.html</div>
-    <div class="scanlines"></div>
   </a>
 
-  <!-- FM Media Mission Control -->
   <a class="card" href="https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/FMMedia/fm_media_mission_control.html" target="_blank">
     <div class="card-title">FM Media Mission Control</div>
     <div class="card-sub">fm_media_mission_control.html</div>
-    <div class="scanlines"></div>
   </a>
 
-  <!-- Jarvis -->
   <a class="card" href="https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/Ghost-Deck OS/Jarvis.html" target="_blank">
     <div class="card-title">Jarvis V1</div>
     <div class="card-sub">Jarvis.html</div>
-    <div class="scanlines"></div>
   </a>
 
-  <!-- 100 Hour Timer -->
   <a class="card" href="https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/100-hour-timer2.html" target="_blank">
     <div class="card-title">100‑Hour Timer</div>
     <div class="card-sub">100-hour-timer2.html</div>
-    <div class="scanlines"></div>
   </a>
 
-  <!-- Jarvis Ghost -->
   <a class="card" href="https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/Ghost-Deck OS/JarvisGhost.html" target="_blank">
     <div class="card-title">Jarvis Ghost</div>
     <div class="card-sub">JarvisGhost.html</div>
-    <div class="scanlines"></div>
   </a>
 
 </div>
+
+<script>
+  function updateTimestamp() {
+    const el = document.getElementById("timestamp");
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    el.textContent = time;
+  }
+
+  setInterval(updateTimestamp, 1000);
+  updateTimestamp();
+</script>
 
 </body>
 </html>
