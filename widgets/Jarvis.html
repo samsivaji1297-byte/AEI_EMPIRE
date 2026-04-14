@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>JARVIS Command Deck v1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin:0;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#020308;
+  color:#fff;
+  font-family:-apple-system,system-ui;
+  overflow:hidden;
+}
+
+.deck {
+  width:90%;
+  max-width:480px;
+  padding:20px;
+  border-radius:20px;
+  background:rgba(0,0,0,0.85);
+  border:1px solid rgba(255,255,255,0.15);
+  backdrop-filter:blur(10px);
+  text-align:center;
+  transition:0.3s;
+}
+
+#countdown {
+  font-size:3.5rem;
+  letter-spacing:0.15em;
+}
+
+.meta {
+  opacity:0.7;
+  margin-top:6px;
+  font-size:0.8rem;
+}
+
+.bar {
+  margin-top:15px;
+  height:10px;
+  border-radius:999px;
+  background:#111;
+  overflow:hidden;
+}
+
+.fill {
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#4fd1ff,#8bc34a,#ffeb3b,#ff5252);
+}
+
+#startPanel {
+  position:fixed;
+  bottom:-250px;
+  left:0;
+  right:0;
+  background:#000;
+  padding:20px;
+  transition:0.4s;
+}
+
+#startPanel.visible { bottom:0; }
+
+input,button {
+  width:100%;
+  margin-top:10px;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="deck" id="deck">
+  <div id="phase">Awaiting Initialization</div>
+  <div id="countdown">--:--:--</div>
+  <div class="meta" id="percent">0%</div>
+  <div class="meta" id="status">Status: --</div>
+  <div class="bar"><div class="fill" id="progress"></div></div>
+  <div class="meta" id="message">System idle</div>
+</div>
+
+<div id="startPanel">
+  <input type="date" id="date">
+  <input type="time" id="time">
+  <button onclick="init()">Initialize Arc</button>
+</div>
+
+<script>
+let start=null,end=null;
+let lastInteraction=Date.now();
+let inactivity=0;
+
+const deck=document.getElementById("deck");
+const countdown=document.getElementById("countdown");
+const percentEl=document.getElementById("percent");
+const progress=document.getElementById("progress");
+const phaseEl=document.getElementById("phase");
+const statusEl=document.getElementById("status");
+const messageEl=document.getElementById("message");
+
+/* SPEECH */
+function speak(text){
+  const msg=new SpeechSynthesisUtterance(text);
+  msg.rate=0.9;
+  msg.pitch=0.8;
+  speechSynthesis.speak(msg);
+}
+
+/* VOICE INPUT */
+let recognition;
+if(window.SpeechRecognition||window.webkitSpeechRecognition){
+  recognition=new (window.SpeechRecognition||window.webkitSpeechRecognition)();
+  recognition.continuous=true;
+  recognition.onresult=(e)=>{
+    const t=e.results[e.results.length-1][0].transcript.toLowerCase();
+    handleCommand(t);
+  };
+  recognition.start();
+}
+
+function handleCommand(cmd){
+  if(cmd.includes("status")){
+    speak("You are "+percentEl.textContent+" complete");
+  }
+  if(cmd.includes("reset")){
+    speak("Resetting arc");
+    localStorage.removeItem("arc");
+    location.reload();
+  }
+  if(cmd.includes("focus")){
+    speak("Focus mode engaged");
+    deck.style.transform="scale(1.05)";
+  }
+}
+
+/* INIT */
+function init(){
+  const d=document.getElementById("date").value;
+  const t=document.getElementById("time").value;
+  start=new Date(d+"T"+t).getTime();
+  end=start+100*60*60*1000;
+  localStorage.setItem("arc",start);
+  document.getElementById("startPanel").classList.remove("visible");
+  speak("Arc initialized. Stay focused.");
+}
+
+function load(){
+  const s=localStorage.getItem("arc");
+  if(s){
+    start=parseInt(s);
+    end=start+100*60*60*1000;
+    speak("Welcome back.");
+  } else {
+    document.getElementById("startPanel").classList.add("visible");
+  }
+}
+load();
+
+/* ACTIVITY TRACKING */
+["click","touchstart","keydown"].forEach(e=>{
+  document.addEventListener(e,()=>{lastInteraction=Date.now(); inactivity=0;});
+});
+
+function inactivityCheck(){
+  let idle=(Date.now()-lastInteraction)/1000;
+  if(idle>60) inactivity=1;
+  if(idle>180) inactivity=2;
+  if(idle>300) inactivity=3;
+
+  deck.style.filter =
+    inactivity===0?"none":
+    inactivity===1?"brightness(0.85)":
+    inactivity===2?"brightness(0.7) blur(1px)":
+    "brightness(0.6) blur(2px)";
+}
+setInterval(inactivityCheck,2000);
+
+/* LOOP */
+function loop(){
+  if(!start){requestAnimationFrame(loop);return;}
+
+  let now=Date.now();
+  let elapsed=Math.max(0,now-start);
+  let total=end-start;
+  let pct=Math.min(100,(elapsed/total)*100);
+
+  let remain=Math.max(0,end-now);
+  let s=Math.floor(remain/1000);
+  let h=String(Math.floor(s/3600)).padStart(2,'0');
+  let m=String(Math.floor((s%3600)/60)).padStart(2,'0');
+  let sec=String(s%60).padStart(2,'0');
+
+  countdown.textContent=`${h}:${m}:${sec}`;
+  percentEl.textContent=pct.toFixed(2)+"%";
+  progress.style.width=pct+"%";
+
+  /* PHASE */
+  if(pct<25) phaseEl.textContent="Ignition";
+  else if(pct<50) phaseEl.textContent="Expansion";
+  else if(pct<75) phaseEl.textContent="Consolidation";
+  else phaseEl.textContent="Surge";
+
+  /* STATUS */
+  let expected=((now-start)/(100*60*60*1000))*100;
+  let diff=pct-expected;
+  let state = diff>5?"AHEAD":diff<-5?"BEHIND":"ON TRACK";
+  statusEl.textContent="Status: "+state;
+
+  /* INTENSITY */
+  deck.style.boxShadow=`0 0 ${20+pct*0.4}px rgba(0,0,0,0.9)`;
+
+  /* BREATHING */
+  let breathe=1+Math.sin(Date.now()/4000)*0.01;
+  deck.style.transform=`scale(${breathe})`;
+
+  /* BEHAVIOR EVALUATION */
+  if(inactivity===3){
+    messageEl.textContent="You are drifting.";
+    if(Math.random()<0.01) speak("Re-engage now.");
+  } else if(pct>80){
+    messageEl.textContent="Final phase.";
+  } else {
+    messageEl.textContent="Stay on track.";
+  }
+
+  requestAnimationFrame(loop);
+}
+loop();
+
+/* AMBIENT THOUGHTS */
+setInterval(()=>{
+  const thoughts=[
+    "Stay focused",
+    "Time is moving",
+    "Maintain control",
+    "You are in command"
+  ];
+  if(Math.random()<0.02){
+    let msg=thoughts[Math.floor(Math.random()*thoughts.length)];
+    messageEl.textContent=msg;
+    speak(msg);
+  }
+},10000);
+
+</script>
+
+</body>
+</html>
