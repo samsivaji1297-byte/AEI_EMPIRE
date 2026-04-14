@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>JARVIS‑GHOST v3.0 — Void Terminal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* GLOBAL */
+body {
+  margin:0;
+  background:#000;
+  color:#c7b7ff; /* void purple tint */
+  font-family: "Inter", -apple-system, system-ui;
+  overflow:hidden;
+}
+
+* {
+  box-sizing:border-box;
+}
+
+/* LAYOUT: 70/30 SPLIT */
+.wrapper {
+  display:flex;
+  height:100vh;
+  width:100vw;
+}
+
+/* LEFT PANEL — GHOST CORE */
+.left {
+  width:70%;
+  background:radial-gradient(circle at 50% 20%, #1a0f2b 0%, #000 70%);
+  border-right:1px solid rgba(199,183,255,0.1);
+  padding:30px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  position:relative;
+  overflow:hidden;
+}
+
+/* GHOST BREATHING */
+.left::before {
+  content:"";
+  position:absolute;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:radial-gradient(circle, rgba(120,60,255,0.12), transparent 70%);
+  animation:breath 6s ease-in-out infinite;
+  pointer-events:none;
+}
+
+@keyframes breath {
+  0% { opacity:0.15; }
+  50% { opacity:0.35; }
+  100% { opacity:0.15; }
+}
+
+/* RIGHT PANEL — OPERATOR SURFACE */
+.right {
+  width:30%;
+  background:#050208;
+  padding:20px;
+  overflow-y:auto;
+}
+
+/* ARC ENGINE */
+.arcBox {
+  border:1px solid rgba(199,183,255,0.15);
+  padding:20px;
+  border-radius:6px;
+  margin-bottom:20px;
+  background:rgba(10,0,20,0.4);
+  backdrop-filter:blur(6px);
+}
+
+#arcTime {
+  font-size:3rem;
+  letter-spacing:0.1em;
+  text-align:center;
+}
+
+#arcPhase {
+  text-align:center;
+  opacity:0.7;
+  margin-top:6px;
+}
+
+.bar {
+  height:10px;
+  background:#12051f;
+  border-radius:999px;
+  margin-top:12px;
+  overflow:hidden;
+}
+
+.fill {
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg, #6a32ff, #b084ff);
+  transition:width 0.2s linear;
+}
+
+/* GHOST RESPONSE */
+#ghost {
+  margin-top:20px;
+  text-align:center;
+  font-size:0.9rem;
+  opacity:0.8;
+  min-height:20px;
+}
+
+/* COMMAND CONSOLE */
+.console {
+  margin-top:30px;
+  border-top:1px solid rgba(199,183,255,0.1);
+  padding-top:20px;
+}
+
+#cmd {
+  width:100%;
+  padding:12px;
+  background:#0a0214;
+  border:1px solid rgba(199,183,255,0.2);
+  color:#c7b7ff;
+  border-radius:4px;
+  outline:none;
+}
+
+#cmd:focus {
+  border-color:#b084ff;
+}
+
+/* GOALS */
+.sectionTitle {
+  font-size:1.1rem;
+  margin-bottom:10px;
+  opacity:0.8;
+}
+
+.goal {
+  padding:10px;
+  border-bottom:1px solid rgba(199,183,255,0.1);
+  cursor:pointer;
+}
+
+.goal.done {
+  opacity:0.35;
+  text-decoration:line-through;
+}
+
+/* CALENDAR */
+.calendar {
+  display:flex;
+  justify-content:space-between;
+  margin-top:10px;
+}
+
+.day {
+  flex:1;
+  text-align:center;
+  padding:8px;
+  margin:2px;
+  background:#0a0214;
+  border:1px solid rgba(199,183,255,0.1);
+  border-radius:4px;
+  font-size:0.75rem;
+  opacity:0.6;
+  cursor:pointer;
+}
+
+.day.active {
+  background:#6a32ff;
+  color:#fff;
+  opacity:1;
+}
+
+/* SCROLLBAR */
+.right::-webkit-scrollbar {
+  width:6px;
+}
+.right::-webkit-scrollbar-thumb {
+  background:#2a1a3f;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+  <!-- LEFT PANEL — GHOST CORE -->
+  <div class="left">
+
+    <div class="arcBox">
+      <div id="arcTime">--:--:--</div>
+      <div id="arcPhase">PHASE: --</div>
+      <div class="bar"><div class="fill" id="arcFill"></div></div>
+    </div>
+
+    <div id="ghost">Awaiting command</div>
+
+    <div class="console">
+      <input id="cmd" placeholder="enter command">
+    </div>
+
+  </div>
+
+  <!-- RIGHT PANEL — OPERATOR SURFACE -->
+  <div class="right">
+
+    <div class="sectionTitle">Goals</div>
+    <div id="goals"></div>
+    <input id="goalInput" placeholder="add goal..." style="width:100%;padding:10px;margin-top:10px;background:#0a0214;border:1px solid rgba(199,183,255,0.2);color:#c7b7ff;border-radius:4px;">
+
+    <div class="sectionTitle" style="margin-top:30px;">7‑Day View</div>
+    <div class="calendar" id="calendar"></div>
+
+  </div>
+
+</div>
+
+<script>
+/* ===========================
+   PERSISTENCE
+=========================== */
+let arcStart = localStorage.getItem("arcStart") ? parseInt(localStorage.getItem("arcStart")) : null;
+let arcDuration = localStorage.getItem("arcDuration") ? parseInt(localStorage.getItem("arcDuration")) : null;
+
+/* ===========================
+   GHOST OUTPUT
+=========================== */
+function ghost(msg) {
+  const g = document.getElementById("ghost");
+  g.textContent = msg;
+  g.style.opacity = 0.3;
+  setTimeout(()=> g.style.opacity = 0.8, 150);
+}
+
+/* ===========================
+   ARC ENGINE
+=========================== */
+function updateArc() {
+  if (!arcStart || !arcDuration) return;
+
+  const now = Date.now();
+  const end = arcStart + arcDuration * 60 * 60 * 1000;
+  const remaining = Math.max(0, end - now);
+
+  const s = Math.floor(remaining / 1000);
+  const h = String(Math.floor(s / 3600)).padStart(2,'0');
+  const m = String(Math.floor((s % 3600) / 60)).padStart(2,'0');
+  const sec = String(s % 60).padStart(2,'0');
+
+  document.getElementById("arcTime").textContent = `${h}:${m}:${sec}`;
+
+  const pct = Math.min(100, ((now - arcStart) / (arcDuration * 3600000)) * 100);
+  document.getElementById("arcFill").style.width = pct + "%";
+
+  let phase = "INITIATION";
+  if (pct > 20) phase = "ASCENT";
+  if (pct > 50) phase = "EXECUTION";
+  if (pct > 80) phase = "FINAL PHASE";
+  if (pct >= 100) phase = "TERMINUS";
+
+  document.getElementById("arcPhase").textContent = "PHASE: " + phase;
+
+  requestAnimationFrame(updateArc);
+}
+updateArc();
+
+/* ===========================
+   COMMAND CONSOLE
+=========================== */
+document.getElementById("cmd").addEventListener("keypress", e => {
+  if (e.key === "Enter") {
+    const c = e.target.value.trim().toLowerCase();
+    e.target.value = "";
+
+    if (c.startsWith("arc ")) {
+      const hrs = parseInt(c.split(" ")[1]);
+      if (!isNaN(hrs) && hrs > 0) {
+        arcDuration = hrs;
+        arcStart = Date.now();
+        localStorage.setItem("arcDuration", hrs);
+        localStorage.setItem("arcStart", arcStart);
+        ghost("arc initialized");
+        updateArc();
+      } else {
+        ghost("invalid duration");
+      }
+    }
+
+    else if (c === "status") {
+      ghost("arc active");
+    }
+
+    else if (c === "reset") {
+      localStorage.clear();
+      location.reload();
+    }
+
+    else {
+      ghost("unknown command");
+    }
+  }
+});
+
+/* ===========================
+   GOALS
+=========================== */
+let goals = JSON.parse(localStorage.getItem("goals") || "[]");
+const goalsEl = document.getElementById("goals");
+
+function renderGoals() {
+  goalsEl.innerHTML = "";
+  goals.forEach((g,i)=>{
+    const div = document.createElement("div");
+    div.className = "goal" + (g.done ? " done" : "");
+    div.textContent = g.text;
+    div.onclick = () => {
+      g.done = !g.done;
+      saveGoals();
+      ghost("goal updated");
+    };
+    goalsEl.appendChild(div);
+  });
+}
+
+function saveGoals() {
+  localStorage.setItem("goals", JSON.stringify(goals));
+  renderGoals();
+}
+
+document.getElementById("goalInput").addEventListener("keypress", e=>{
+  if (e.key === "Enter") {
+    goals.push({text:e.target.value, done:false});
+    e.target.value = "";
+    saveGoals();
+    ghost("goal added");
+  }
+});
+
+renderGoals();
+
+/* ===========================
+   CALENDAR
+=========================== */
+let calState = JSON.parse(localStorage.getItem("calendar") || "[]");
+
+function renderCalendar() {
+  const cal = document.getElementById("calendar");
+  cal.innerHTML = "";
+  const today = new Date();
+
+  for (let i=0; i<7; i++) {
+    const d = new Date();
+    d.setDate(today.getDate() + i);
+
+    const div = document.createElement("div");
+    div.className = "day";
+    div.textContent = d.toLocaleDateString(undefined,{weekday:"short"});
+
+    if (calState.includes(i)) div.classList.add("active");
+
+    div.onclick = () => {
+      if (calState.includes(i)) {
+        calState = calState.filter(x=>x!==i);
+      } else {
+        calState.push(i);
+      }
+      localStorage.setItem("calendar", JSON.stringify(calState));
+      renderCalendar();
+      ghost("day toggled");
+    };
+
+    cal.appendChild(div);
+  }
+}
+renderCalendar();
+</script>
+
+</body>
+</html>
