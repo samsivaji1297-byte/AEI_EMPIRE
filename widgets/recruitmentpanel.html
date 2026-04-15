@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Recruitment Engine — Ghost OS Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  :root {
+    --bg: #05060a;
+    --panel-bg: #05060f;
+    --accent: #a45bff;
+    --accent-soft: rgba(164, 91, 255, 0.35);
+    --accent-hard: rgba(164, 91, 255, 0.9);
+    --grid-line: rgba(255, 255, 255, 0.04);
+    --text-main: #f5f5f7;
+    --text-soft: #9ea2b5;
+    --danger: #ff4b6b;
+    --ok: #4bffa6;
+    --warn: #ffc94b;
+    --border-soft: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.18);
+    --scanline: rgba(255, 255, 255, 0.04);
+    --shadow-strong: 0 0 40px rgba(0, 0, 0, 0.9);
+    --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top, #151623 0, #05060a 55%, #000 100%);
+    color: var(--text-main);
+    font-family: var(--sans);
+    overflow: hidden;
+  }
+
+  body::before {
+    /* subtle scanline overlay */
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px
+    );
+    background-size: 100% 2px;
+    opacity: 0.25;
+    mix-blend-mode: soft-light;
+  }
+
+  .ghost-os-shell {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-soft);
+  }
+
+  .ghost-os-shell::before {
+    /* subtle center glow */
+    content: "";
+    position: absolute;
+    width: 60vmax;
+    height: 60vmax;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(164, 91, 255, 0.18), transparent 60%);
+    filter: blur(40px);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .ghost-os-desktop {
+    position: relative;
+    width: min(1200px, 92vw);
+    height: min(720px, 86vh);
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: radial-gradient(circle at top left, #151623 0, #05060f 40%, #020308 100%);
+    box-shadow: var(--shadow-strong);
+    overflow: hidden;
+  }
+
+  .ghost-os-desktop::before {
+    /* faint grid */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .ghost-os-desktop-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1;
+  }
+
+  .ghost-os-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text-soft);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .ghost-os-top-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ghost-os-logo {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 12px var(--accent-soft);
+    position: relative;
+  }
+
+  .ghost-os-logo::after {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-hard), transparent 70%);
+  }
+
+  .ghost-os-top-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    opacity: 0.8;
+  }
+
+  .ghost-os-top-right span {
+    opacity: 0.7;
+  }
+
+  .ghost-os-main {
+    position: relative;
+    flex: 1;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+    background: radial-gradient(circle at top, rgba(255, 255, 255, 0.02), transparent 55%);
+  }
+
+  .ghost-os-main-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* PANEL */
+
+  .re-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 72%;
+    height: 100%;
+    background: radial-gradient(circle at top, #151623 0, #05060f 45%, #020308 100%);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: -20px 0 40px rgba(0, 0, 0, 0.9);
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    padding: 14px 16px 12px 16px;
+    gap: 10px;
+    transition:
+      transform 420ms cubic-bezier(0.19, 1, 0.22, 1),
+      opacity 260ms ease-out;
+  }
+
+  .re-panel.active {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .re-panel::before {
+    /* ghost pulse top edge */
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0,
+      rgba(164, 91, 255, 0.1) 10%,
+      rgba(164, 91, 255, 0.9) 40%,
+      rgba(164, 91, 255, 0.1) 70%,
+      transparent 100%
+    );
+    opacity: 0;
+    animation: ghostPulse 3.4s linear infinite;
+  }
+
+  @keyframes ghostPulse {
+    0% { opacity: 0; transform: translateX(-20%); }
+    20% { opacity: 1; transform: translateX(0); }
+    80% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(20%); }
+  }
+
+  .re-panel-grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 32px 32px;
+    opacity: 0.5;
+    pointer-events: none;
+    mix-blend-mode: soft-light;
+  }
+
+  .re-panel-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+  }
+
+  /* HEADER / ORACLE STRIP */
+
+  .re-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .re-header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .re-header-title {
+    color: var(--text-main);
+    font-size: 11px;
+  }
+
+  .re-header-sub {
+    opacity: 0.6;
+  }
+
+  .re-header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .oracle-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: flex-end;
+  }
+
+  .oracle-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    opacity: 0.6;
+  }
+
+  .oracle-value {
+    font-size: 11px;
+    color: var(--text-main);
+  }
+
+  .oracle-value span {
+    font-size: 9px;
+    opacity: 0.7;
+    margin-left: 4px;
+  }
+
+  .oracle-value.danger { color: var(--danger); }
+  .oracle-value.ok { color: var(--ok); }
+  .oracle-value.warn { color: var(--warn); }
+
+  .re-close-btn {
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 4px 10px;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: radial-gradient(circle at top, rgba(255, 255, 255, 0.08), transparent 70%);
+    color: var(--text-soft);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: border 160ms ease, color 160ms ease, background 160ms ease, transform 120ms ease;
+  }
+
+  .re-close-btn span.key {
+    padding: 2px 5px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    font-size: 8px;
+    opacity: 0.8;
+  }
+
+  .re-close-btn:hover {
+    border-color: var(--accent);
+    color: var(--text-main);
+    background: radial-gradient(circle at top, rgba(164, 91, 255, 0.18), transparent 70%);
+    transform: translateY(-1px);
+  }
+
+  /* MAIN LAYOUT */
+
+  .re-main {
+    flex: 1;
+    display: grid;
+    grid-template-rows: 1.4fr 1.1fr 0.9fr;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  /* PREDICTION CORE */
+
+  .re-prediction-core {
+    display: grid;
+    grid-template-columns: 1.2fr 1.1fr 1.1fr;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  .re-card {
+    position: relative;
+    border-radius: 12px;
+    border: 1px solid var(--border-soft);
+    background: radial-gradient(circle at top, rgba(255, 255, 255, 0.04), rgba(5, 6, 15, 0.96));
+    overflow: hidden;
+    padding: 8px 9px 7px 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .re-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top, rgba(164, 91, 255, 0.12), transparent 60%);
+    opacity: 0.35;
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+  }
+
+  .re-card-header {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .re-card-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .re-card-title-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    box-shadow: 0 0 10px var(--accent-soft);
+  }
+
+  .re-card-sub {
+    font-size: 9px;
+    opacity: 0.6;
+  }
+
+  .re-card-body {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-soft);
+    overflow: hidden;
+  }
+
+  .metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--mono);
+  }
+
+  .metric-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    opacity: 0.6;
+  }
+
+  .metric-value {
+    font-size: 11px;
+    color: var(--text-main);
+  }
+
+  .metric-value span {
+    font-size: 9px;
+    opacity: 0.7;
+    margin-left: 4px;
+  }
+
+  .metric-bar {
+    position: relative;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .metric-bar-fill {
+    position: absolute;
+    inset: 0;
+    width: 40%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--accent-soft), var(--accent-hard));
+    transform-origin: left;
+    transform: scaleX(0.6);
+    transition: transform 260ms ease-out;
+  }
+
+  .metric-bar-fill.danger {
+    background: linear-gradient(90deg, rgba(255, 75, 107, 0.4), rgba(255, 75, 107, 0.9));
+  }
+
+  .metric-bar-fill.ok {
+    background: linear-gradient(90deg, rgba(75, 255, 166, 0.4), rgba(75, 255, 166, 0.9));
+  }
+
+  .metric-bar-fill.warn {
+    background: linear-gradient(90deg, rgba(255, 201, 75, 0.4), rgba(255, 201, 75, 0.9));
+  }
+
+  .re-card-body-grid {
+    margin-top: 4px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 4px 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    background: radial-gradient(circle at top, rgba(255, 255, 255, 0.02), rgba(5, 6, 15, 0.96));
+  }
+
+  .re-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text-soft);
+  }
+
+  .re-row span.label {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    opacity: 0.7;
+  }
+
+  .re-row span.value {
+    color: var(--text-main);
+  }
+
+  /* PIPELINE ENGINE */
+
+  .re-pipeline {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  .pipeline-column {
+    position: relative;
+    border-radius: 12px;
+    border: 1px solid var(--border-soft);
+    background: radial-gradient(circle at top, rgba(255, 255, 255, 0.03), rgba(5, 6, 15, 0.96));
+    padding: 7px 7px 6px 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    overflow: hidden;
+  }
+
+  .pipeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .pipeline-header span.count {
+    font-size: 9px;
+    opacity: 0.7;
+  }
+
+  .pipeline-body {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  .candidate-tile {
+    position: relative;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 4px 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text-soft);
+    background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.04), rgba(5, 6, 15, 0.96));
+    overflow: hidden;
+  }
+
+  .candidate-tile::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(164, 91, 255, 0.12), transparent 60%);
+    opacity: 0;
+    transition: opacity 160ms ease-out;
+    pointer-events: none;
+  }
+
+  .candidate-tile:hover::before {
+    opacity: 1;
+  }
+
+  .candidate-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .candidate-name {
+    color: var(--text-main);
+  }
+
+  .candidate-meta {
+    display: flex;
+    gap: 6px;
+    font-size: 9px;
+    opacity: 0.8;
+  }
+
+  .candidate-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2px;
+  }
+
+  .candidate-tag {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    padding: 2px 5px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    opacity: 0.8;
+  }
+
+  .candidate-score {
+    font-size: 9px;
+    opacity: 0.8;
+  }
+
+  .candidate-score span {
+    font-size: 8px;
+    opacity: 0.7;
+    margin-left: 3px;
+  }
+
+  /* CLIENT ORBIT MAP + CONSOLE */
+
+  .re-bottom {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  .re-orbit-card {
+    position: relative;
+    border-radius: 12px;
+    border: 1px solid var(--border-soft);
+    background: radial-gradient(circle at top, rgba(255, 255, 255, 0.03), rgba(5, 6, 15, 0.96));
+    padding: 7px 8px 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  .re-orbit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .re-orbit-legend {
+    display: flex;
+    gap: 10px;
+    font-size: 9px;
+    opacity: 0.7;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .legend-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .legend-dot.active { background: var(--ok); box-shadow: 0 0 8px rgba(75, 255, 166, 0.8); }
+  .legend-dot.dormant { background: var(--text-soft); opacity: 0.6; }
+  .legend-dot.risk { background: var(--danger); box-shadow: 0 0 8px rgba(255, 75, 107, 0.8); }
+
+  .re-orbit-body {
+    position: relative;
+    flex: 1;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.02), rgba(5, 6, 15, 0.96));
+  }
+
+  #orbitCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .re-console {
+    position: relative;
+    border-radius: 12px;
+    border: 1px solid var(--border-soft);
+    background: radial-gradient(circle at top, rgba(255, 255, 255, 0.03), rgba(5, 6, 15, 0.96));
+    padding: 7px 8px 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-soft);
+  }
+
+  .re-console-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .re-console-body {
+    flex: 1;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 4px 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    background: radial-gradient(circle at top, rgba(255, 255, 255, 0.02), rgba(5, 6, 15, 0.96));
+    overflow: hidden;
+  }
+
+  .console-log {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+
+  .console-line {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .console-line span.prefix {
+    color: var(--accent);
+    margin-right: 4px;
+  }
+
+  .console-line.system {
+    color: var(--text-soft);
+    opacity: 0.9;
+  }
+
+  .console-line.action {
+    color: var(--ok);
+  }
+
+  .console-line.warn {
+    color: var(--warn);
+  }
+
+  .console-line.error {
+    color: var(--danger);
+  }
+
+  .re-console-input {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 3px;
+  }
+
+  .re-console-input span.prompt {
+    color: var(--accent);
+  }
+
+  .re-console-input input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-main);
+    font-family: var(--mono);
+    font-size: 10px;
+  }
+
+  .re-console-input input::placeholder {
+    color: rgba(158, 162, 181, 0.6);
+  }
+
+  .re-console-shortcuts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 8px;
+    opacity: 0.7;
+  }
+
+  .shortcut-pill {
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 2px 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .shortcut-pill span.key {
+    padding: 1px 4px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  /* DESKTOP HINT */
+
+  .ghost-hint {
+    position: absolute;
+    left: 20px;
+    bottom: 18px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-soft);
+    opacity: 0.8;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    pointer-events: none;
+  }
+
+  .ghost-hint span.key {
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 1px 5px;
+    margin: 0 3px;
+  }
+
+  .ghost-hint-line {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* SCROLLBARS */
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+  }
+
+  @media (max-width: 900px) {
+    .re-panel {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="ghost-os-shell">
+  <div class="ghost-os-desktop">
+    <div class="ghost-os-desktop-inner">
+      <div class="ghost-os-top-bar">
+        <div class="ghost-os-top-left">
+          <div class="ghost-os-logo"></div>
+          <div>AEI EMPIRE / GHOST OS</div>
+        </div>
+        <div class="ghost-os-top-right">
+          <span>RECRUITMENT ENGINE NODE</span>
+          <span>BUILD: R-0.9.7</span>
+          <span>CHANNEL: INTERNAL</span>
+        </div>
+      </div>
+
+      <div class="ghost-os-main">
+        <div class="ghost-os-main-inner">
+          <!-- Panel -->
+          <div class="re-panel" id="rePanel">
+            <div class="re-panel-grid-overlay"></div>
+            <div class="re-panel-inner">
+              <!-- Header / Oracle Strip -->
+              <div class="re-header">
+                <div class="re-header-left">
+                  <div class="re-header-title">RECRUITMENT ENGINE</div>
+                  <div class="re-header-sub">LABOUR‑MARKET INTELLIGENCE SURFACE</div>
+                </div>
+                <div class="re-header-right">
+                  <div class="oracle-metric">
+                    <div class="oracle-label">Market Temperature</div>
+                    <div class="oracle-value ok" id="metricTemp">0.72<span>neutral‑hot</span></div>
+                  </div>
+                  <div class="oracle-metric">
+                    <div class="oracle-label">Signal Density</div>
+                    <div class="oracle-value warn" id="metricSignal">81<span>/100</span></div>
+                  </div>
+                  <div class="oracle-metric">
+                    <div class="oracle-label">Hiring Velocity</div>
+                    <div class="oracle-value" id="metricVelocity">+14<span>bps</span></div>
+                  </div>
+                  <div class="oracle-metric">
+                    <div class="oracle-label">Risk Index</div>
+                    <div class="oracle-value danger" id="metricRisk">0.63<span>elevated</span></div>
+                  </div>
+                  <button class="re-close-btn" id="closePanelBtn">
+                    CLOSE
+                    <span class="key">ESC</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Main -->
+              <div class="re-main">
+                <!-- Prediction Core -->
+                <div class="re-prediction-core">
+                  <!-- Demand Surge Node -->
+                  <div class="re-card" id="demandNode">
+                    <div class="re-card-header">
+                      <div class="re-card-title">
+                        <div class="re-card-title-dot"></div>
+                        <span>Demand Surge</span>
+                      </div>
+                      <div class="re-card-sub">INCOMING PRESSURE FIELDS</div>
+                    </div>
+                    <div class="re-card-body">
+                      <div class="metric-row">
+                        <div class="metric-label">Global Intensity</div>
+                        <div class="metric-value" id="demandIntensity">0.81<span>high</span></div>
+                      </div>
+                      <div class="metric-bar">
+                        <div class="metric-bar-fill warn" id="demandBar"></div>
+                      </div>
+                      <div class="re-card-body-grid" id="demandGrid">
+                        <!-- rows injected by JS -->
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Talent Flow Node -->
+                  <div class="re-card" id="flowNode">
+                    <div class="re-card-header">
+                      <div class="re-card-title">
+                        <div class="re-card-title-dot"></div>
+                        <span>Talent Flow</span>
+                      </div>
+                      <div class="re-card-sub">MOVEMENT / STAGNATION / CLUSTERS</div>
+                    </div>
+                    <div class="re-card-body">
+                      <div class="metric-row">
+                        <div class="metric-label">Net Flow</div>
+                        <div class="metric-value" id="flowNet">+312<span>last 24h</span></div>
+                      </div>
+                      <div class="metric-bar">
+                        <div class="metric-bar-fill ok" id="flowBar"></div>
+                      </div>
+                      <div class="re-card-body-grid" id="flowGrid">
+                        <!-- rows injected by JS -->
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Opportunity Aperture Node -->
+                  <div class="re-card" id="apertureNode">
+                    <div class="re-card-header">
+                      <div class="re-card-title">
+                        <div class="re-card-title-dot"></div>
+                        <span>Opportunity Aperture</span>
+                      </div>
+                      <div class="re-card-sub">OPTIMAL PLACEMENT WINDOWS</div>
+                    </div>
+                    <div class="re-card-body">
+                      <div class="metric-row">
+                        <div class="metric-label">Window Density</div>
+                        <div class="metric-value" id="apertureDensity">0.44<span>selective</span></div>
+                      </div>
+                      <div class="metric-bar">
+                        <div class="metric-bar-fill" id="apertureBar"></div>
+                      </div>
+                      <div class="re-card-body-grid" id="apertureGrid">
+                        <!-- rows injected by JS -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Pipeline Engine -->
+                <div class="re-pipeline">
+                  <div class="pipeline-column" id="pipelineCold">
+                    <div class="pipeline-header">
+                      <span>COLD</span>
+                      <span class="count" id="coldCount">AUTO‑RANKED: 0</span>
+                    </div>
+                    <div class="pipeline-body" id="coldBody">
+                      <!-- tiles injected -->
+                    </div>
+                  </div>
+                  <div class="pipeline-column" id="pipelineWarm">
+                    <div class="pipeline-header">
+                      <span>WARM</span>
+                      <span class="count" id="warmCount">ENGAGED: 0</span>
+                    </div>
+                    <div class="pipeline-body" id="warmBody">
+                      <!-- tiles injected -->
+                    </div>
+                  </div>
+                  <div class="pipeline-column" id="pipelineHot">
+                    <div class="pipeline-header">
+                      <span>HOT</span>
+                      <span class="count" id="hotCount">DEPLOYABLE: 0</span>
+                    </div>
+                    <div class="pipeline-body" id="hotBody">
+                      <!-- tiles injected -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Orbit + Console -->
+                <div class="re-bottom">
+                  <div class="re-orbit-card">
+                    <div class="re-orbit-header">
+                      <span>Client Orbit Map</span>
+                      <div class="re-orbit-legend">
+                        <div class="legend-item">
+                          <div class="legend-dot active"></div><span>Active</span>
+                        </div>
+                        <div class="legend-item">
+                          <div class="legend-dot dormant"></div><span>Dormant</span>
+                        </div>
+                        <div class="legend-item">
+                          <div class="legend-dot risk"></div><span>Risk</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="re-orbit-body">
+                      <canvas id="orbitCanvas"></canvas>
+                    </div>
+                  </div>
+
+                  <div class="re-console">
+                    <div class="re-console-header">
+                      <span>Operator Console</span>
+                      <span>COMMAND LAYER</span>
+                    </div>
+                    <div class="re-console-body">
+                      <div class="console-log" id="consoleLog">
+                        <!-- log lines -->
+                      </div>
+                      <div class="re-console-input">
+                        <span class="prompt">/</span>
+                        <input id="consoleInput" placeholder="scan · predict · deploy · extract" autocomplete="off" />
+                      </div>
+                    </div>
+                    <div class="re-console-shortcuts">
+                      <div class="shortcut-pill"><span class="key">1</span><span>/scan</span></div>
+                      <div class="shortcut-pill"><span class="key">2</span><span>/predict</span></div>
+                      <div class="shortcut-pill"><span class="key">3</span><span>/deploy</span></div>
+                      <div class="shortcut-pill"><span class="key">4</span><span>/extract</span></div>
+                      <div class="shortcut-pill"><span class="key">P</span><span>Toggle Panel</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Desktop hint -->
+          <div class="ghost-hint">
+            <div class="ghost-hint-line">
+              Press <span class="key">P</span> to open Recruitment Engine Panel.
+            </div>
+            <div class="ghost-hint-line">
+              Use <span class="key">1‑4</span> for commands · <span class="key">ESC</span> to close.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Utility
+  const rand = (min, max) => Math.random() * (max - min) + min;
+  const randInt = (min, max) => Math.floor(rand(min, max + 1));
+  const choice = arr => arr[Math.floor(Math.random() * arr.length)];
+
+  // Panel toggle
+  const panel = document.getElementById("rePanel");
+  const closeBtn = document.getElementById("closePanelBtn");
+
+  function openPanel() {
+    panel.classList.add("active");
+  }
+
+  function closePanel() {
+    panel.classList.remove("active");
+  }
+
+  closeBtn.addEventListener("click", closePanel);
+
+  // Keyboard
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closePanel();
+    }
+    if (e.key.toLowerCase() === "p") {
+      panel.classList.toggle("active");
+    }
+    if (["1", "2", "3", "4"].includes(e.key)) {
+      const map = { "1": "scan", "2": "predict", "3": "deploy", "4": "extract" };
+      runCommand(map[e.key]);
+    }
+  });
+
+  // Prediction Core Data
+  const demandGrid = document.getElementById("demandGrid");
+  const flowGrid = document.getElementById("flowGrid");
+  const apertureGrid = document.getElementById("apertureGrid");
+
+  const demandSectors = [
+    "Fintech / Backend",
+    "Healthtech / Data",
+    "AI Infra / MLOps",
+    "E‑Commerce / Growth",
+    "Cyber / Blue Team",
+    "Cloud / Platform"
+  ];
+
+  const flowClusters = [
+    "Senior IC → Lead",
+    "Agency → In‑House",
+    "Legacy Stack → Cloud",
+    "On‑Prem → Hybrid",
+    "Contract → Perm",
+    "Startup → Enterprise"
+  ];
+
+  const apertureWindows = [
+    "48h / Critical",
+    "72h / High",
+    "96h / Stable",
+    "7d / Strategic",
+    "14d / Long‑Arc"
+  ];
+
+  function renderPredictionCore() {
+    demandGrid.innerHTML = "";
+    flowGrid.innerHTML = "";
+    apertureGrid.innerHTML = "";
+
+    // Demand
+    demandSectors.slice(0, 4).forEach(sec => {
+      const prob = rand(0.62, 0.96).toFixed(2);
+      const horizon = randInt(2, 10) + "d";
+      const row = document.createElement("div");
+      row.className = "re-row";
+      row.innerHTML = `<span class="label">${sec}</span><span class="value">${prob}<span> / ${horizon}</span></span>`;
+      demandGrid.appendChild(row);
+    });
+
+    // Flow
+    flowClusters.slice(0, 4).forEach(cluster => {
+      const inflow = randInt(18, 220);
+      const outflow = randInt(5, 120);
+      const row = document.createElement("div");
+      row.className = "re-row";
+      row.innerHTML = `<span class="label">${cluster}</span><span class="value">+${inflow}<span> / -${outflow}</span></span>`;
+      flowGrid.appendChild(row);
+    });
+
+    // Aperture
+    apertureWindows.slice(0, 4).forEach(win => {
+      const density = rand(0.18, 0.88).toFixed(2);
+      const row = document.createElement("div");
+      row.className = "re-row";
+      row.innerHTML = `<span class="label">${win}</span><span class="value">${density}<span> window</span></span>`;
+      apertureGrid.appendChild(row);
+    });
+
+    // Bars
+    const demandBar = document.getElementById("demandBar");
+    const flowBar = document.getElementById("flowBar");
+    const apertureBar = document.getElementById("apertureBar");
+
+    demandBar.style.transform = `scaleX(${rand(0.55, 0.95).toFixed(2)})`;
+    flowBar.style.transform = `scaleX(${rand(0.45, 0.9).toFixed(2)})`;
+    apertureBar.style.transform = `scaleX(${rand(0.25, 0.7).toFixed(2)})`;
+  }
+
+  // Pipeline Engine
+  const coldBody = document.getElementById("coldBody");
+  const warmBody = document.getElementById("warmBody");
+  const hotBody = document.getElementById("hotBody");
+  const coldCount = document.getElementById("coldCount");
+  const warmCount = document.getElementById("warmCount");
+  const hotCount = document.getElementById("hotCount");
+
+  const names = [
+    "A. KIM", "J. PATEL", "L. NGUYEN", "S. CARTER", "M. RODRIGUEZ",
+    "T. LEE", "R. SINGH", "E. MARTIN", "C. WILSON", "D. BROWN",
+    "H. COOPER", "P. WONG", "N. GARCIA", "F. ALI", "K. TAYLOR"
+  ];
+
+  const skillClusters = [
+    "Senior Backend / Go",
+    "Staff Engineer / Cloud",
+    "Data / ML Engineer",
+    "Security / Blue Team",
+    "SRE / Platform",
+    "Product / Growth",
+    "Mobile / iOS",
+    "Frontend / React",
+    "Infra / DevOps"
+  ];
+
+  function createCandidateTile(name, cluster, prob, velocity, tag) {
+    const tile = document.createElement("div");
+    tile.className = "candidate-tile";
+    tile.innerHTML = `
+      <div class="candidate-top">
+        <div class="candidate-name">${name}</div>
+        <div class="candidate-meta">
+          <span>${cluster}</span>
+        </div>
+      </div>
+      <div class="candidate-bottom">
+        <div class="candidate-tag">${tag}</div>
+        <div class="candidate-score">${prob}<span> / v${velocity}</span></div>
+      </div>
+    `;
+    return tile;
+  }
+
+  function renderPipeline() {
+    coldBody.innerHTML = "";
+    warmBody.innerHTML = "";
+    hotBody.innerHTML = "";
+
+    const coldN = randInt(5, 9);
+    const warmN = randInt(4, 7);
+    const hotN = randInt(2, 5);
+
+    for (let i = 0; i < coldN; i++) {
+      const tile = createCandidateTile(
+        choice(names),
+        choice(skillClusters),
+        rand(0.32, 0.68).toFixed(2),
+        rand(0.12, 0.48).toFixed(2),
+        "AUTO‑RANKED"
+      );
+      coldBody.appendChild(tile);
+    }
+
+    for (let i = 0; i < warmN; i++) {
+      const tile = createCandidateTile(
+        choice(names),
+        choice(skillClusters),
+        rand(0.55, 0.82).toFixed(2),
+        rand(0.35, 0.78).toFixed(2),
+        "ENGAGED"
+      );
+      warmBody.appendChild(tile);
+    }
+
+    for (let i = 0; i < hotN; i++) {
+      const tile = createCandidateTile(
+        choice(names),
+        choice(skillClusters),
+        rand(0.78, 0.97).toFixed(2),
+        rand(0.62, 0.96).toFixed(2),
+        "DEPLOYABLE"
+      );
+      hotBody.appendChild(tile);
+    }
+
+    coldCount.textContent = `AUTO‑RANKED: ${coldN}`;
+    warmCount.textContent = `ENGAGED: ${warmN}`;
+    hotCount.textContent = `DEPLOYABLE: ${hotN}`;
+  }
+
+  // Orbit Map
+  const orbitCanvas = document.getElementById("orbitCanvas");
+  const ctx = orbitCanvas.getContext("2d");
+  let orbitClients = [];
+
+  function resizeOrbitCanvas() {
+    const rect = orbitCanvas.getBoundingClientRect();
+    orbitCanvas.width = rect.width * window.devicePixelRatio;
+    orbitCanvas.height = rect.height * window.devicePixelRatio;
+    ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
+  }
+
+  function initOrbitClients() {
+    orbitClients = [];
+    const center = { x: orbitCanvas.clientWidth / 2, y: orbitCanvas.clientHeight / 2 };
+    const rings = [40, 70, 100];
+    const statuses = ["active", "dormant", "risk"];
+
+    for (let i = 0; i < 18; i++) {
+      const ring = choice(rings);
+      const angle = rand(0, Math.PI * 2);
+      const status = choice(statuses);
+      const size = status === "active" ? rand(6, 9) : status === "risk" ? rand(7, 10) : rand(4, 7);
+      const urgency = status === "risk" ? rand(0.7, 1) : status === "active" ? rand(0.4, 0.8) : rand(0.1, 0.4);
+      orbitClients.push({
+        ring,
+        angle,
+        status,
+        size,
+        urgency,
+        speed: (status === "risk" ? 0.0009 : 0.0005) * (Math.random() > 0.5 ? 1 : -1)
+      });
+    }
+  }
+
+  function drawOrbit() {
+    const w = orbitCanvas.clientWidth;
+    const h = orbitCanvas.clientHeight;
+    ctx.clearRect(0, 0, w, h);
+
+    const cx = w / 2;
+    const cy = h / 2;
+
+    // rings
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.strokeStyle = "rgba(255,255,255,0.08)";
+    ctx.lineWidth = 1;
+    [40, 70, 100].forEach(r => {
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.stroke();
+    });
+
+    // clients
+    orbitClients.forEach(c => {
+      c.angle += c.speed;
+      const x = Math.cos(c.angle) * c.ring;
+      const y = Math.sin(c.angle) * c.ring;
+
+      let color;
+      if (c.status === "active") color = "rgba(75,255,166,0.9)";
+      else if (c.status === "risk") color = "rgba(255,75,107,0.95)";
+      else color = "rgba(158,162,181,0.8)";
+
+      // glow
+      ctx.beginPath();
+      ctx.fillStyle = color.replace("0.9", "0.25").replace("0.95", "0.25").replace("0.8", "0.18");
+      ctx.arc(x, y, c.size + 4 * c.urgency, 0, Math.PI * 2);
+      ctx.fill();
+
+      // core
+      ctx.beginPath();
+      ctx.fillStyle = color;
+      ctx.arc(x, y, c.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.restore();
+    requestAnimationFrame(drawOrbit);
+  }
+
+  // Console
+  const consoleLog = document.getElementById("consoleLog");
+  const consoleInput = document.getElementById("consoleInput");
+
+  function logLine(type, text) {
+    const line = document.createElement("div");
+    line.className = `console-line ${type}`;
+    const ts = new Date().toISOString().split("T")[1].split(".")[0];
+    line.innerHTML = `<span class="prefix">[${ts}]</span>${text}`;
+    consoleLog.appendChild(line);
+    consoleLog.scrollTop = consoleLog.scrollHeight;
+  }
+
+  function runCommand(cmdRaw) {
+    const cmd = cmdRaw.trim().replace(/^\//, "").toLowerCase();
+    if (!cmd) return;
+
+    switch (cmd) {
+      case "scan":
+        logLine("action", "running full market sweep · ingesting hiring signals · updating pressure fields…");
+        renderPredictionCore();
+        renderPipeline();
+        randomizeOracle();
+        break;
+      case "predict":
+        logLine("action", "generating 7‑day demand forecast · recalibrating opportunity apertures…");
+        renderPredictionCore();
+        randomizeOracle();
+        break;
+      case "deploy":
+        logLine("action", "deploying candidates into optimal windows · rebalancing warm → hot lanes…");
+        renderPipeline();
+        break;
+      case "extract":
+        logLine("system", "extracting intelligence · generating presence tile payload for external surface…");
+        break;
+      default:
+        logLine("warn", `unknown command: /${cmd} · available: scan · predict · deploy · extract`);
+    }
+  }
+
+  consoleInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const value = consoleInput.value;
+      consoleInput.value = "";
+      if (!value.trim()) return;
+      logLine("system", `> /${value.trim()}`);
+      runCommand(value);
+    }
+  });
+
+  // Oracle metrics randomization
+  const metricTemp = document.getElementById("metricTemp");
+  const metricSignal = document.getElementById("metricSignal");
+  const metricVelocity = document.getElementById("metricVelocity");
+  const metricRisk = document.getElementById("metricRisk");
+
+  function randomizeOracle() {
+    const temp = rand(0.35, 0.92);
+    const signal = randInt(40, 98);
+    const velocity = rand(-12, 24);
+    const risk = rand(0.18, 0.88);
+
+    const tempLabel = temp > 0.75 ? "hot" : temp > 0.55 ? "neutral‑hot" : "stable";
+    const riskLabel = risk > 0.7 ? "critical" : risk > 0.5 ? "elevated" : "contained";
+
+    metricTemp.textContent = temp.toFixed(2);
+    metricTemp.innerHTML += `<span>${tempLabel}</span>`;
+    metricSignal.textContent = signal;
+    metricSignal.innerHTML += `<span>/100</span>`;
+    metricVelocity.textContent = (velocity > 0 ? "+" : "") + velocity.toFixed(0);
+    metricVelocity.innerHTML += `<span>bps</span>`;
+    metricRisk.textContent = risk.toFixed(2);
+    metricRisk.innerHTML += `<span>${riskLabel}</span>`;
+  }
+
+  // Initial boot
+  function boot() {
+    resizeOrbitCanvas();
+    initOrbitClients();
+    renderPredictionCore();
+    renderPipeline();
+    randomizeOracle();
+    logLine("system", "recruitment engine panel booted · node online.");
+    logLine("system", "type /scan or press 1 to ingest live market signals.");
+    requestAnimationFrame(drawOrbit);
+  }
+
+  window.addEventListener("resize", () => {
+    resizeOrbitCanvas();
+    initOrbitClients();
+  });
+
+  boot();
+</script>
+</body>
+</html>
