@@ -1,563 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Remove the Drag • Node</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --bg: #020308;
-      --panel: #050712;
-      --accent: #f5ff7a;
-      --accent-soft: rgba(245, 255, 122, 0.12);
-      --text-main: #f7f7f7;
-      --text-soft: #9a9fb3;
-      --danger: #ff4b6a;
-      --radius-lg: 22px;
-      --radius-md: 14px;
-      --radius-pill: 999px;
-      --shadow-soft: 0 20px 50px rgba(0, 0, 0, 0.8);
-      --border-subtle: 1px solid rgba(255, 255, 255, 0.06);
-      --blur: 18px;
-      --transition-fast: 0.18s ease-out;
-      --transition-med: 0.25s ease-out;
-    }
+<meta charset="UTF-8">
+<title>Remove The Drag • Reel Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+<style>
+  :root {
+    --bg: #020307;
+    --accent: #f5ff7a;
+    --accent-soft: rgba(245,255,122,0.12);
+    --text: #f7f7f7;
+    --soft: #9a9fb3;
+  }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "Inter", sans-serif;
-      background:
-        radial-gradient(circle at top, #15192b 0, #020308 55%, #000 100%);
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 18px 14px 90px;
-    }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
 
-    .shell {
-      width: 100%;
-      max-width: 480px;
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.9));
-      border-radius: 28px;
-      padding: 18px 16px 18px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(var(--blur));
-      position: relative;
-      overflow: hidden;
-    }
+  body {
+    background: radial-gradient(circle at top, #15192b 0%, #020307 60%, #000 100%);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: system-ui, -apple-system, Inter, sans-serif;
+    color: var(--text);
+  }
 
-    .shell::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background:
-        radial-gradient(circle at 0% 0%, rgba(245, 255, 122, 0.12), transparent 55%),
-        radial-gradient(circle at 100% 0%, rgba(255, 75, 106, 0.12), transparent 55%);
-      opacity: 0.7;
-      pointer-events: none;
-      z-index: -1;
-    }
+  .container {
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+    max-width: 420px;
+    animation: fadeIn 1.4s ease-out forwards;
+  }
 
-    .top-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    .id-block {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+  .tag {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin-bottom: 14px;
+    opacity: 0.7;
+  }
 
-    .avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 16px;
-      background: conic-gradient(from 210deg, #f5ff7a, #ff4b6a, #7af5ff, #f5ff7a);
-      padding: 2px;
-    }
+  .main {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 18px;
+    background: linear-gradient(120deg, #f5ff7a, #ffb36a, #ff4b6a);
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: glow 3s ease-in-out infinite;
+  }
 
-    .avatar-inner {
-      width: 100%;
-      height: 100%;
-      border-radius: 14px;
-      background: radial-gradient(circle at 30% 0%, #ffffff, #15192b);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      color: #05060a;
-    }
+  @keyframes glow {
+    0% { filter: drop-shadow(0 0 0px rgba(245,255,122,0.2)); }
+    50% { filter: drop-shadow(0 0 12px rgba(245,255,122,0.35)); }
+    100% { filter: drop-shadow(0 0 0px rgba(245,255,122,0.2)); }
+  }
 
-    .handle {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
+  .sub {
+    font-size: 14px;
+    color: var(--soft);
+    line-height: 1.45;
+    max-width: 320px;
+    margin: 0 auto;
+    opacity: 0.85;
+  }
 
-    .handle-main {
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
+  .cta {
+    margin-top: 26px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
 
-    .handle-sub {
-      font-size: 11px;
-      color: var(--text-soft);
-    }
-
-    .live-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: var(--radius-pill);
-      background: rgba(0, 0, 0, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--accent);
-    }
-
-    .live-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: var(--danger);
-      box-shadow: 0 0 12px rgba(255, 75, 106, 0.9);
-      animation: pulse 1.4s infinite ease-out;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); opacity: 1; }
-      70% { transform: scale(1.7); opacity: 0; }
-      100% { transform: scale(1.7); opacity: 0; }
-    }
-
-    .hero {
-      margin: 8px 0 14px;
-    }
-
-    .hero-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: var(--radius-pill);
-      background: rgba(0, 0, 0, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-soft);
-      margin-bottom: 8px;
-    }
-
-    .hero-line {
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      line-height: 1.2;
-    }
-
-    .hero-line span {
-      background: linear-gradient(120deg, #f5ff7a, #ffb36a, #ff4b6a);
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-
-    .hero-sub {
-      margin-top: 6px;
-      font-size: 12px;
-      color: var(--text-soft);
-    }
-
-    .hero-sub strong {
-      color: #ffffff;
-      font-weight: 500;
-    }
-
-    .meta-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      gap: 8px;
-    }
-
-    .meta-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: var(--radius-pill);
-      background: rgba(0, 0, 0, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 11px;
-      color: var(--text-soft);
-    }
-
-    .meta-chip span {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .meta-tagline {
-      font-size: 11px;
-      color: var(--text-soft);
-      text-align: right;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .card {
-      position: relative;
-      border-radius: var(--radius-md);
-      background:
-        radial-gradient(circle at 0 0, rgba(245, 255, 122, 0.12), transparent 55%),
-        radial-gradient(circle at 100% 100%, rgba(255, 75, 106, 0.16), transparent 55%),
-        #05060a;
-      border: var(--border-subtle);
-      padding: 10px 9px 9px;
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.8);
-      overflow: hidden;
-      cursor: pointer;
-      transition:
-        transform var(--transition-fast),
-        box-shadow var(--transition-fast),
-        border-color var(--transition-fast),
-        background var(--transition-fast);
-    }
-
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9);
-      border-color: rgba(245, 255, 122, 0.4);
-    }
-
-    .card-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-soft);
-      margin-bottom: 4px;
-    }
-
-    .card-title {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .card-price {
-      font-size: 12px;
-      color: var(--accent);
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    .card-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      padding: 4px 8px;
-      border-radius: var(--radius-pill);
-      background: rgba(245, 255, 122, 0.08);
-      color: var(--accent);
-      border: 1px solid rgba(245, 255, 122, 0.4);
-    }
-
-    .card-cta-icon {
-      font-size: 12px;
-    }
-
-    .card-tag {
-      position: absolute;
-      top: 7px;
-      right: 7px;
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      padding: 3px 7px;
-      border-radius: var(--radius-pill);
-      background: rgba(0, 0, 0, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      color: var(--text-soft);
-    }
-
-    .card-tag.hot {
-      color: var(--danger);
-      border-color: rgba(255, 75, 106, 0.7);
-    }
-
-    .footnote {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: 4px;
-    }
-
-    .footnote-text {
-      font-size: 10px;
-      color: var(--text-soft);
-    }
-
-    .footnote-text strong {
-      color: #ffffff;
-      font-weight: 500;
-    }
-
-    .footnote-badge {
-      font-size: 10px;
-      padding: 4px 8px;
-      border-radius: var(--radius-pill);
-      background: rgba(0, 0, 0, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-    }
-
-    .dock {
-      position: fixed;
-      left: 50%;
-      bottom: 18px;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 480px;
-      padding: 0 10px;
-      pointer-events: none;
-    }
-
-    .dock-inner {
-      pointer-events: auto;
-      border-radius: 999px;
-      background: rgba(5, 6, 10, 0.96);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9);
-      padding: 8px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      backdrop-filter: blur(18px);
-    }
-
-    .dock-label {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .dock-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-soft);
-    }
-
-    .dock-sub {
-      font-size: 11px;
-      color: #ffffff;
-    }
-
-    .dock-sub span {
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    .dock-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 14px;
-      border-radius: var(--radius-pill);
-      background: linear-gradient(120deg, #f5ff7a, #ffb36a, #ff4b6a);
-      color: #05060a;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.9);
-      transition:
-        transform var(--transition-med),
-        box-shadow var(--transition-med),
-        filter var(--transition-med);
-    }
-
-    .dock-cta:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 1);
-      filter: brightness(1.05);
-    }
-
-    .dock-cta:active {
-      transform: translateY(1px) scale(0.98);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.9);
-    }
-
-    .dock-cta-icon {
-      font-size: 14px;
-    }
-
-    @media (max-width: 380px) {
-      .hero-line {
-        font-size: 21px;
-      }
-      .grid {
-        gap: 8px;
-      }
-      .card {
-        padding: 9px 7px 8px;
-      }
-    }
-  </style>
+  @keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+  }
+</style>
 </head>
+
 <body>
-  <main class="shell">
-    <header class="top-row">
-      <div class="id-block">
-        <div class="avatar">
-          <div class="avatar-inner">
-            RD
-          </div>
-        </div>
-        <div class="handle">
-          <div class="handle-main">@your.handle</div>
-          <div class="handle-sub">Remove the Drag • Node</div>
-        </div>
-      </div>
-      <div class="live-pill">
-        <div class="live-dot"></div>
-        ACTIVE LINK
-      </div>
-    </header>
+  <div class="container">
+    <div class="tag">SYSTEM • DRAG REMOVAL</div>
 
-    <section class="hero">
-      <div class="hero-tag">
-        SYSTEM • DRAG REMOVAL
-      </div>
-      <div class="hero-line">
-        You feel the friction.  
-        This node <span>removes the drag.</span>
-      </div>
-      <div class="hero-sub">
-        You came from the reel because something in your system is heavy.  
-        <strong>Pick one lane below</strong> and we start removing it.
-      </div>
-    </section>
+    <div class="main">Remove the drag.</div>
 
-    <section class="meta-row">
-      <div class="meta-chip">
-        ⚡ <span>3 taps from drag → relief</span>
-      </div>
-      <div class="meta-tagline">
-        Continuation of the reel. Not a new page.
-      </div>
-    </section>
+    <div class="sub">
+      You felt the friction in the reel.  
+      This is where the shift begins.
+    </div>
 
-    <section class="grid">
-      <!-- OFFER 1: QUICK DIAGNOSTIC -->
-      <article class="card" data-link="https://your-checkout-link-1.com">
-        <div class="card-tag hot">START HERE</div>
-        <div class="card-label">Scan</div>
-        <div class="card-title">Drag Diagnostic</div>
-        <div class="card-price">Free • 3‑minute audit</div>
-        <div class="card-cta">
-          <span class="card-cta-icon">↗</span>
-          <span>Run the scan</span>
-        </div>
-      </article>
-
-      <!-- OFFER 2: PAID SESSION -->
-      <article class="card" data-link="https://your-checkout-link-2.com">
-        <div class="card-tag">SESSION</div>
-        <div class="card-label">Intervention</div>
-        <div class="card-title">Drag Removal Call</div>
-        <div class="card-price">$97 • 1:1 reset</div>
-        <div class="card-cta">
-          <span class="card-cta-icon">✺</span>
-          <span>Book the reset</span>
-        </div>
-      </article>
-
-      <!-- OFFER 3: SYSTEM BUILD -->
-      <article class="card" data-link="https://your-checkout-link-3.com">
-        <div class="card-tag">SYSTEM</div>
-        <div class="card-label">Build</div>
-        <div class="card-title">No‑Drag System</div>
-        <div class="card-price">Custom • by application</div>
-        <div class="card-cta">
-          <span class="card-cta-icon">∞</span>
-          <span>Apply for build</span>
-        </div>
-      </article>
-    </section>
-
-    <footer class="footnote">
-      <div class="footnote-text">
-        <strong>From the reel:</strong> this is the missing 20% I didn’t show you on screen.
-      </div>
-      <div class="footnote-badge">
-        REMOVE • THE • DRAG
-      </div>
-    </footer>
-  </main>
-
-  <div class="dock">
-    <div class="dock-inner">
-      <div class="dock-label">
-        <div class="dock-title">Direct channel</div>
-        <div class="dock-sub">
-          DM “<span>DRAG</span>” on Instagram if you want me to pick the lane for you.
-        </div>
-      </div>
-      <button class="dock-cta" id="dockButton">
-        <span class="dock-cta-icon">✉</span>
-        <span>DM “DRAG”</span>
-      </button>
+    <div class="cta">
+      If you felt the drag, the fix is in my bio.
     </div>
   </div>
-
-  <script>
-    // Card click → open checkout / form link
-    document.querySelectorAll(".card").forEach(card => {
-      card.addEventListener("click", () => {
-        const link = card.getAttribute("data-link");
-        if (link) window.open(link, "_blank");
-      });
-    });
-
-    // Dock button → open IG DM (replace with your handle)
-    document.getElementById("dockButton").addEventListener("click", () => {
-      const igHandle = "your.handle"; // change this
-      const url = `https://www.instagram.com/${igHandle}/`;
-      window.open(url, "_blank");
-    });
-  </script>
 </body>
 </html>
+
+  
