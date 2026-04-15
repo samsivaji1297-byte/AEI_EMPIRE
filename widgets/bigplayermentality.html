@@ -1,0 +1,136 @@
+<div id="bigPlayerWidget" style="display:flex; height:100%; background:#0b0b0b; color:#e5e5e5; font-family:system-ui, sans-serif;">
+
+  <!-- TAB LIST -->
+  <div style="width:220px; background:#0f0f0f; border-right:1px solid #222; padding:10px 0; display:flex; flex-direction:column;">
+    <h2 style="color:#fff; font-size:18px; padding:0 20px 10px;">🜁 Big Player Threads</h2>
+
+    <button class="tabBtn" onclick="openTab('t1')">1. Inevitability</button>
+    <button class="tabBtn" onclick="openTab('t2')">2. Engines</button>
+    <button class="tabBtn" onclick="openTab('t3')">3. Distribution</button>
+    <button class="tabBtn" onclick="openTab('t4')">4. Moat Stack</button>
+    <button class="tabBtn" onclick="openTab('t5')">5. Time Horizons</button>
+    <button class="tabBtn" onclick="openTab('t6')">6. Public vs Private</button>
+    <button class="tabBtn" onclick="openTab('t7')">7. Internal Language</button>
+    <button class="tabBtn" onclick="openTab('t8')">8. Leverage Layers</button>
+    <button class="tabBtn" onclick="openTab('t9')">9. Hidden Advantage</button>
+    <button class="tabBtn" onclick="openTab('t10')">10. Optionality</button>
+    <button class="tabBtn" onclick="openTab('t11')">11. Identity</button>
+    <button class="tabBtn" onclick="openTab('t12')">12. Ecosystems</button>
+    <button class="tabBtn" onclick="openTab('meta')">🜁 Meta‑Thread</button>
+  </div>
+
+  <!-- CONTENT PANEL -->
+  <div id="tabContent" style="flex:1; padding:30px; overflow-y:auto; position:relative;">
+
+    <!-- Surprise enhancement anchor -->
+    <div id="ambientTitle" style="
+      position:absolute;
+      top:10px;
+      right:20px;
+      font-size:12px;
+      opacity:0.15;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      pointer-events:none;
+      transition:opacity 0.4s ease;
+    ">
+      Big Player Architecture
+    </div>
+
+    <div id="t1" class="tabPage">
+      <h1>1. Operate from Inevitability</h1>
+      <p>Big players don’t try to win — they build systems where winning is the default outcome unless something catastrophic happens.</p>
+    </div>
+
+    <div id="t2" class="tabPage" style="display:none;">
+      <h1>2. Build Engines, Not Goals</h1>
+      <p>Goals are temporary. Engines produce outputs continuously, independent of mood, energy, or circumstance.</p>
+    </div>
+
+    <div id="t3" class="tabPage" style="display:none;">
+      <h1>3. Control Distribution</h1>
+      <p>Every major player owns a channel, network, supply chain, or data pipeline. Control distribution → control the game.</p>
+    </div>
+
+    <div id="t4" class="tabPage" style="display:none;">
+      <h1>4. Build Moat Stacks</h1>
+      <p>A stack of moats: brand, capital, data, relationships, infrastructure, switching costs, regulatory capture.</p>
+    </div>
+
+    <div id="t5" class="tabPage" style="display:none;">
+      <h1>5. Think in Decades, Act in Weeks</h1>
+      <p>Long horizon, short cycles. Slow on vision, fast on execution. This creates inevitability.</p>
+    </div>
+
+    <div id="t6" class="tabPage" style="display:none;">
+      <h1>6. Separate Public Face from Private Engine</h1>
+      <p>The public story is never the real business. The private engine is where the power sits.</p>
+    </div>
+
+    <div id="t7" class="tabPage" style="display:none;">
+      <h1>7. Build Internal Languages</h1>
+      <p>Internal metaphors, naming conventions, frameworks, rituals. This creates coherence, speed, and identity.</p>
+    </div>
+
+    <div id="t8" class="tabPage" style="display:none;">
+      <h1>8. Operate Through Leverage Layers</h1>
+      <p>Human effort is the weakest form of leverage. Big players use capital, code, media, distribution, automation, brand gravity, networks.</p>
+    </div>
+
+    <div id="t9" class="tabPage" style="display:none;">
+      <h1>9. Hide the Real Advantage</h1>
+      <p>The true advantage is invisible, boring, structural: logistics, data, contracts, infrastructure, relationships, regulatory positioning.</p>
+    </div>
+
+    <div id="t10" class="tabPage" style="display:none;">
+      <h1>10. Build Optionality Into Everything</h1>
+      <p>Every move creates new paths, pivots, escape hatches, leverage points. Small players commit. Big players create options.</p>
+    </div>
+
+    <div id="t11" class="tabPage" style="display:none;">
+      <h1>11. Treat Identity as Infrastructure</h1>
+      <p>Identity is not branding. It’s positioning, narrative, myth, gravitational pull, internal coherence.</p>
+    </div>
+
+    <div id="t12" class="tabPage" style="display:none;">
+      <h1>12. Build Ecosystems, Not Products</h1>
+      <p>Products are units. Ecosystems are worlds. Worlds trap attention, capital, and loyalty.</p>
+    </div>
+
+    <div id="meta" class="tabPage" style="display:none;">
+      <h1>🜁 Meta‑Thread</h1>
+      <p style="font-size:20px; opacity:0.9;">
+        Big players build inevitability through systems, identity, and distribution — then hide the machinery.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function openTab(id) {
+    document.querySelectorAll('.tabPage').forEach(p => p.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
+
+    // Surprise enhancement: ambient title reacts to tab changes
+    const ambient = document.getElementById('ambientTitle');
+    ambient.style.opacity = 0.05 + Math.random() * 0.15;
+  }
+</script>
+
+<style>
+  .tabBtn {
+    background:none;
+    border:0;
+    color:#ccc;
+    text-align:left;
+    padding:10px 20px;
+    font-size:14px;
+    cursor:pointer;
+    transition:0.2s;
+  }
+  .tabBtn:hover {
+    background:#1a1a1a;
+    color:#fff;
+  }
+</style>
