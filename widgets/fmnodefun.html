@@ -112,26 +112,28 @@
 
 <script>
 async function loadGeo() {
-    const res = await fetch("https://ipapi.co/json/");
+    const res = await fetch("https://ipinfo.io/json?token=free");
     const d = await res.json();
+
+    const [lat, lon] = d.loc.split(",");
 
     document.getElementById("city").innerText = `City: ${d.city}`;
     document.getElementById("region").innerText = `Region: ${d.region}`;
-    document.getElementById("country").innerText = `Country: ${d.country_name}`;
-    document.getElementById("lat").innerText = `Lat: ${d.latitude}`;
-    document.getElementById("lon").innerText = `Lon: ${d.longitude}`;
+    document.getElementById("country").innerText = `Country: ${d.country}`;
+    document.getElementById("lat").innerText = `Lat: ${lat}`;
+    document.getElementById("lon").innerText = `Lon: ${lon}`;
     document.getElementById("ip").innerText = `IP: ${d.ip}`;
     document.getElementById("isp").innerText = `ISP: ${d.org}`;
 }
 
 async function loadTime() {
-    const res = await fetch("https://worldtimeapi.org/api/ip");
+    const res = await fetch("https://timeapi.io/api/Time/current/ip");
     const d = await res.json();
 
-    document.getElementById("timezone").innerText = `Timezone: ${d.timezone}`;
-    document.getElementById("offset").innerText = `UTC Offset: ${d.utc_offset}`;
-    document.getElementById("current").innerText = `Current Time: ${d.datetime.slice(11,19)}`;
-    document.getElementById("day").innerText = `Day: ${d.day_of_week}`;
+    document.getElementById("timezone").innerText = `Timezone: ${d.timeZone}`;
+    document.getElementById("offset").innerText = `UTC Offset: ${d.utcOffset}`;
+    document.getElementById("current").innerText = `Current Time: ${d.time}`;
+    document.getElementById("day").innerText = `Day: ${d.dayOfWeek}`;
 }
 
 async function loadQuote() {
