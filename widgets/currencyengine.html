@@ -2,22 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Currency Node</title>
+  <title>Remove the Drag • Node</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      --bg: #05060a;
-      --card: #0b0d14;
+      --bg: #020308;
+      --panel: #050712;
       --accent: #f5ff7a;
       --accent-soft: rgba(245, 255, 122, 0.12);
       --text-main: #f7f7f7;
-      --text-soft: #a4a7b5;
+      --text-soft: #9a9fb3;
       --danger: #ff4b6a;
-      --radius-lg: 18px;
-      --radius-md: 12px;
+      --radius-lg: 22px;
+      --radius-md: 14px;
       --radius-pill: 999px;
-      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.55);
-      --shadow-chip: 0 10px 25px rgba(0, 0, 0, 0.6);
+      --shadow-soft: 0 20px 50px rgba(0, 0, 0, 0.8);
       --border-subtle: 1px solid rgba(255, 255, 255, 0.06);
       --blur: 18px;
       --transition-fast: 0.18s ease-out;
@@ -34,7 +33,8 @@
       min-height: 100vh;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
         "Inter", sans-serif;
-      background: radial-gradient(circle at top, #15192b 0, #05060a 55%, #000 100%);
+      background:
+        radial-gradient(circle at top, #15192b 0, #020308 55%, #000 100%);
       color: var(--text-main);
       display: flex;
       align-items: center;
@@ -46,7 +46,7 @@
       width: 100%;
       max-width: 480px;
       background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.9));
-      border-radius: 26px;
+      border-radius: 28px;
       padding: 18px 16px 18px;
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: var(--shadow-soft);
@@ -81,25 +81,24 @@
     }
 
     .avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 14px;
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
       background: conic-gradient(from 210deg, #f5ff7a, #ff4b6a, #7af5ff, #f5ff7a);
       padding: 2px;
-      position: relative;
     }
 
     .avatar-inner {
       width: 100%;
       height: 100%;
-      border-radius: 12px;
+      border-radius: 14px;
       background: radial-gradient(circle at 30% 0%, #ffffff, #15192b);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 18px;
       font-weight: 700;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.08em;
       color: #05060a;
     }
 
@@ -112,7 +111,7 @@
     .handle-main {
       font-size: 14px;
       font-weight: 600;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
@@ -151,11 +150,26 @@
     }
 
     .hero {
-      margin: 6px 0 14px;
+      margin: 8px 0 14px;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-soft);
+      margin-bottom: 8px;
     }
 
     .hero-line {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 700;
       letter-spacing: 0.02em;
       line-height: 1.2;
@@ -182,7 +196,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       gap: 8px;
     }
 
@@ -219,27 +233,32 @@
     .card {
       position: relative;
       border-radius: var(--radius-md);
-      background: radial-gradient(circle at 0 0, rgba(245, 255, 122, 0.12), transparent 55%),
-                  radial-gradient(circle at 100% 100%, rgba(255, 75, 106, 0.16), transparent 55%),
-                  #05060a;
+      background:
+        radial-gradient(circle at 0 0, rgba(245, 255, 122, 0.12), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(255, 75, 106, 0.16), transparent 55%),
+        #05060a;
       border: var(--border-subtle);
       padding: 10px 9px 9px;
-      box-shadow: var(--shadow-chip);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.8);
       overflow: hidden;
       cursor: pointer;
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+      transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        border-color var(--transition-fast),
+        background var(--transition-fast);
     }
 
     .card:hover {
       transform: translateY(-3px);
-      box-shadow: 0 16px 35px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9);
       border-color: rgba(245, 255, 122, 0.4);
     }
 
     .card-label {
-      font-size: 11px;
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.16em;
       color: var(--text-soft);
       margin-bottom: 4px;
     }
@@ -384,7 +403,10 @@
       border: none;
       cursor: pointer;
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.9);
-      transition: transform var(--transition-med), box-shadow var(--transition-med), filter var(--transition-med);
+      transition:
+        transform var(--transition-med),
+        box-shadow var(--transition-med),
+        filter var(--transition-med);
     }
 
     .dock-cta:hover {
@@ -404,7 +426,7 @@
 
     @media (max-width: 380px) {
       .hero-line {
-        font-size: 19px;
+        font-size: 21px;
       }
       .grid {
         gap: 8px;
@@ -421,82 +443,87 @@
       <div class="id-block">
         <div class="avatar">
           <div class="avatar-inner">
-            $
+            RD
           </div>
         </div>
         <div class="handle">
           <div class="handle-main">@your.handle</div>
-          <div class="handle-sub">Currency Node • Reels Funnel</div>
+          <div class="handle-sub">Remove the Drag • Node</div>
         </div>
       </div>
       <div class="live-pill">
         <div class="live-dot"></div>
-        LIVE LINK
+        ACTIVE LINK
       </div>
     </header>
 
     <section class="hero">
+      <div class="hero-tag">
+        SYSTEM • DRAG REMOVAL
+      </div>
       <div class="hero-line">
-        Turn <span>scroll energy</span> into instant currency.
+        You feel the friction.  
+        This node <span>removes the drag.</span>
       </div>
       <div class="hero-sub">
-        Pick your lane below. <strong>Tap once</strong>, checkout opens in a new tab.
+        You came from the reel because something in your system is heavy.  
+        <strong>Pick one lane below</strong> and we start removing it.
       </div>
     </section>
 
     <section class="meta-row">
       <div class="meta-chip">
-        ⚡ <span>Optimised for IG Reels</span>
+        ⚡ <span>3 taps from drag → relief</span>
       </div>
       <div class="meta-tagline">
-        3 taps from reel → value → payment.
+        Continuation of the reel. Not a new page.
       </div>
     </section>
 
     <section class="grid">
-      <!-- OFFER 1: MAIN PRODUCT -->
+      <!-- OFFER 1: QUICK DIAGNOSTIC -->
       <article class="card" data-link="https://your-checkout-link-1.com">
-        <div class="card-tag hot">PRIMARY</div>
-        <div class="card-label">Core Offer</div>
-        <div class="card-title">Signature Drop</div>
-        <div class="card-price">$47 • instant access</div>
+        <div class="card-tag hot">START HERE</div>
+        <div class="card-label">Scan</div>
+        <div class="card-title">Drag Diagnostic</div>
+        <div class="card-price">Free • 3‑minute audit</div>
         <div class="card-cta">
           <span class="card-cta-icon">↗</span>
-          <span>Open checkout</span>
+          <span>Run the scan</span>
         </div>
       </article>
 
-      <!-- OFFER 2: LOW-TICKET / TIP -->
+      <!-- OFFER 2: PAID SESSION -->
       <article class="card" data-link="https://your-checkout-link-2.com">
-        <div class="card-tag">Support</div>
-        <div class="card-label">Tip Jar</div>
-        <div class="card-title">Buy me a coffee</div>
-        <div class="card-price">$5 • creator support</div>
+        <div class="card-tag">SESSION</div>
+        <div class="card-label">Intervention</div>
+        <div class="card-title">Drag Removal Call</div>
+        <div class="card-price">$97 • 1:1 reset</div>
         <div class="card-cta">
-          <span class="card-cta-icon">♡</span>
-          <span>Send support</span>
+          <span class="card-cta-icon">✺</span>
+          <span>Book the reset</span>
         </div>
       </article>
 
-      <!-- OFFER 3: SUBSCRIPTION / COMMUNITY -->
+      <!-- OFFER 3: SYSTEM BUILD -->
       <article class="card" data-link="https://your-checkout-link-3.com">
-        <div class="card-tag">Ongoing</div>
-        <div class="card-label">Membership</div>
-        <div class="card-title">Inner Circle Access</div>
-        <div class="card-price">$19 / month</div>
+        <div class="card-tag">SYSTEM</div>
+        <div class="card-label">Build</div>
+        <div class="card-title">No‑Drag System</div>
+        <div class="card-price">Custom • by application</div>
         <div class="card-cta">
           <span class="card-cta-icon">∞</span>
-          <span>Join now</span>
+          <span>Apply for build</span>
         </div>
       </article>
     </section>
 
     <footer class="footnote">
       <div class="footnote-text">
-        <strong>Pro tip:</strong> screenshot this layout and use it as a reel overlay.
+        <strong>From the reel:</strong> this is the missing 20% I didn’t show you on screen.
       </div>
       <div class="footnote-badge">
-        CURRENCY • NODE
+        REMOVE • THE • DRAG
       </div>
     </footer>
   </main>
@@ -504,20 +531,20 @@
   <div class="dock">
     <div class="dock-inner">
       <div class="dock-label">
-        <div class="dock-title">Quick support channel</div>
+        <div class="dock-title">Direct channel</div>
         <div class="dock-sub">
-          DM “<span>LINK</span>” on Instagram for a custom bundle.
+          DM “<span>DRAG</span>” on Instagram if you want me to pick the lane for you.
         </div>
       </div>
       <button class="dock-cta" id="dockButton">
         <span class="dock-cta-icon">✉</span>
-        <span>DM NOW</span>
+        <span>DM “DRAG”</span>
       </button>
     </div>
   </div>
 
   <script>
-    // Card click → open checkout link
+    // Card click → open checkout / form link
     document.querySelectorAll(".card").forEach(card => {
       card.addEventListener("click", () => {
         const link = card.getAttribute("data-link");
