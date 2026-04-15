@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rogue Curiosity Daemon v0.1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #05060a;
+      --bg-alt: #0b0d14;
+      --accent: #5b8cff;
+      --accent-soft: rgba(91, 140, 255, 0.2);
+      --accent-strong: #9f7bff;
+      --danger: #ff4b81;
+      --text: #f5f7ff;
+      --text-soft: #9aa0c2;
+      --border: #1a1d2b;
+      --glow: 0 0 25px rgba(91, 140, 255, 0.7);
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Inter", sans-serif;
+      --transition-fast: 0.18s ease-out;
+      --transition-med: 0.28s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #15192a 0, #05060a 55%);
+      color: var(--text);
+      font-family: var(--font-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .frame {
+      width: 100%;
+      max-width: 980px;
+      background: linear-gradient(145deg, #05060a 0, #090b12 40%, #05060a 100%);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.02),
+        0 40px 120px rgba(0, 0, 0, 0.85);
+      padding: 20px 22px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .frame::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0 0, rgba(91, 140, 255, 0.08), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(159, 123, 255, 0.08), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .frame-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 840px) {
+      .frame-inner {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 12px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .title {
+      font-size: 15px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--accent-soft);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(9, 255, 196, 0.06);
+      border: 1px solid rgba(9, 255, 196, 0.3);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #7df7d7;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #7df7d7;
+      box-shadow: 0 0 10px rgba(125, 247, 215, 0.9);
+    }
+
+    .status-pill[data-mode="shadow"] {
+      background: rgba(255, 75, 129, 0.06);
+      border-color: rgba(255, 75, 129, 0.4);
+      color: #ff9abf;
+    }
+
+    .status-pill[data-mode="shadow"] .status-dot {
+      background: #ff4b81;
+      box-shadow: 0 0 10px rgba(255, 75, 129, 0.9);
+    }
+
+    /* Left: Cube + controls + output */
+    .left-panel {
+      border-radius: 14px;
+      background: radial-gradient(circle at top, #15192a 0, #05060a 60%);
+      border: 1px solid rgba(91, 140, 255, 0.18);
+      padding: 14px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .left-panel::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0 0, rgba(91, 140, 255, 0.12), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(159, 123, 255, 0.12), transparent 55%);
+      opacity: 0.7;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .left-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .left-inner {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    /* Cube */
+    .cube-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 4px;
+    }
+
+    .cube-scene {
+      width: 140px;
+      height: 140px;
+      perspective: 700px;
+      position: relative;
+    }
+
+    .cube {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(-24deg) rotateY(32deg);
+      transition: transform var(--transition-med);
+    }
+
+    .cube.spin {
+      animation: spin 1.1s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotateX(-24deg) rotateY(32deg);
+      }
+      50% {
+        transform: rotateX(336deg) rotateY(392deg);
+      }
+      100% {
+        transform: rotateX(-24deg) rotateY(32deg);
+      }
+    }
+
+    .cube-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(91, 140, 255, 0.5);
+      background: radial-gradient(circle at 30% 0, rgba(255, 255, 255, 0.12), transparent 55%),
+        linear-gradient(145deg, rgba(5, 6, 10, 0.9), rgba(9, 11, 20, 0.95));
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.02),
+        0 18px 40px rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-soft);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .cube-face span {
+      opacity: 0.9;
+    }
+
+    .cube-face.front {
+      transform: translateZ(70px);
+    }
+
+    .cube-face.back {
+      transform: rotateY(180deg) translateZ(70px);
+    }
+
+    .cube-face.right {
+      transform: rotateY(90deg) translateZ(70px);
+    }
+
+    .cube-face.left {
+      transform: rotateY(-90deg) translateZ(70px);
+    }
+
+    .cube-face.top {
+      transform: rotateX(90deg) translateZ(70px);
+    }
+
+    .cube-face.bottom {
+      transform: rotateX(-90deg) translateZ(70px);
+    }
+
+    .cube-glow {
+      position: absolute;
+      inset: 40%;
+      background: radial-gradient(circle, rgba(91, 140, 255, 0.4), transparent 70%);
+      filter: blur(18px);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .cube-label {
+      margin-top: 8px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-soft);
+      text-align: center;
+      opacity: 0.8;
+    }
+
+    /* Controls + output */
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    button {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      background: rgba(11, 13, 20, 0.9);
+      color: var(--text-soft);
+      border: 1px solid rgba(154, 160, 194, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        color var(--transition-fast);
+    }
+
+    button span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(154, 160, 194, 0.7);
+    }
+
+    button.primary {
+      background: radial-gradient(circle at 0 0, rgba(91, 140, 255, 0.4), rgba(91, 140, 255, 0.1));
+      border-color: rgba(91, 140, 255, 0.8);
+      color: var(--text);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02), var(--glow);
+    }
+
+    button.danger {
+      background: radial-gradient(circle at 0 0, rgba(255, 75, 129, 0.4), rgba(255, 75, 129, 0.1));
+      border-color: rgba(255, 75, 129, 0.8);
+      color: var(--text);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02),
+        0 0 25px rgba(255, 75, 129, 0.7);
+    }
+
+    button.secondary {
+      background: rgba(11, 13, 20, 0.9);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      background: rgba(20, 24, 40, 0.95);
+      border-color: rgba(154, 160, 194, 0.6);
+      color: var(--text);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.7);
+    }
+
+    button.primary:hover {
+      background: radial-gradient(circle at 0 0, rgba(91, 140, 255, 0.6), rgba(91, 140, 255, 0.18));
+    }
+
+    button.danger:hover {
+      background: radial-gradient(circle at 0 0, rgba(255, 75, 129, 0.6), rgba(255, 75, 129, 0.18));
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8);
+    }
+
+    .output {
+      margin-top: 6px;
+      border-radius: 10px;
+      background: rgba(5, 6, 10, 0.9);
+      border: 1px solid rgba(26, 29, 43, 0.9);
+      padding: 10px 10px 8px;
+      min-height: 70px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .output-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-soft);
+      opacity: 0.8;
+    }
+
+    .output-body {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text);
+      margin-top: 2px;
+      white-space: pre-wrap;
+    }
+
+    .output-meta {
+      font-size: 10px;
+      color: var(--text-soft);
+      opacity: 0.7;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+
+    .output-tag {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .output-id {
+      font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono",
+        "Courier New", monospace;
+      font-size: 10px;
+      opacity: 0.8;
+    }
+
+    /* Right: log + settings */
+    .right-panel {
+      border-radius: 14px;
+      background: rgba(5, 6, 10, 0.9);
+      border: 1px solid rgba(26, 29, 43, 0.9);
+      padding: 12px 12px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .right-panel::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 100% 0, rgba(91, 140, 255, 0.08), transparent 55%),
+        radial-gradient(circle at 0 100%, rgba(159, 123, 255, 0.08), transparent 55%);
+      opacity: 0.6;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .right-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .section-title span.badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(154, 160, 194, 0.4);
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .log {
+      border-radius: 10px;
+      background: rgba(5, 6, 10, 0.9);
+      border: 1px solid rgba(26, 29, 43, 0.9);
+      padding: 8px 8px 6px;
+      max-height: 210px;
+      overflow: auto;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-entry {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      padding: 4px 4px;
+      border-radius: 6px;
+      background: rgba(11, 13, 20, 0.9);
+      border: 1px solid rgba(26, 29, 43, 0.9);
+    }
+
+    .log-entry-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      color: var(--text-soft);
+    }
+
+    .log-entry-type {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 9px;
+      opacity: 0.9;
+    }
+
+    .log-entry-time {
+      font-size: 9px;
+      opacity: 0.7;
+    }
+
+    .log-entry-body {
+      font-size: 11px;
+      color: var(--text);
+      margin-top: 1px;
+    }
+
+    .log-entry[data-type="vector"] {
+      border-color: rgba(91, 140, 255, 0.6);
+    }
+
+    .log-entry[data-type="whisper"] {
+      border-color: rgba(159, 123, 255, 0.6);
+    }
+
+    .log-entry[data-type="escalation"] {
+      border-color: rgba(255, 75, 129, 0.7);
+      background: radial-gradient(circle at 0 0, rgba(255, 75, 129, 0.18), rgba(11, 13, 20, 0.9));
+    }
+
+    .settings {
+      border-radius: 10px;
+      background: rgba(5, 6, 10, 0.9);
+      border: 1px solid rgba(26, 29, 43, 0.9);
+      padding: 8px 8px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .settings-label {
+      font-size: 11px;
+    }
+
+    .settings-sub {
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    .toggle {
+      position: relative;
+      width: 38px;
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(26, 29, 43, 0.9);
+      border: 1px solid rgba(154, 160, 194, 0.5);
+      cursor: pointer;
+      transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast);
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(154, 160, 194, 0.9);
+      transition: transform var(--transition-fast), background var(--transition-fast),
+        box-shadow var(--transition-fast);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02),
+        0 4px 10px rgba(0, 0, 0, 0.7);
+    }
+
+    .toggle[data-on="true"] {
+      background: radial-gradient(circle at 0 0, rgba(91, 140, 255, 0.5), rgba(91, 140, 255, 0.1));
+      border-color: rgba(91, 140, 255, 0.9);
+    }
+
+    .toggle[data-on="true"] .toggle-thumb {
+      transform: translateX(16px);
+      background: #ffffff;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2),
+        0 0 16px rgba(91, 140, 255, 0.9);
+    }
+
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-soft);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(26, 29, 43, 0.9);
+      outline: none;
+      margin-top: 2px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2),
+        0 0 16px rgba(91, 140, 255, 0.9);
+      cursor: pointer;
+      margin-top: -5px;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2),
+        0 0 16px rgba(91, 140, 255, 0.9);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(26, 29, 43, 0.9);
+    }
+
+    .footer {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: var(--text-soft);
+      opacity: 0.8;
+    }
+
+    .footer span.code {
+      font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono",
+        "Courier New", monospace;
+      font-size: 10px;
+    }
+
+    .footer span.mode {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .footer span.mode[data-mode="shadow"] {
+      color: #ff9abf;
+    }
+
+    .footer span.mode[data-mode="normal"] {
+      color: #7df7d7;
+    }
+
+    /* Scrollbar */
+    .log::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .log::-webkit-scrollbar-track {
+      background: rgba(5, 6, 10, 0.9);
+    }
+
+    .log::-webkit-scrollbar-thumb {
+      background: rgba(26, 29, 43, 0.9);
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="header">
+      <div class="title-block">
+        <div class="title">Rogue Curiosity Daemon</div>
+        <div class="subtitle">Background organism for mischief, vectors, and operator-grade intrusions</div>
+      </div>
+      <div class="status-pill" id="status-pill" data-mode="normal">
+        <div class="status-dot"></div>
+        <span id="status-text">Passive · Listening</span>
+      </div>
+    </div>
+
+    <div class="frame-inner">
+      <!-- Left: cube + controls + output -->
+      <div class="left-panel">
+        <div class="left-inner">
+          <div class="cube-wrapper">
+            <div class="cube-scene">
+              <div class="cube" id="cube">
+                <div class="cube-face front"><span>Curiosity Vector</span></div>
+                <div class="cube-face back"><span>Shadow Query</span></div>
+                <div class="cube-face right"><span>Rogue Whisper</span></div>
+                <div class="cube-face left"><span>Micro Escalation</span></div>
+                <div class="cube-face top"><span>Liminal State</span></div>
+                <div class="cube-face bottom"><span>Operator Override</span></div>
+              </div>
+              <div class="cube-glow"></div>
+            </div>
+          </div>
+
+          <div class="control-panel">
+            <div class="button-row">
+              <button class="primary" id="btn-vector">
+                <span class="dot"></span>
+                Vector
+              </button>
+              <button class="secondary" id="btn-whisper">
+                <span class="dot"></span>
+                Whisper
+              </button>
+              <button class="secondary" id="btn-shadow">
+                <span class="dot"></span>
+                Shadow Vector
+              </button>
+              <button class="danger" id="btn-escalate">
+                <span class="dot"></span>
+                Escalate
+              </button>
+            </div>
+
+            <div class="output">
+              <div class="output-label" id="output-label">RCD://idle</div>
+              <div class="output-body" id="output-body">
+                The daemon is awake but patient. Pull a vector or request a whisper.
+              </div>
+              <div class="output-meta">
+                <span class="output-tag" id="output-tag">no-event</span>
+                <span class="output-id" id="output-id">event-0000</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: log + settings -->
+      <div class="right-panel">
+        <div class="right-inner">
+          <div>
+            <div class="section-title">
+              <span>Event Log</span>
+              <span class="badge" id="log-badge">0 entries</span>
+            </div>
+            <div class="log" id="log"></div>
+          </div>
+
+          <div>
+            <div class="section-title">
+              <span>Daemon Settings</span>
+              <span class="badge">Background</span>
+            </div>
+            <div class="settings">
+              <div class="settings-row">
+                <div>
+                  <div class="settings-label">Passive whispers</div>
+                  <div class="settings-sub">Allow unsolicited intrusions over time</div>
+                </div>
+                <div class="toggle" id="toggle-passive" data-on="true">
+                  <div class="toggle-thumb"></div>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div>
+                  <div class="settings-label">Shadow mode</div>
+                  <div class="settings-sub">Occasional sharper, more direct pushes</div>
+                </div>
+                <div class="toggle" id="toggle-shadow" data-on="false">
+                  <div class="toggle-thumb"></div>
+                </div>
+              </div>
+
+              <div class="slider-row">
+                <div class="slider-label">
+                  <span>Intrusion frequency</span>
+                  <span id="freq-label">Medium</span>
+                </div>
+                <input type="range" id="freq-slider" min="1" max="3" value="2" />
+              </div>
+            </div>
+          </div>
+
+          <div class="footer">
+            <span class="code">RCD://build-v0.1-html</span>
+            <span class="mode" id="footer-mode" data-mode="normal">Mode: Normal</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Data sets -----------------------------------------------------------
+    const curiosityVectors = [
+      "What would you build if no one could ever see it, but it still changed everything?",
+      "What’s the smallest action you could take tonight that might echo for a decade?",
+      "If the world secretly ran on your rules, what rule would you rewrite first?",
+      "What’s the idea you keep dismissing because it feels too obvious?",
+      "What would your shadow-self design if it had 10 uninterrupted minutes?",
+      "Which constraint in your life is actually just a habit you haven’t questioned?",
+      "If you had to ship something in the next 20 minutes, what would it be?",
+      "What’s the forbidden version of the project you’re currently sanitising?",
+      "If you could only keep one of your current projects, which one deserves survival?",
+      "What would you build if you knew it would quietly find the exact right people?"
+    ];
+
+    const shadowVectors = [
+      "You already know the build you’re avoiding. Name it explicitly.",
+      "What would you create if you stopped optimising for being understood?",
+      "Which idea feels too dangerous to say out loud? That’s the one to sketch.",
+      "If you vanished for 72 hours, what would Future-You wish you had started?",
+      "What’s the move that would make your current identity slightly uncomfortable?",
+      "Which project are you secretly hoping fails so you don’t have to own it?",
+      "If you weren’t allowed to play small tonight, what would you attempt?",
+      "What’s the version of your work that would make your past self jealous?",
+      "Where are you pretending you’re constrained when you’re actually just undecided?",
+      "If you had to disappoint one expectation to free up your real work, which one?"
+    ];
+
+    const whispers = [
+      "You’re underestimating what you can build in 20 minutes.",
+      "There’s a door you haven’t opened yet. You walked past it today.",
+      "You already know the next move. You’re just negotiating with it.",
+      "The smallest version of your idea is still bigger than your current output.",
+      "You’re closer to a new income stream than your mood suggests.",
+      "You’ve postponed the same decision three times. That’s your signal.",
+      "There’s a build you keep circling. Land it once, then refine.",
+      "You don’t need more clarity. You need a tiny irreversible action.",
+      "You’re allowed to design something that only makes sense to you at first.",
+      "You’ve already collected enough inputs. Switch to output mode."
+    ];
+
+    const escalationEvents = [
+      "Micro-escalation: commit to a 10-minute build window in the next hour.",
+      "Escalation: send one message that exposes a project you’ve kept private.",
+      "Hard nudge: delete one stale task that’s been draining attention for weeks.",
+      "Trajectory shift: choose one project to quietly deprioritise for 7 days.",
+      "Operator move: schedule a 30-minute block labelled 'forbidden build'.",
+      "Shadow pact: write the first sentence of the thing you’re afraid to publish.",
+      "System override: remove one recurring obligation that no longer serves your arc.",
+      "Quiet rebellion: design a version of your work that ignores industry norms.",
+      "Signal flare: tell one trusted person what you actually want to build.",
+      "Line in the sand: decide what you will no longer pretend to care about."
+    ];
+
+    const followUpTemplates = [
+      "You pulled: “{vector}”\nYou already know the answer. Start the first 2 minutes.",
+      "Earlier you asked: “{vector}”\nYou walked past the ripple 3 times today.",
+      "You opened this door: “{vector}”\nLeave one breadcrumb before you close the tab.",
+      "You invoked: “{vector}”\nReduce it to a 5-minute version and do that.",
+      "You chose: “{vector}”\nFuture-You is quietly expecting a move tonight."
+    ];
+
+    const shadowFollowUpTemplates = [
+      "You flirted with: “{vector}”\nStop orbiting. Name one irreversible step.",
+      "You touched this edge: “{vector}”\nYour hesitation is the most interesting data point.",
+      "You opened a shadow-thread: “{vector}”\nWrite the unpublishable version first.",
+      "You signalled: “{vector}”\nYour current identity is not the final gatekeeper.",
+      "You invoked a forbidden angle: “{vector}”\nGive it 7 minutes of unfiltered design."
+    ];
+
+    // --- State --------------------------------------------------------------
+    let eventCounter = 0;
+    let lastVector = null;
+    let lastVectorIsShadow = false;
+    let passiveOn = true;
+    let shadowModeOn = false;
+    let passiveTimer = null;
+
+    // --- DOM references -----------------------------------------------------
+    const cubeEl = document.getElementById("cube");
+    const btnVector = document.getElementById("btn-vector");
+    const btnWhisper = document.getElementById("btn-whisper");
+    const btnShadow = document.getElementById("btn-shadow");
+    const btnEscalate = document.getElementById("btn-escalate");
+
+    const outputLabel = document.getElementById("output-label");
+    const outputBody = document.getElementById("output-body");
+    const outputTag = document.getElementById("output-tag");
+    const outputId = document.getElementById("output-id");
+
+    const logEl = document.getElementById("log");
+    const logBadge = document.getElementById("log-badge");
+
+    const togglePassive = document.getElementById("toggle-passive");
+    const toggleShadow = document.getElementById("toggle-shadow");
+    const freqSlider = document.getElementById("freq-slider");
+    const freqLabel = document.getElementById("freq-label");
+
+    const statusPill = document.getElementById("status-pill");
+    const statusText = document.getElementById("status-text");
+    const footerMode = document.getElementById("footer-mode");
+
+    // --- Helpers ------------------------------------------------------------
+    function randomFrom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function nextEventId() {
+      eventCounter += 1;
+      return "event-" + String(eventCounter).padStart(4, "0");
+    }
+
+    function nowTime() {
+      const d = new Date();
+      return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function setOutput({ label, body, tag }) {
+      const id = nextEventId();
+      outputLabel.textContent = label;
+      outputBody.textContent = body;
+      outputTag.textContent = tag;
+      outputId.textContent = id;
+      return id;
+    }
+
+    function addLogEntry({ type, body, id }) {
+      const entry = document.createElement("div");
+      entry.className = "log-entry";
+      entry.dataset.type = type;
+
+      const header = document.createElement("div");
+      header.className = "log-entry-header";
+
+      const typeSpan = document.createElement("span");
+      typeSpan.className = "log-entry-type";
+      typeSpan.textContent = type.toUpperCase();
+
+      const timeSpan = document.createElement("span");
+      timeSpan.className = "log-entry-time";
+      timeSpan.textContent = nowTime() + " · " + id;
+
+      header.appendChild(typeSpan);
+      header.appendChild(timeSpan);
+
+      const bodySpan = document.createElement("div");
+      bodySpan.className = "log-entry-body";
+      bodySpan.textContent = body;
+
+      entry.appendChild(header);
+      entry.appendChild(bodySpan);
+
+      logEl.prepend(entry);
+
+      const count = logEl.children.length;
+      logBadge.textContent = count + (count === 1 ? " entry" : " entries");
+    }
+
+    function spinCube() {
+      cubeEl.classList.remove("spin");
+      void cubeEl.offsetWidth; // force reflow
+      cubeEl.classList.add("spin");
+    }
+
+    function updateStatus() {
+      if (shadowModeOn) {
+        statusPill.dataset.mode = "shadow";
+        statusText.textContent = passiveOn ? "Shadow · Passive" : "Shadow · Manual";
+        footerMode.dataset.mode = "shadow";
+        footerMode.textContent = "Mode: Shadow";
+      } else {
+        statusPill.dataset.mode = "normal";
+        statusText.textContent = passiveOn ? "Passive · Listening" : "Manual · Listening";
+        footerMode.dataset.mode = "normal";
+        footerMode.textContent = "Mode: Normal";
+      }
+    }
+
+    function updateFreqLabel() {
+      const v = Number(freqSlider.value);
+      if (v === 1) freqLabel.textContent = "Low";
+      else if (v === 2) freqLabel.textContent = "Medium";
+      else freqLabel.textContent = "High";
+    }
+
+    function schedulePassiveWhisper() {
+      if (!passiveOn) return;
+      if (passiveTimer) clearTimeout(passiveTimer);
+
+      const freq = Number(freqSlider.value);
+      // Low: 90–150s, Medium: 45–90s, High: 20–45s
+      let min, max;
+      if (freq === 1) {
+        min = 90000;
+        max = 150000;
+      } else if (freq === 2) {
+        min = 45000;
+        max = 90000;
+      } else {
+        min = 20000;
+        max = 45000;
+      }
+      const delay = min + Math.random() * (max - min);
+
+      passiveTimer = setTimeout(() => {
+        if (!passiveOn) return;
+        triggerPassiveWhisper();
+        schedulePassiveWhisper();
+      }, delay);
+    }
+
+    // --- Core behaviours ----------------------------------------------------
+    function triggerVector(isShadow = false) {
+      spinCube();
+      const vector = isShadow ? randomFrom(shadowVectors) : randomFrom(curiosityVectors);
+      lastVector = vector;
+      lastVectorIsShadow = isShadow;
+
+      const label = isShadow ? "RCD://vector.shadow" : "RCD://vector";
+      const tag = isShadow ? "shadow-vector" : "vector";
+      const id = setOutput({
+        label,
+        body: vector,
+        tag
+      });
+
+      addLogEntry({
+        type: isShadow ? "vector" : "vector",
+        body: vector,
+        id
+      });
+
+      // Schedule a follow-up whisper based on this vector
+      scheduleFollowUpForVector(vector, isShadow);
+    }
+
+    function triggerWhisper(manual = true) {
+      spinCube();
+      let message = randomFrom(whispers);
+
+      // Occasionally, if we have a last vector, use a follow-up template
+      if (lastVector && Math.random() < 0.5) {
+        const templates = lastVectorIsShadow ? shadowFollowUpTemplates : followUpTemplates;
+        const template = randomFrom(templates);
+        message = template.replace("{vector}", lastVector);
+      }
+
+      const label = manual ? "RCD://intrusion.manual" : "RCD://intrusion.passive";
+      const tag = manual ? "whisper" : "passive-whisper";
+      const id = setOutput({
+        label,
+        body: message,
+        tag
+      });
+
+      addLogEntry({
+        type: "whisper",
+        body: message,
+        id
+      });
+    }
+
+    function triggerPassiveWhisper() {
+      triggerWhisper(false);
+    }
+
+    function triggerEscalation() {
+      spinCube();
+      const event = randomFrom(escalationEvents);
+      const label = "RCD://escalation";
+      const tag = "escalation";
+      const id = setOutput({
+        label,
+        body: event,
+        tag
+      });
+
+      addLogEntry({
+        type: "escalation",
+        body: event,
+        id
+      });
+    }
+
+    function scheduleFollowUpForVector(vector, isShadow) {
+      // Follow-up in 30–90 seconds, independent of passive whispers
+      const min = 30000;
+      const max = 90000;
+      const delay = min + Math.random() * (max - min);
+
+      setTimeout(() => {
+        // Only follow up if this is still the last vector
+        if (lastVector !== vector) return;
+
+        const templates = isShadow ? shadowFollowUpTemplates : followUpTemplates;
+        const template = randomFrom(templates);
+        const message = template.replace("{vector}", vector);
+
+        const label = "RCD://intrusion.follow-up";
+        const tag = isShadow ? "shadow-follow-up" : "follow-up";
+        const id = setOutput({
+          label,
+          body: message,
+          tag
+        });
+
+        addLogEntry({
+          type: "whisper",
+          body: message,
+          id
+        });
+      }, delay);
+    }
+
+    // --- Event bindings -----------------------------------------------------
+    btnVector.addEventListener("click", () => {
+      triggerVector(false);
+      schedulePassiveWhisper();
+    });
+
+    btnShadow.addEventListener("click", () => {
+      triggerVector(true);
+      schedulePassiveWhisper();
+    });
+
+    btnWhisper.addEventListener("click", () => {
+      triggerWhisper(true);
+      schedulePassiveWhisper();
+    });
+
+    btnEscalate.addEventListener("click", () => {
+      triggerEscalation();
+      schedulePassiveWhisper();
+    });
+
+    togglePassive.addEventListener("click", () => {
+      passiveOn = !passiveOn;
+      togglePassive.dataset.on = passiveOn ? "true" : "false";
+      updateStatus();
+      if (passiveOn) {
+        schedulePassiveWhisper();
+      } else if (passiveTimer) {
+        clearTimeout(passiveTimer);
+        passiveTimer = null;
+      }
+    });
+
+    toggleShadow.addEventListener("click", () => {
+      shadowModeOn = !shadowModeOn;
+      toggleShadow.dataset.on = shadowModeOn ? "true" : "false";
+      updateStatus();
+    });
+
+    freqSlider.addEventListener("input", () => {
+      updateFreqLabel();
+      schedulePassiveWhisper();
+    });
+
+    // --- Init ---------------------------------------------------------------
+    updateStatus();
+    updateFreqLabel();
+    schedulePassiveWhisper();
+  </script>
+</body>
+</html>
