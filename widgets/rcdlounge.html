@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RCD // Liminal Lounge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #05060a;
+      --bg-alt: #090b12;
+      --accent: #7f9dff;
+      --accent-soft: rgba(127, 157, 255, 0.18);
+      --accent-strong: #b89bff;
+      --text: #f5f7ff;
+      --text-soft: #a0a6c7;
+      --border: #1a1d2b;
+      --glow-soft: 0 0 40px rgba(127, 157, 255, 0.45);
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Inter", sans-serif;
+      --font-mono: "SF Mono", ui-monospace, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #15192a 0, #05060a 55%);
+      color: var(--text);
+      font-family: var(--font-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 880px;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at 0 0, rgba(127, 157, 255, 0.12), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(184, 155, 255, 0.12), transparent 55%),
+        linear-gradient(145deg, #05060a 0, #090b12 40%, #05060a 100%);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.02),
+        0 40px 120px rgba(0, 0, 0, 0.9);
+      padding: 16px 16px 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shell::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0 0, rgba(127, 157, 255, 0.12), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(184, 155, 255, 0.12), transparent 55%);
+      opacity: 0.7;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .shell-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 780px) {
+      .shell-inner {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .title {
+      font-size: 14px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: var(--accent-soft);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(127, 157, 255, 0.5);
+      background: rgba(127, 157, 255, 0.08);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-soft);
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #9cf7e0;
+      box-shadow: 0 0 12px rgba(156, 247, 224, 0.9);
+    }
+
+    .pill[data-mood="soft"] {
+      border-color: rgba(127, 157, 255, 0.5);
+      background: rgba(127, 157, 255, 0.08);
+    }
+
+    .pill[data-mood="deep"] {
+      border-color: rgba(184, 155, 255, 0.6);
+      background: rgba(184, 155, 255, 0.08);
+    }
+
+    /* Left: orb + main controls */
+    .left {
+      border-radius: 16px;
+      border: 1px solid rgba(127, 157, 255, 0.25);
+      background: radial-gradient(circle at top, #15192a 0, #05060a 60%);
+      padding: 14px 12px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .left::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0 0, rgba(127, 157, 255, 0.18), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(184, 155, 255, 0.18), transparent 55%);
+      opacity: 0.6;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .left-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .left-inner {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .orb-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 4px;
+    }
+
+    .orb {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 0, rgba(255, 255, 255, 0.18), transparent 60%),
+        radial-gradient(circle at 70% 100%, rgba(184, 155, 255, 0.35), transparent 70%),
+        radial-gradient(circle at 0 100%, rgba(127, 157, 255, 0.35), transparent 70%);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.04),
+        0 30px 80px rgba(0, 0, 0, 0.9),
+        var(--glow-soft);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .orb::before {
+      content: "";
+      position: absolute;
+      inset: 18%;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 40px rgba(127, 157, 255, 0.4);
+      opacity: 0.8;
+    }
+
+    .orb-pulse {
+      position: absolute;
+      width: 220%;
+      height: 220%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(127, 157, 255, 0.12), transparent 70%);
+      animation: breathe 9s ease-in-out infinite;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .orb-core-text {
+      position: relative;
+      z-index: 1;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-soft);
+      text-align: center;
+      padding: 0 12px;
+    }
+
+    @keyframes breathe {
+      0% {
+        transform: scale(0.9);
+        opacity: 0.4;
+      }
+      50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+      }
+      100% {
+        transform: scale(0.9);
+        opacity: 0.4;
+      }
+    }
+
+    .orb-label {
+      margin-top: 8px;
+      font-size: 11px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-soft);
+      opacity: 0.8;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    button {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      background: rgba(11, 13, 20, 0.9);
+      color: var(--text-soft);
+      border: 1px solid rgba(154, 160, 194, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition:
+        background 0.18s ease-out,
+        border-color 0.18s ease-out,
+        transform 0.18s ease-out,
+        box-shadow 0.18s ease-out,
+        color 0.18s ease-out;
+    }
+
+    button span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(154, 160, 194, 0.7);
+    }
+
+    button.primary {
+      background: radial-gradient(circle at 0 0, rgba(127, 157, 255, 0.4), rgba(127, 157, 255, 0.12));
+      border-color: rgba(127, 157, 255, 0.8);
+      color: var(--text);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02), var(--glow-soft);
+    }
+
+    button.soft {
+      background: rgba(11, 13, 20, 0.9);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      background: rgba(20, 24, 40, 0.95);
+      border-color: rgba(154, 160, 194, 0.6);
+      color: var(--text);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.7);
+    }
+
+    button.primary:hover {
+      background: radial-gradient(circle at 0 0, rgba(127, 157, 255, 0.6), rgba(127, 157, 255, 0.18));
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8);
+    }
+
+    .output {
+      margin-top: 6px;
+      border-radius: 10px;
+      background: rgba(5, 6, 10, 0.9);
+      border: 1px solid rgba(26, 29, 43, 0.9);
+      padding: 10px 10px 8px;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .output-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-soft);
+      opacity: 0.8;
+    }
+
+    .output-body {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+      margin-top: 2px;
+      white-space: pre-wrap;
+    }
+
+    .output-meta {
+      font-size: 10px;
+      color: var(--text-soft);
+      opacity: 0.7;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+
+    .output-tag {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .output-id {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      opacity: 0.8;
+    }
+
+    /* Right: log + ambience + voice */
+    .right {
+      border-radius: 16px;
+      border: 1px solid rgba(26, 29, 43, 0.9);
+      background: rgba(5, 6, 10, 0.9);
+      padding: 12px 12px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .right::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 100% 0, rgba(127, 157, 255, 0.12), transparent 55%),
+        radial-gradient(circle at 0 100%, rgba(184, 155, 255, 0.12), transparent 55%);
+      opacity: 0.5;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .right-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-soft);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(154, 160, 194, 0.4);
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .log {
+      border-radius: 10px;
+      background: rgba(5, 6, 10, 0.9);
+      border: 1px solid rgba(26, 29, 43, 0.9);
+      padding: 8px 8px 6px;
+      max-height: 210px;
+      overflow: auto;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-entry {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      padding: 4px 4px;
+      border-radius: 6px;
+      background: rgba(11, 13, 20, 0.9);
+      border: 1px solid rgba(26, 29, 43, 0.9);
+    }
+
+    .log-entry-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      color: var(--text-soft);
+    }
+
+    .log-entry-type {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 9px;
+      opacity: 0.9;
+    }
+
+    .log-entry-time {
+      font-size: 9px;
+      opacity: 0.7;
+    }
+
+    .log-entry-body {
+      font-size: 11px;
+      color: var(--text);
+      margin-top: 1px;
+    }
+
+    .log-entry[data-type="drift"] {
+      border-color: rgba(127, 157, 255, 0.6);
+    }
+
+    .log-entry[data-type="whisper"] {
+      border-color: rgba(184, 155, 255, 0.6);
+    }
+
+    .log-entry[data-type="ambient"] {
+      border-color: rgba(156, 247, 224, 0.7);
+    }
+
+    .ambience {
+      border-radius: 10px;
+      background: rgba(5, 6, 10, 0.9);
+      border: 1px solid rgba(26, 29, 43, 0.9);
+      padding: 8px 8px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .row-label {
+      font-size: 11px;
+    }
+
+    .row-sub {
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    .toggle {
+      position: relative;
+      width: 38px;
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(26, 29, 43, 0.9);
+      border: 1px solid rgba(154, 160, 194, 0.5);
+      cursor: pointer;
+      transition:
+        background 0.18s ease-out,
+        border-color 0.18s ease-out;
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(154, 160, 194, 0.9);
+      transition: transform 0.18s ease-out, background 0.18s ease-out,
+        box-shadow 0.18s ease-out;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02),
+        0 4px 10px rgba(0, 0, 0, 0.7);
+    }
+
+    .toggle[data-on="true"] {
+      background: radial-gradient(circle at 0 0, rgba(127, 157, 255, 0.5), rgba(127, 157, 255, 0.1));
+      border-color: rgba(127, 157, 255, 0.9);
+    }
+
+    .toggle[data-on="true"] .toggle-thumb {
+      transform: translateX(16px);
+      background: #ffffff;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2),
+        0 0 16px rgba(127, 157, 255, 0.9);
+    }
+
+    .slider-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-soft);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(26, 29, 43, 0.9);
+      outline: none;
+      margin-top: 2px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2),
+        0 0 16px rgba(127, 157, 255, 0.9);
+      cursor: pointer;
+      margin-top: -5px;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2),
+        0 0 16px rgba(127, 157, 255, 0.9);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(26, 29, 43, 0.9);
+    }
+
+    .footer {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: var(--text-soft);
+      opacity: 0.8;
+    }
+
+    .footer span.code {
+      font-family: var(--font-mono);
+      font-size: 10px;
+    }
+
+    .footer span.mode {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .footer span.mode[data-mood="soft"] {
+      color: #9cf7e0;
+    }
+
+    .footer span.mode[data-mood="deep"] {
+      color: #b89bff;
+    }
+
+    .log::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .log::-webkit-scrollbar-track {
+      background: rgba(5, 6, 10, 0.9);
+    }
+
+    .log::-webkit-scrollbar-thumb {
+      background: rgba(26, 29, 43, 0.9);
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="header">
+      <div class="title-block">
+        <div class="title">RCD // Liminal Lounge</div>
+        <div class="subtitle">Ambient daemon for drifting, soft whispers, and non-productive wandering</div>
+      </div>
+      <div class="pill" id="mood-pill" data-mood="soft">
+        <div class="pill-dot"></div>
+        <span id="mood-text">Soft drift</span>
+      </div>
+    </div>
+
+    <div class="shell-inner">
+      <!-- Left -->
+      <div class="left">
+        <div class="left-inner">
+          <div class="orb-wrap">
+            <div class="orb" id="orb">
+              <div class="orb-pulse"></div>
+              <div class="orb-core-text" id="orb-core-text">
+                RCD://rest<br />no output required
+              </div>
+            </div>
+          </div>
+          <div class="controls">
+            <div class="button-row">
+              <button class="primary" id="btn-drift">
+                <span class="dot"></span>
+                Drift prompt
+              </button>
+              <button class="soft" id="btn-soft-whisper">
+                <span class="dot"></span>
+                Soft whisper
+              </button>
+              <button class="soft" id="btn-random">
+                <span class="dot"></span>
+                Let it choose
+              </button>
+            </div>
+
+            <div class="output">
+              <div class="output-label" id="output-label">RCD://idle.lounge</div>
+              <div class="output-body" id="output-body">
+                Nothing to do. You’re allowed to just sit here and let the orb breathe.
+              </div>
+              <div class="output-meta">
+                <span class="output-tag" id="output-tag">no-event</span>
+                <span class="output-id" id="output-id">event-0000</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="right">
+        <div class="right-inner">
+          <div>
+            <div class="section-title">
+              <span>Gentle log</span>
+              <span class="badge" id="log-badge">0 entries</span>
+            </div>
+            <div class="log" id="log"></div>
+          </div>
+
+          <div>
+            <div class="section-title">
+              <span>Ambience & voice</span>
+              <span class="badge">Background</span>
+            </div>
+            <div class="ambience">
+              <div class="row">
+                <div>
+                  <div class="row-label">Ambient whispers</div>
+                  <div class="row-sub">Occasional soft lines while you do nothing</div>
+                </div>
+                <div class="toggle" id="toggle-ambient" data-on="true">
+                  <div class="toggle-thumb"></div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div>
+                  <div class="row-label">Voice playback</div>
+                  <div class="row-sub">Read whispers out loud (if supported)</div>
+                </div>
+                <div class="toggle" id="toggle-voice" data-on="false">
+                  <div class="toggle-thumb"></div>
+                </div>
+              </div>
+
+              <div class="slider-block">
+                <div class="slider-label">
+                  <span>Ambient intensity</span>
+                  <span id="intensity-label">Medium</span>
+                </div>
+                <input type="range" id="intensity-slider" min="1" max="3" value="2" />
+              </div>
+            </div>
+          </div>
+
+          <div class="footer">
+            <span class="code">RCD://lounge-v0.1-html</span>
+            <span class="mode" id="footer-mode" data-mood="soft">Mood: Soft drift</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Data ---------------------------------------------------------------
+    var driftPrompts = [
+      "You don’t have to optimise this moment.\nJust notice one tiny detail in your surroundings.",
+      "Let your thoughts wander without trying to catch them.\nNothing needs to be written down.",
+      "Imagine a version of you that is in no hurry at all.\nWhat are they looking at right now?",
+      "You’re allowed to be completely uninteresting to the outside world for a while.\nThat’s where the good stuff grows.",
+      "If tonight had no purpose, what would feel nicest to pay attention to for 30 seconds?",
+      "You don’t owe this moment to anyone.\nYou can simply exist and let the room hold you.",
+      "Let your shoulders drop 5% more.\nNo one is grading how you rest.",
+      "You can let one unfinished thing stay unfinished tonight.\nIt will still be there later.",
+      "You’re not behind.\nYou’re just here.",
+      "If your only job right now was to breathe slowly, you’d already be doing it well."
+    ];
+
+    var softWhispers = [
+      "You’re allowed to rest without turning it into a strategy.",
+      "Nothing urgent is hiding in this widget.\nIt’s just a quiet corner.",
+      "You don’t have to capture every idea.\nSome can just drift through.",
+      "Your value is not measured by tonight’s output.",
+      "You can let your mind idle like a screen saver.",
+      "It’s okay if nothing profound happens.\nBeing here is enough.",
+      "You can be off-duty and still be you.",
+      "There is no next step required after this whisper.",
+      "You’re allowed to enjoy the aesthetic without building anything from it.",
+      "You can close your eyes for a few breaths.\nThe daemon will wait."
+    ];
+
+    var ambientLines = [
+      "Background note: you’re still here, and that’s sufficient.",
+      "Ambient thought: nothing is demanding you right now.",
+      "Soft ping: your nervous system is allowed to downshift.",
+      "Quiet reminder: you can scroll less and stare into space more.",
+      "Gentle signal: you don’t have to make this moment useful.",
+      "Low-volume thought: you’re not missing anything important by resting.",
+      "Soft echo: the world can spin without your input for a bit.",
+      "Background hum: you’re allowed to be unreachable in your own head.",
+      "Quiet drift: no one needs a status update from you right now.",
+      "Soft field: you can just be a person in a room."
+    ];
+
+    // --- State --------------------------------------------------------------
+    var eventCounter = 0;
+    var ambientOn = true;
+    var voiceOn = false;
+    var ambientTimer = null;
+    var mood = "soft"; // "soft" or "deep"
+
+    // --- DOM ---------------------------------------------------------------
+    var orb = document.getElementById("orb");
+    var orbCoreText = document.getElementById("orb-core-text");
+
+    var btnDrift = document.getElementById("btn-drift");
+    var btnSoftWhisper = document.getElementById("btn-soft-whisper");
+    var btnRandom = document.getElementById("btn-random");
+
+    var outputLabel = document.getElementById("output-label");
+    var outputBody = document.getElementById("output-body");
+    var outputTag = document.getElementById("output-tag");
+    var outputId = document.getElementById("output-id");
+
+    var logEl = document.getElementById("log");
+    var logBadge = document.getElementById("log-badge");
+
+    var toggleAmbient = document.getElementById("toggle-ambient");
+    var toggleVoice = document.getElementById("toggle-voice");
+    var intensitySlider = document.getElementById("intensity-slider");
+    var intensityLabel = document.getElementById("intensity-label");
+
+    var moodPill = document.getElementById("mood-pill");
+    var moodText = document.getElementById("mood-text");
+    var footerMode = document.getElementById("footer-mode");
+
+    // --- Helpers -----------------------------------------------------------
+    function randomFrom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function nextEventId() {
+      eventCounter += 1;
+      return "event-" + String(eventCounter).padStart(4, "0");
+    }
+
+    function nowTime() {
+      var d = new Date();
+      return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function setOutput(label, body, tag) {
+      var id = nextEventId();
+      outputLabel.textContent = label;
+      outputBody.textContent = body;
+      outputTag.textContent = tag;
+      outputId.textContent = id;
+      return id;
+    }
+
+    function addLogEntry(type, body, id) {
+      var entry = document.createElement("div");
+      entry.className = "log-entry";
+      entry.dataset.type = type;
+
+      var header = document.createElement("div");
+      header.className = "log-entry-header";
+
+      var typeSpan = document.createElement("span");
+      typeSpan.className = "log-entry-type";
+      typeSpan.textContent = type.toUpperCase();
+
+      var timeSpan = document.createElement("span");
+      timeSpan.className = "log-entry-time";
+      timeSpan.textContent = nowTime() + " · " + id;
+
+      header.appendChild(typeSpan);
+      header.appendChild(timeSpan);
+
+      var bodySpan = document.createElement("div");
+      bodySpan.className = "log-entry-body";
+      bodySpan.textContent = body;
+
+      entry.appendChild(header);
+      entry.appendChild(bodySpan);
+
+      logEl.prepend(entry);
+
+      var count = logEl.children.length;
+      logBadge.textContent = count + (count === 1 ? " entry" : " entries");
+    }
+
+    function updateIntensityLabel() {
+      var v = Number(intensitySlider.value);
+      if (v === 1) intensityLabel.textContent = "Low";
+      else if (v === 2) intensityLabel.textContent = "Medium";
+      else intensityLabel.textContent = "High";
+    }
+
+    function updateMood() {
+      // Mood is just a vibe toggle based on intensity
+      var v = Number(intensitySlider.value);
+      if (v === 3) {
+        mood = "deep";
+      } else {
+        mood = "soft";
+      }
+
+      moodPill.dataset.mood = mood;
+      footerMode.dataset.mood = mood;
+
+      if (mood === "soft") {
+        moodText.textContent = "Soft drift";
+        footerMode.textContent = "Mood: Soft drift";
+        orbCoreText.textContent = "RCD://rest\nno output required";
+      } else {
+        moodText.textContent = "Deep float";
+        footerMode.textContent = "Mood: Deep float";
+        orbCoreText.textContent = "RCD://deep\nstay unhurried";
+      }
+    }
+
+    function scheduleAmbient() {
+      if (!ambientOn) return;
+      if (ambientTimer) clearTimeout(ambientTimer);
+
+      var v = Number(intensitySlider.value);
+      var min, max;
+      // Low: 120–210s, Medium: 60–120s, High: 30–60s
+      if (v === 1) {
+        min = 120000;
+        max = 210000;
+      } else if (v === 2) {
+        min = 60000;
+        max = 120000;
+      } else {
+        min = 30000;
+        max = 60000;
+      }
+      var delay = min + Math.random() * (max - min);
+
+      ambientTimer = setTimeout(function () {
+        if (!ambientOn) return;
+        triggerAmbientLine();
+        scheduleAmbient();
+      }, delay);
+    }
+
+    function speakIfEnabled(text) {
+      if (!voiceOn) return;
+      if (!("speechSynthesis" in window)) return;
+
+      try {
+        window.speechSynthesis.cancel();
+        var utter = new SpeechSynthesisUtterance(text);
+        utter.rate = 0.95;
+        utter.pitch = 1.0;
+        utter.volume = 0.9;
+        window.speechSynthesis.speak(utter);
+      } catch (e) {
+        // fail silently
+      }
+    }
+
+    function pulseOrb() {
+      orb.style.transform = "scale(1.02)";
+      setTimeout(function () {
+        orb.style.transform = "scale(1)";
+      }, 260);
+    }
+
+    // --- Core behaviours ---------------------------------------------------
+    function triggerDriftPrompt() {
+      pulseOrb();
+      var text = randomFrom(driftPrompts);
+      var id = setOutput("RCD://drift.prompt", text, "drift");
+      addLogEntry("drift", text, id);
+      speakIfEnabled(text);
+    }
+
+    function triggerSoftWhisper() {
+      pulseOrb();
+      var text = randomFrom(softWhispers);
+      var id = setOutput("RCD://whisper.soft", text, "soft-whisper");
+      addLogEntry("whisper", text, id);
+      speakIfEnabled(text);
+    }
+
+    function triggerRandom() {
+      // 50% drift, 50% whisper
+      if (Math.random() < 0.5) {
+        triggerDriftPrompt();
+      } else {
+        triggerSoftWhisper();
+      }
+    }
+
+    function triggerAmbientLine() {
+      var text = randomFrom(ambientLines);
+      var id = setOutput("RCD://ambient", text, "ambient");
+      addLogEntry("ambient", text, id);
+      speakIfEnabled(text);
+    }
+
+    // --- Events ------------------------------------------------------------
+    btnDrift.addEventListener("click", function () {
+      triggerDriftPrompt();
+      scheduleAmbient();
+    });
+
+    btnSoftWhisper.addEventListener("click", function () {
+      triggerSoftWhisper();
+      scheduleAmbient();
+    });
+
+    btnRandom.addEventListener("click", function () {
+      triggerRandom();
+      scheduleAmbient();
+    });
+
+    toggleAmbient.addEventListener("click", function () {
+      ambientOn = !ambientOn;
+      toggleAmbient.dataset.on = ambientOn ? "true" : "false";
+      if (ambientOn) {
+        scheduleAmbient();
+      } else if (ambientTimer) {
+        clearTimeout(ambientTimer);
+        ambientTimer = null;
+      }
+    });
+
+    toggleVoice.addEventListener("click", function () {
+      voiceOn = !voiceOn;
+      toggleVoice.dataset.on = voiceOn ? "true" : "false";
+      if (!voiceOn && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    });
+
+    intensitySlider.addEventListener("input", function () {
+      updateIntensityLabel();
+      updateMood();
+      scheduleAmbient();
+    });
+
+    // --- Init --------------------------------------------------------------
+    updateIntensityLabel();
+    updateMood();
+    scheduleAmbient();
+  </script>
+</body>
+</html>
