@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Drift Beacon</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  :root {
+    --bg: #05060a;
+    --accent: #8fb4ff;
+    --accent2: #c7a9ff;
+    --text: #f5f7ff;
+    --text-soft: #a0a6c7;
+    --border: #1a1d2b;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    min-height:100vh;
+    background:radial-gradient(circle at top, #15192a 0, #05060a 55%);
+    font-family:var(--font);
+    color:var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+  }
+
+  .shell {
+    width:100%;
+    max-width:520px;
+    border-radius:22px;
+    border:1px solid var(--border);
+    background:
+      radial-gradient(circle at 0 0, rgba(143,180,255,0.16), transparent 55%),
+      radial-gradient(circle at 100% 100%, rgba(199,169,255,0.16), transparent 55%),
+      linear-gradient(145deg,#05060a,#090b12);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.02),
+      0 40px 120px rgba(0,0,0,0.9);
+    padding:16px 16px 14px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .shell::before {
+    content:"";
+    position:absolute;
+    inset:-40%;
+    background:
+      radial-gradient(circle at 0 0, rgba(143,180,255,0.18), transparent 55%),
+      radial-gradient(circle at 100% 100%, rgba(199,169,255,0.18), transparent 55%);
+    opacity:0.6;
+    pointer-events:none;
+    mix-blend-mode:screen;
+  }
+
+  .inner {
+    position:relative;
+    z-index:1;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    align-items:center;
+  }
+
+  .header {
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+  }
+
+  .title-block {
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+
+  .title {
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:0.14em;
+    color:var(--text-soft);
+  }
+
+  .subtitle {
+    font-size:11px;
+    color:rgba(160,166,199,0.8);
+  }
+
+  .pill {
+    padding:4px 10px;
+    border-radius:999px;
+    border:1px solid rgba(143,180,255,0.5);
+    background:rgba(143,180,255,0.08);
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.16em;
+    color:var(--text-soft);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  .pill-dot {
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:#9cf7e0;
+    box-shadow:0 0 12px rgba(156,247,224,0.9);
+  }
+
+  .beacon-wrap {
+    margin-top:4px;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+
+  .beacon-field {
+    width:220px;
+    height:220px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(143,180,255,0.18), transparent 70%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+
+  .beacon-field::before {
+    content:"";
+    position:absolute;
+    inset:18%;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,0.08);
+    box-shadow:0 0 40px rgba(143,180,255,0.4);
+  }
+
+  .beacon-shard {
+    width:90px;
+    height:90px;
+    position:relative;
+    transform:rotate(45deg);
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.25), rgba(143,180,255,0.1)),
+      radial-gradient(circle at 0 0, rgba(199,169,255,0.5), transparent 70%);
+    border-radius:18px;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.08),
+      0 24px 60px rgba(0,0,0,0.9);
+    overflow:hidden;
+    cursor:pointer;
+    transition:transform 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  .beacon-shard::before {
+    content:"";
+    position:absolute;
+    inset:18%;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.18);
+    opacity:0.8;
+  }
+
+  .beacon-shard-core {
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(circle at 30% 0, rgba(255,255,255,0.4), transparent 60%),
+      radial-gradient(circle at 100% 100%, rgba(199,169,255,0.5), transparent 70%);
+    mix-blend-mode:screen;
+    opacity:0.9;
+  }
+
+  .beacon-shard-glow {
+    position:absolute;
+    inset:-40%;
+    background:radial-gradient(circle, rgba(143,180,255,0.4), transparent 70%);
+    filter:blur(18px);
+    opacity:0.7;
+    pointer-events:none;
+  }
+
+  .beacon-shard-label {
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transform:rotate(-45deg);
+    font-size:9px;
+    text-transform:uppercase;
+    letter-spacing:0.18em;
+    color:rgba(5,6,10,0.8);
+  }
+
+  .beacon-shard:hover {
+    transform:rotate(45deg) scale(1.04);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.12),
+      0 30px 80px rgba(0,0,0,0.95);
+  }
+
+  .hint {
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.16em;
+    color:var(--text-soft);
+    opacity:0.8;
+    text-align:center;
+  }
+
+  .output {
+    margin-top:4px;
+    width:100%;
+    border-radius:12px;
+    background:rgba(5,6,10,0.9);
+    border:1px solid rgba(26,29,43,0.9);
+    padding:10px 10px 8px;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+
+  .output-label {
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.18em;
+    color:var(--text-soft);
+    opacity:0.8;
+  }
+
+  .output-body {
+    font-size:14px;
+    line-height:1.6;
+    color:var(--text);
+    white-space:pre-wrap;
+  }
+
+  .output-meta {
+    font-size:10px;
+    color:var(--text-soft);
+    opacity:0.7;
+    display:flex;
+    justify-content:space-between;
+    margin-top:4px;
+  }
+
+  .output-tag {
+    text-transform:uppercase;
+    letter-spacing:0.16em;
+  }
+
+  .output-id {
+    font-family:"SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+    font-size:10px;
+  }
+
+  .footer {
+    margin-top:4px;
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:10px;
+    color:var(--text-soft);
+    opacity:0.8;
+  }
+
+  .footer span.code {
+    font-family:"SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+  }
+
+  .footer span.mode {
+    text-transform:uppercase;
+    letter-spacing:0.16em;
+  }
+
+  .log {
+    display:none; /* this artefact doesn’t need visible logs */
+  }
+
+  @keyframes slow-drift {
+    0% { transform:translateY(0) rotate(45deg); }
+    50% { transform:translateY(-6px) rotate(47deg); }
+    100% { transform:translateY(0) rotate(45deg); }
+  }
+
+  .beacon-shard.idle {
+    animation:slow-drift 10s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="inner">
+    <div class="header">
+      <div class="title-block">
+        <div class="title">Drift Beacon</div>
+        <div class="subtitle">A quiet shard that only speaks when you’re already resting</div>
+      </div>
+      <div class="pill">
+        <div class="pill-dot"></div>
+        <span id="pill-text">Idle glow</span>
+      </div>
+    </div>
+
+    <div class="beacon-wrap">
+      <div class="beacon-field">
+        <div class="beacon-shard idle" id="beacon">
+          <div class="beacon-shard-core"></div>
+          <div class="beacon-shard-glow"></div>
+          <div class="beacon-shard-label">Drift Beacon</div>
+        </div>
+      </div>
+      <div class="hint">Tap the shard if you feel like hearing from it. You don’t have to.</div>
+    </div>
+
+    <div class="output">
+      <div class="output-label" id="output-label">BEACON://idle</div>
+      <div class="output-body" id="output-body">
+        The Beacon is just here with you. No message is required.
+      </div>
+      <div class="output-meta">
+        <span class="output-tag" id="output-tag">no-transmission</span>
+        <span class="output-id" id="output-id">signal-0000</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span class="code">BEACON://drift-v0.1</span>
+      <span class="mode" id="footer-mode">State: Quiet presence</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // transmissions
+  var softLines = [
+    "You’re not drifting. You’re recalibrating your orbit.",
+    "Something in your future is already rearranging itself around this pause.",
+    "You’re not late. You’re in the exact pocket of time that needed you.",
+    "Your mind is doing work you can’t see yet.",
+    "This moment is a soft checkpoint in your timeline.",
+    "You’re allowed to be unreachable to the world and reachable to yourself.",
+    "Nothing is required of you. The Beacon is just keeping you company.",
+    "You’ll remember this quiet more than the noise.",
+    "Your next idea is already walking toward you.",
+    "You can stay exactly as you are for a while longer."
+  ];
+
+  var echoLines = [
+    "Future-you is quietly grateful you paused here.",
+    "This stillness is part of your trajectory, not a break from it.",
+    "You’re allowed to move slower than the world around you.",
+    "The version of you that isn’t rushing feels very close right now.",
+    "You’re not missing anything important by resting.",
+    "This is a small sanctuary in the middle of your timeline.",
+    "You don’t have to justify this moment to anyone, including yourself.",
+    "The Beacon has no agenda. It’s just a witness.",
+    "You’re allowed to let your thoughts wander without catching them.",
+    "This pause is already enough."
+  ];
+
+  var eventCounter = 0;
+  var beacon = document.getElementById("beacon");
+  var outputLabel = document.getElementById("output-label");
+  var outputBody = document.getElementById("output-body");
+  var outputTag = document.getElementById("output-tag");
+  var outputId = document.getElementById("output-id");
+  var pillText = document.getElementById("pill-text");
+  var footerMode = document.getElementById("footer-mode");
+
+  function randomFrom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function nextId() {
+    eventCounter += 1;
+    return "signal-" + String(eventCounter).padStart(4, "0");
+  }
+
+  function setTransmission(label, body, tag) {
+    var id = nextId();
+    outputLabel.textContent = label;
+    outputBody.textContent = body;
+    outputTag.textContent = tag;
+    outputId.textContent = id;
+  }
+
+  function pulseShard() {
+    beacon.style.transition = "transform 0.25s ease, box-shadow 0.25s ease";
+    beacon.style.transform = "rotate(45deg) scale(1.05)";
+    beacon.style.boxShadow =
+      "0 0 0 1px rgba(255,255,255,0.16), 0 34px 90px rgba(0,0,0,0.95)";
+    setTimeout(function () {
+      beacon.style.transform = "rotate(45deg)";
+      beacon.style.boxShadow =
+        "0 0 0 1px rgba(255,255,255,0.08), 0 24px 60px rgba(0,0,0,0.9)";
+    }, 260);
+  }
+
+  function transmit() {
+    pulseShard();
+
+    var useEcho = Math.random() < 0.4;
+    var text = useEcho ? randomFrom(echoLines) : randomFrom(softLines);
+
+    var label = useEcho ? "BEACON://liminal.echo" : "BEACON://soft.transmission";
+    var tag = useEcho ? "liminal-echo" : "soft-line";
+
+    setTransmission(label, text, tag);
+
+    pillText.textContent = useEcho ? "Liminal echo" : "Soft transmission";
+    footerMode.textContent = useEcho ? "State: Echoing forward" : "State: Gentle signal";
+  }
+
+  // occasional ambient transmission without tap
+  var ambientTimer = null;
+  function scheduleAmbient() {
+    if (ambientTimer) clearTimeout(ambientTimer);
+    var min = 60000;  // 60s
+    var max = 150000; // 150s
+    var delay = min + Math.random() * (max - min);
+    ambientTimer = setTimeout(function () {
+      transmit();
+      scheduleAmbient();
+    }, delay);
+  }
+
+  beacon.addEventListener("click", function () {
+    transmit();
+    scheduleAmbient();
+  });
+
+  // init
+  scheduleAmbient();
+</script>
+</body>
+</html>
