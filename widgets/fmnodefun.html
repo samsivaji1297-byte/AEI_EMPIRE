@@ -2,44 +2,73 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>FM Sovereign Node</title>
+<title>FM Geo-Radar Node</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
     body {
         margin: 0;
-        background: #050505;
+        background: #030303;
         font-family: "Inter", sans-serif;
         color: #b8e7ff;
         display: flex;
         justify-content: center;
         align-items: center;
         height: 100vh;
+        overflow: hidden;
     }
 
-    .node {
-        width: 360px;
+    /* Radar background */
+    .radar {
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(0,150,255,0.15) 0%, rgba(0,0,0,0) 70%);
+        animation: rotate 12s linear infinite;
+        opacity: 0.25;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Scanline overlay */
+    .scanline {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 3px;
+        background: rgba(0,150,255,0.25);
+        animation: scan 4s linear infinite;
+    }
+
+    @keyframes scan {
+        0% { top: 0; opacity: 0.1; }
+        50% { opacity: 0.4; }
+        100% { top: 100%; opacity: 0.1; }
+    }
+
+    /* Panel */
+    .panel {
+        position: relative;
+        width: 340px;
         padding: 22px;
         border: 1px solid #1a2a33;
-        background: linear-gradient(180deg, rgba(10,20,30,0.85), rgba(5,10,15,0.7));
+        background: rgba(10,20,30,0.75);
         backdrop-filter: blur(6px);
         border-radius: 10px;
-        box-shadow: 0 0 22px rgba(0, 150, 255, 0.25);
-        animation: pulse 4s infinite;
+        box-shadow: 0 0 22px rgba(0,150,255,0.25);
+        z-index: 10;
     }
 
-    @keyframes pulse {
-        0% { box-shadow: 0 0 14px rgba(0,150,255,0.15); }
-        50% { box-shadow: 0 0 26px rgba(0,150,255,0.35); }
-        100% { box-shadow: 0 0 14px rgba(0,150,255,0.15); }
-    }
-
-    .section-title {
-        font-size: 13px;
+    .title {
+        font-size: 14px;
         letter-spacing: 3px;
         text-transform: uppercase;
         color: #7dd3fc;
-        margin: 14px 0 8px;
+        margin-bottom: 12px;
     }
 
     .line {
@@ -60,97 +89,54 @@
         background: #1f3b4d;
         margin: 14px 0;
     }
-
-    .quote {
-        font-size: 15px;
-        line-height: 1.5;
-        opacity: 0;
-        animation: fadeIn 1.2s forwards;
-    }
-
-    .author {
-        font-size: 13px;
-        color: #7dd3fc;
-        text-align: right;
-        margin-top: 8px;
-        opacity: 0;
-        animation: fadeIn 1.2s forwards;
-    }
 </style>
 </head>
 
 <body>
 
-<div class="node">
+<div class="radar"></div>
+<div class="scanline"></div>
 
-    <div class="section-title">Geopulse</div>
+<div class="panel">
+    <div class="title">Geo-Radar Node</div>
+
     <div id="city" class="line">City: —</div>
     <div id="region" class="line">Region: —</div>
     <div id="country" class="line">Country: —</div>
+
     <div class="divider"></div>
+
     <div id="lat" class="line">Lat: —</div>
     <div id="lon" class="line">Lon: —</div>
+
     <div class="divider"></div>
+
     <div id="ip" class="line">IP: —</div>
     <div id="isp" class="line">ISP: —</div>
-
-    <div class="divider"></div>
-
-    <div class="section-title">Timepulse</div>
-    <div id="timezone" class="line">Timezone: —</div>
-    <div id="offset" class="line">UTC Offset: —</div>
-    <div id="current" class="line">Current Time: —</div>
-    <div id="day" class="line">Day: —</div>
-
-    <div class="divider"></div>
-
-    <div class="section-title">Identity Feed</div>
-    <div id="quote" class="quote">Loading…</div>
-    <div id="author" class="author">—</div>
-
 </div>
 
 <script>
 async function loadGeo() {
-    const res = await fetch("https://ipinfo.io/json?token=free");
-    const d = await res.json();
+    try {
+        const res = await fetch("https://ipwho.is/");
+        const d = await res.json();
 
-    const [lat, lon] = d.loc.split(",");
+        document.getElementById("city").innerText = `City: ${d.city}`;
+        document.getElementById("region").innerText = `Region: ${d.region}`;
+        document.getElementById("country").innerText = `Country: ${d.country}`;
 
-    document.getElementById("city").innerText = `City: ${d.city}`;
-    document.getElementById("region").innerText = `Region: ${d.region}`;
-    document.getElementById("country").innerText = `Country: ${d.country}`;
-    document.getElementById("lat").innerText = `Lat: ${lat}`;
-    document.getElementById("lon").innerText = `Lon: ${lon}`;
-    document.getElementById("ip").innerText = `IP: ${d.ip}`;
-    document.getElementById("isp").innerText = `ISP: ${d.org}`;
-}
+        document.getElementById("lat").innerText = `Lat: ${d.latitude}`;
+        document.getElementById("lon").innerText = `Lon: ${d.longitude}`;
 
-async function loadTime() {
-    const res = await fetch("https://timeapi.io/api/Time/current/ip");
-    const d = await res.json();
-
-    document.getElementById("timezone").innerText = `Timezone: ${d.timeZone}`;
-    document.getElementById("offset").innerText = `UTC Offset: ${d.utcOffset}`;
-    document.getElementById("current").innerText = `Current Time: ${d.time}`;
-    document.getElementById("day").innerText = `Day: ${d.dayOfWeek}`;
-}
-
-async function loadQuote() {
-    const res = await fetch("https://api.quotable.io/random");
-    const d = await res.json();
-
-    document.getElementById("quote").innerText = d.content;
-    document.getElementById("author").innerText = `— ${d.author}`;
+        document.getElementById("ip").innerText = `IP: ${d.ip}`;
+        document.getElementById("isp").innerText = `ISP: ${d.connection.isp}`;
+    } catch (e) {
+        console.log("Geo lookup failed", e);
+    }
 }
 
 loadGeo();
-loadTime();
-loadQuote();
-
 setInterval(loadGeo, 60000);
-setInterval(loadTime, 30000);
-setInterval(loadQuote, 45000);
 </script>
 
 </body>
