@@ -2,16 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Remove The Drag • Reel Engine v2</title>
+<title>Sovereign Identity • CTA Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
   :root {
-    --bg: #020307;
+    --bg: #020308;
+    --bg-soft: #070a16;
     --accent: #f5ff7a;
-    --accent-soft: rgba(245,255,122,0.12);
+    --accent-soft: rgba(245,255,122,0.14);
+    --accent-strong: #ff4b6a;
     --text: #f7f7f7;
     --soft: #9a9fb3;
+    --line: rgba(255,255,255,0.06);
   }
 
   * {
@@ -22,112 +25,296 @@
   }
 
   body {
-    background: radial-gradient(circle at top, #15192b 0%, #020307 60%, #000 100%);
     height: 100vh;
     width: 100vw;
     overflow: hidden;
+    background:
+      radial-gradient(circle at top, #1a1f3a 0%, #020308 55%, #000 100%);
+    color: var(--text);
+    font-family: system-ui, -apple-system, Inter, sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: system-ui, -apple-system, Inter, sans-serif;
-    color: var(--text);
   }
 
-  .container {
-    text-align: center;
-    padding: 20px;
+  .frame {
+    position: relative;
     width: 100%;
-    max-width: 420px;
-    animation: fadeIn 1.4s ease-out forwards;
+    max-width: 430px;
+    aspect-ratio: 9 / 16;
+    border-radius: 26px;
+    overflow: hidden;
+    background: radial-gradient(circle at top, #15192b 0%, #020308 60%, #000 100%);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.04),
+      0 26px 60px rgba(0,0,0,0.85);
   }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+  /* subtle scanlines */
+  .frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.04) 1px,
+      transparent 1px
+    );
+    background-size: 100% 3px;
+    mix-blend-mode: soft-light;
+    opacity: 0.35;
+    pointer-events: none;
   }
 
-  .tag {
-    font-size: 11px;
-    letter-spacing: 0.18em;
+  /* vignette */
+  .frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.55) 70%);
+    pointer-events: none;
+  }
+
+  .inner {
+    position: relative;
+    height: 100%;
+    padding: 22px 20px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .top-tag {
+    font-size: 10px;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--soft);
-    margin-bottom: 14px;
-    opacity: 0.7;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: fadeIn 1.2s ease-out forwards;
   }
 
-  .main {
-    font-size: 28px;
+  .top-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: radial-gradient(circle, #ff4b6a 0%, #ffb36a 60%, transparent 100%);
+    box-shadow: 0 0 12px rgba(255,75,106,0.8);
+  }
+
+  .core {
+    text-align: left;
+    padding-inline: 4px;
+  }
+
+  .label {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin-bottom: 10px;
+    opacity: 0.85;
+  }
+
+  .headline {
+    font-size: 26px;
+    line-height: 1.18;
     font-weight: 700;
-    line-height: 1.25;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
     background: linear-gradient(120deg, #f5ff7a, #ffb36a, #ff4b6a);
     -webkit-background-clip: text;
     color: transparent;
-    animation: glow 3s ease-in-out infinite;
+    animation: glow 3.4s ease-in-out infinite;
+  }
+
+  .sub {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--soft);
+    max-width: 320px;
+  }
+
+  .sub span {
+    color: var(--accent);
+  }
+
+  .divider {
+    margin: 18px 0 0;
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      var(--line) 20%,
+      var(--line) 80%,
+      transparent 100%
+    );
+  }
+
+  /* bottom bar */
+  .bottom-bar {
+    position: relative;
+    margin-top: auto;
+    padding-top: 14px;
+  }
+
+  .bottom-shell {
+    position: relative;
+    border-radius: 999px;
+    padding: 10px 14px;
+    background: radial-gradient(circle at top left, var(--accent-soft), transparent 60%);
+    border: 1px solid rgba(245,255,122,0.22);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    overflow: hidden;
+  }
+
+  .bottom-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      rgba(245,255,122,0.18),
+      transparent 40%,
+      transparent 60%,
+      rgba(255,75,106,0.18)
+    );
+    mix-blend-mode: soft-light;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .cta-text {
+    position: relative;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--text);
+  }
+
+  .cta-text strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .cta-pulse {
+    position: relative;
+    min-width: 70px;
+    height: 26px;
+    border-radius: 999px;
+    border: 1px solid rgba(245,255,122,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    overflow: hidden;
+    background: radial-gradient(circle at center, rgba(245,255,122,0.12), transparent 70%);
+    animation: breathe 2.6s ease-in-out infinite;
+  }
+
+  .cta-pulse::before {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background: conic-gradient(
+      from 0deg,
+      rgba(245,255,122,0.0),
+      rgba(245,255,122,0.7),
+      rgba(255,75,106,0.0),
+      rgba(245,255,122,0.0)
+    );
+    animation: rotate 5.4s linear infinite;
+    opacity: 0.7;
+  }
+
+  .cta-pulse span {
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-hint {
+    margin-top: 8px;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--soft);
+    opacity: 0.7;
+    text-align: center;
+  }
+
+  /* animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes glow {
     0% { filter: drop-shadow(0 0 0px rgba(245,255,122,0.2)); }
-    50% { filter: drop-shadow(0 0 12px rgba(245,255,122,0.35)); }
+    50% { filter: drop-shadow(0 0 14px rgba(245,255,122,0.4)); }
     100% { filter: drop-shadow(0 0 0px rgba(245,255,122,0.2)); }
   }
 
-  .sub {
-    font-size: 14px;
-    color: var(--soft);
-    line-height: 1.45;
-    max-width: 320px;
-    margin: 0 auto;
-    opacity: 0.85;
+  @keyframes breathe {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245,255,122,0.0); }
+    50% { transform: scale(1.03); box-shadow: 0 0 18px 0 rgba(245,255,122,0.45); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245,255,122,0.0); }
   }
 
-  .cta {
-    margin-top: 26px;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--accent);
-    letter-spacing: 0.04em;
-    animation: pulse 2.4s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
+  @keyframes rotate {
+    to { transform: rotate(360deg); }
   }
 </style>
 </head>
-
 <body>
-  <div class="container">
-    <div class="tag">SYSTEM • DRAG REMOVAL</div>
+  <div class="frame">
+    <div class="inner">
 
-    <div class="main">Remove the drag.</div>
+      <div class="top-tag">
+        <div class="top-dot"></div>
+        <div>IDENTITY • INTERFERENCE REMOVAL</div>
+      </div>
 
-    <div class="sub">
-      You felt the friction in the reel.  
-      This is where the shift begins.
+      <div class="core">
+        <div class="label">Installed identity vs. your own</div>
+
+        <div class="headline">
+          Remove what was put on you.<br>
+          Return to who you actually are.
+        </div>
+
+        <div class="sub">
+          If you can feel how much of your life is running on
+          <span>external influence</span> instead of your own signal,
+          this is the moment the old script cracks.
+        </div>
+
+        <div class="divider"></div>
+      </div>
+
+      <div class="bottom-bar">
+        <div class="bottom-shell">
+          <div class="cta-text">
+            If you’re ready to live as your <strong>actual self</strong>,
+            the framework is in my bio.
+          </div>
+          <div class="cta-pulse">
+            <span>BIO • LINK</span>
+          </div>
+        </div>
+        <div class="footer-hint">
+          you felt the interference — now remove it
+        </div>
+      </div>
+
     </div>
-
-    <!-- CTA MODULE — choose one -->
-    <div class="cta">
-      If you felt the drag, the fix is in my bio.
-    </div>
-
-    <!-- CTA MODULE OPTION 2 -->
-    <!--
-    <div class="cta">
-      Comment “DRAG” and I’ll send you the exact fix.
-    </div>
-    -->
-
-    <!-- CTA MODULE OPTION 3 -->
-    <!--
-    <div class="cta">
-      If this hit, you’re ready. Check the link in my bio.
-    </div>
-    -->
-
   </div>
 </body>
 </html>
