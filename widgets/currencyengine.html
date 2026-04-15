@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Currency Node</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #05060a;
+      --card: #0b0d14;
+      --accent: #f5ff7a;
+      --accent-soft: rgba(245, 255, 122, 0.12);
+      --text-main: #f7f7f7;
+      --text-soft: #a4a7b5;
+      --danger: #ff4b6a;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.55);
+      --shadow-chip: 0 10px 25px rgba(0, 0, 0, 0.6);
+      --border-subtle: 1px solid rgba(255, 255, 255, 0.06);
+      --blur: 18px;
+      --transition-fast: 0.18s ease-out;
+      --transition-med: 0.25s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Inter", sans-serif;
+      background: radial-gradient(circle at top, #15192b 0, #05060a 55%, #000 100%);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 14px 90px;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 480px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.9));
+      border-radius: 26px;
+      padding: 18px 16px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(var(--blur));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shell::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(245, 255, 122, 0.12), transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(255, 75, 106, 0.12), transparent 55%);
+      opacity: 0.7;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .id-block {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: conic-gradient(from 210deg, #f5ff7a, #ff4b6a, #7af5ff, #f5ff7a);
+      padding: 2px;
+      position: relative;
+    }
+
+    .avatar-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 0%, #ffffff, #15192b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #05060a;
+    }
+
+    .handle {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .handle-main {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .handle-sub {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--danger);
+      box-shadow: 0 0 12px rgba(255, 75, 106, 0.9);
+      animation: pulse 1.4s infinite ease-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      70% { transform: scale(1.7); opacity: 0; }
+      100% { transform: scale(1.7); opacity: 0; }
+    }
+
+    .hero {
+      margin: 6px 0 14px;
+    }
+
+    .hero-line {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+    }
+
+    .hero-line span {
+      background: linear-gradient(120deg, #f5ff7a, #ffb36a, #ff4b6a);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-sub {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .hero-sub strong {
+      color: #ffffff;
+      font-weight: 500;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: var(--radius-pill);
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .meta-chip span {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .meta-tagline {
+      font-size: 11px;
+      color: var(--text-soft);
+      text-align: right;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      position: relative;
+      border-radius: var(--radius-md);
+      background: radial-gradient(circle at 0 0, rgba(245, 255, 122, 0.12), transparent 55%),
+                  radial-gradient(circle at 100% 100%, rgba(255, 75, 106, 0.16), transparent 55%),
+                  #05060a;
+      border: var(--border-subtle);
+      padding: 10px 9px 9px;
+      box-shadow: var(--shadow-chip);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 35px rgba(0, 0, 0, 0.8);
+      border-color: rgba(245, 255, 122, 0.4);
+    }
+
+    .card-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .card-price {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: var(--radius-pill);
+      background: rgba(245, 255, 122, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(245, 255, 122, 0.4);
+    }
+
+    .card-cta-icon {
+      font-size: 12px;
+    }
+
+    .card-tag {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 3px 7px;
+      border-radius: var(--radius-pill);
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--text-soft);
+    }
+
+    .card-tag.hot {
+      color: var(--danger);
+      border-color: rgba(255, 75, 106, 0.7);
+    }
+
+    .footnote {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .footnote-text {
+      font-size: 10px;
+      color: var(--text-soft);
+    }
+
+    .footnote-text strong {
+      color: #ffffff;
+      font-weight: 500;
+    }
+
+    .footnote-badge {
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: var(--radius-pill);
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .dock {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      padding: 0 10px;
+      pointer-events: none;
+    }
+
+    .dock-inner {
+      pointer-events: auto;
+      border-radius: 999px;
+      background: rgba(5, 6, 10, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9);
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      backdrop-filter: blur(18px);
+    }
+
+    .dock-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .dock-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-soft);
+    }
+
+    .dock-sub {
+      font-size: 11px;
+      color: #ffffff;
+    }
+
+    .dock-sub span {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .dock-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(120deg, #f5ff7a, #ffb36a, #ff4b6a);
+      color: #05060a;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.9);
+      transition: transform var(--transition-med), box-shadow var(--transition-med), filter var(--transition-med);
+    }
+
+    .dock-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 1);
+      filter: brightness(1.05);
+    }
+
+    .dock-cta:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.9);
+    }
+
+    .dock-cta-icon {
+      font-size: 14px;
+    }
+
+    @media (max-width: 380px) {
+      .hero-line {
+        font-size: 19px;
+      }
+      .grid {
+        gap: 8px;
+      }
+      .card {
+        padding: 9px 7px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="top-row">
+      <div class="id-block">
+        <div class="avatar">
+          <div class="avatar-inner">
+            $
+          </div>
+        </div>
+        <div class="handle">
+          <div class="handle-main">@your.handle</div>
+          <div class="handle-sub">Currency Node • Reels Funnel</div>
+        </div>
+      </div>
+      <div class="live-pill">
+        <div class="live-dot"></div>
+        LIVE LINK
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-line">
+        Turn <span>scroll energy</span> into instant currency.
+      </div>
+      <div class="hero-sub">
+        Pick your lane below. <strong>Tap once</strong>, checkout opens in a new tab.
+      </div>
+    </section>
+
+    <section class="meta-row">
+      <div class="meta-chip">
+        ⚡ <span>Optimised for IG Reels</span>
+      </div>
+      <div class="meta-tagline">
+        3 taps from reel → value → payment.
+      </div>
+    </section>
+
+    <section class="grid">
+      <!-- OFFER 1: MAIN PRODUCT -->
+      <article class="card" data-link="https://your-checkout-link-1.com">
+        <div class="card-tag hot">PRIMARY</div>
+        <div class="card-label">Core Offer</div>
+        <div class="card-title">Signature Drop</div>
+        <div class="card-price">$47 • instant access</div>
+        <div class="card-cta">
+          <span class="card-cta-icon">↗</span>
+          <span>Open checkout</span>
+        </div>
+      </article>
+
+      <!-- OFFER 2: LOW-TICKET / TIP -->
+      <article class="card" data-link="https://your-checkout-link-2.com">
+        <div class="card-tag">Support</div>
+        <div class="card-label">Tip Jar</div>
+        <div class="card-title">Buy me a coffee</div>
+        <div class="card-price">$5 • creator support</div>
+        <div class="card-cta">
+          <span class="card-cta-icon">♡</span>
+          <span>Send support</span>
+        </div>
+      </article>
+
+      <!-- OFFER 3: SUBSCRIPTION / COMMUNITY -->
+      <article class="card" data-link="https://your-checkout-link-3.com">
+        <div class="card-tag">Ongoing</div>
+        <div class="card-label">Membership</div>
+        <div class="card-title">Inner Circle Access</div>
+        <div class="card-price">$19 / month</div>
+        <div class="card-cta">
+          <span class="card-cta-icon">∞</span>
+          <span>Join now</span>
+        </div>
+      </article>
+    </section>
+
+    <footer class="footnote">
+      <div class="footnote-text">
+        <strong>Pro tip:</strong> screenshot this layout and use it as a reel overlay.
+      </div>
+      <div class="footnote-badge">
+        CURRENCY • NODE
+      </div>
+    </footer>
+  </main>
+
+  <div class="dock">
+    <div class="dock-inner">
+      <div class="dock-label">
+        <div class="dock-title">Quick support channel</div>
+        <div class="dock-sub">
+          DM “<span>LINK</span>” on Instagram for a custom bundle.
+        </div>
+      </div>
+      <button class="dock-cta" id="dockButton">
+        <span class="dock-cta-icon">✉</span>
+        <span>DM NOW</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Card click → open checkout link
+    document.querySelectorAll(".card").forEach(card => {
+      card.addEventListener("click", () => {
+        const link = card.getAttribute("data-link");
+        if (link) window.open(link, "_blank");
+      });
+    });
+
+    // Dock button → open IG DM (replace with your handle)
+    document.getElementById("dockButton").addEventListener("click", () => {
+      const igHandle = "your.handle"; // change this
+      const url = `https://www.instagram.com/${igHandle}/`;
+      window.open(url, "_blank");
+    });
+  </script>
+</body>
+</html>
