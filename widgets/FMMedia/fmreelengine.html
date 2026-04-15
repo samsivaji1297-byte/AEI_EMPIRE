@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>FM Reel Engine v0.1</title>
+  <title>FM Media Enterprises — Reel Widget</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -12,7 +12,6 @@
       --muted: #8b8f98;
       --border: #1a1b20;
       --accent: #ffffff;
-      --pulse: rgba(255,255,255,0.25);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -89,7 +88,7 @@
       letter-spacing: 0.18em;
       color: var(--muted);
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
     }
 
     .title-block {
@@ -103,13 +102,6 @@
       text-transform: uppercase;
       margin-bottom: 4px;
       text-shadow: 0 0 12px rgba(255,255,255,0.18);
-    }
-
-    .title-sub {
-      font-size: 10px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--muted);
     }
 
     .script-block {
@@ -129,16 +121,6 @@
     .script-block span {
       color: #ffffff;
       font-weight: 600;
-    }
-
-    .script-label {
-      position: absolute;
-      top: 8px;
-      right: 12px;
-      font-size: 9px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.35);
     }
 
     .cta-block {
@@ -163,17 +145,6 @@
       50% { opacity: 1; }
       100% { opacity: 0.6; }
     }
-
-    .footer {
-      z-index: 1;
-      display: flex;
-      justify-content: space-between;
-      font-size: 9px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-top: 20px;
-    }
   </style>
 </head>
 
@@ -184,47 +155,28 @@
     <div class="scanlines"></div>
 
     <div class="header">
-      <div>FM REEL ENGINE</div>
-      <div id="timestamp">--:--:--</div>
+      FM MEDIA ENTERPRISES
     </div>
 
     <div class="title-block">
-      <div class="title-main">Currency Mode</div>
-      <div class="title-sub">Activation Sequence: Online</div>
+      <div class="title-main">Reel Engine</div>
     </div>
 
     <div class="script-block">
-      <div class="script-label">SCRIPT</div>
-      <span>“If you’re ambitious but still broke,</span> this is the part you’re missing.”  
+      <span>If you’re ambitious but still broke,</span> this is the part you’re missing.
       <br><br>
-      <span>“You’re not stuck because you’re lazy.</span> You’re stuck because your system rewards hesitation.”  
+      <span>You’re not stuck because you’re lazy.</span> You’re stuck because your system rewards hesitation.
       <br><br>
-      <span>“There’s one shift that flips this fast —</span> and I’m not giving it here.”  
+      <span>There’s one shift that flips this fast —</span> and I’m not giving it here.
       <br><br>
-      <span>“If you want the actual mechanic,</span> you’ll need to pay for it.”  
+      <span>If you want the actual mechanic,</span> you’ll need to pay for it.
     </div>
 
     <div class="cta-block">
       It’s in the link. If you want the shift, go get it.
     </div>
 
-    <div class="footer">
-      <div>Node: REEL‑01</div>
-      <div>Classification: Harvest</div>
-    </div>
   </div>
-
-  <script>
-    function updateTimestamp() {
-      const el = document.getElementById("timestamp");
-      const now = new Date();
-      const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      el.textContent = time;
-    }
-
-    setInterval(updateTimestamp, 1000);
-    updateTimestamp();
-  </script>
 
 </body>
 </html>
