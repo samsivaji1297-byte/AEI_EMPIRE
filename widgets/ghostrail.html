@@ -2,193 +2,39 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Ghost‑OS Rail Map</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ghost Rail</title>
+
 <style>
   :root {
-    --bg: #050812;
-    --rail-main: #4fd5ff;
-    --rail-secondary: #1b9fff;
-    --rail-glow: rgba(79, 213, 255, 0.55);
+    --bg: #05070f;
+    --rail: #4fd5ff;
+    --rail2: #1b9fff;
+    --glow: rgba(79, 213, 255, 0.55);
     --hud: #7cf7ff;
-    --hud-soft: rgba(124, 247, 255, 0.18);
     --accent: #ff4b6a;
-    --text-soft: #9fb3d9;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: radial-gradient(circle at 10% 0%, #10172a 0, #050812 55%, #02030a 100%);
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-    color: #e5ecff;
+    margin: 0;
+    background: var(--bg);
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    height: 100vh;
+    font-family: system-ui, sans-serif;
   }
 
-  .widget {
+  .rail {
     position: relative;
-    width: min(100vw - 32px, 900px);
-    height: min(70vh, 520px);
-    border-radius: 18px;
+    width: min(900px, 95vw);
+    height: min(520px, 70vh);
+    border-radius: 16px;
     overflow: hidden;
-    background:
-      radial-gradient(circle at 20% 0%, rgba(124, 247, 255, 0.12), transparent 55%),
-      radial-gradient(circle at 80% 100%, rgba(255, 75, 106, 0.12), transparent 55%),
-      #050812;
+    background: #02040a;
     box-shadow:
-      0 0 0 1px rgba(124, 247, 255, 0.08),
-      0 26px 80px rgba(0, 0, 0, 0.85);
-  }
-
-  /* Faux office foreground */
-  .desk {
-    position: absolute;
-    inset: auto 0 0 0;
-    height: 26%;
-    background: linear-gradient(to top, #1b1a1a 0, #141414 40%, transparent 100%);
-    display: flex;
-    align-items: flex-end;
-    padding: 14px 18px;
-    gap: 16px;
-    pointer-events: none;
-  }
-
-  .desk::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent 70%);
-    pointer-events: none;
-  }
-
-  .desk-item {
-    position: relative;
-    z-index: 1;
-    opacity: 0.9;
-  }
-
-  .laptop {
-    width: 150px;
-    height: 90px;
-    border-radius: 8px;
-    background:
-      linear-gradient(135deg, #0b101c, #050812);
-    box-shadow: 0 0 0 1px rgba(124, 247, 255, 0.18);
-    padding: 6px 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .laptop-screen {
-    width: 100%;
-    height: 100%;
-    border-radius: 5px;
-    background:
-      radial-gradient(circle at 0 0, rgba(124, 247, 255, 0.18), transparent 55%),
-      #02040a;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .laptop-screen::before,
-  .laptop-screen::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(120deg, rgba(124, 247, 255, 0.12) 1px, transparent 1px),
-      linear-gradient(210deg, rgba(124, 247, 255, 0.12) 1px, transparent 1px);
-    background-size: 40px 40px;
-    opacity: 0.4;
-    mix-blend-mode: screen;
-  }
-
-  .laptop-screen::after {
-    animation: scan 6s linear infinite;
-    background-image:
-      linear-gradient(to bottom, rgba(124, 247, 255, 0.18), transparent 60%);
-    background-size: 100% 200%;
-  }
-
-  .mug {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    background: radial-gradient(circle at 30% 0%, #ffffff33, #111);
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
-  }
-
-  .notebook {
-    width: 120px;
-    height: 60px;
-    border-radius: 6px;
-    background: repeating-linear-gradient(
-      to bottom,
-      #1c1c1c,
-      #1c1c1c 2px,
-      #151515 2px,
-      #151515 4px
-    );
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
-  }
-
-  /* Rail field */
-  .rail-field {
-    position: absolute;
-    inset: 0;
-    padding: 18px 18px 80px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .hud-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 11px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--text-soft);
-  }
-
-  .hud-title {
-    font-size: 12px;
-    color: var(--hud);
-  }
-
-  .hud-pill {
-    padding: 3px 8px;
-    border-radius: 999px;
-    border: 1px solid rgba(124, 247, 255, 0.35);
-    background: radial-gradient(circle at 0 0, rgba(124, 247, 255, 0.18), transparent 70%);
-  }
-
-  .rail-map {
-    position: relative;
-    flex: 1;
-    border-radius: 14px;
-    overflow: hidden;
-    background:
-      radial-gradient(circle at 50% 0%, rgba(124, 247, 255, 0.12), transparent 60%),
-      radial-gradient(circle at 0% 100%, rgba(255, 75, 106, 0.12), transparent 60%),
-      #02030a;
-    box-shadow: inset 0 0 0 1px rgba(124, 247, 255, 0.12);
-  }
-
-  .rail-map::before {
-    content: "";
-    position: absolute;
-    inset: -40%;
-    background:
-      radial-gradient(circle at 20% 20%, rgba(124, 247, 255, 0.18), transparent 60%),
-      radial-gradient(circle at 80% 80%, rgba(255, 75, 106, 0.18), transparent 60%);
-    opacity: 0.7;
-    filter: blur(10px);
+      0 0 0 1px rgba(124, 247, 255, 0.12),
+      0 20px 60px rgba(0, 0, 0, 0.8);
   }
 
   /* Grid */
@@ -196,90 +42,102 @@
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(to right, rgba(124, 247, 255, 0.08) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(124, 247, 255, 0.08) 1px, transparent 1px);
+      linear-gradient(to right, rgba(124, 247, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(124, 247, 255, 0.06) 1px, transparent 1px);
     background-size: 40px 40px;
-    opacity: 0.35;
+    opacity: 0.25;
     mix-blend-mode: screen;
   }
 
-  /* Tracks (SVG) */
   svg {
-    position: relative;
     width: 100%;
     height: 100%;
   }
 
-  .track-main {
+  .main {
     fill: none;
-    stroke: var(--rail-main);
+    stroke: var(--rail);
     stroke-width: 2.2;
     stroke-linecap: round;
-    filter: drop-shadow(0 0 8px var(--rail-glow));
+    filter: drop-shadow(0 0 8px var(--glow));
   }
 
-  .track-secondary {
+  .sec {
     fill: none;
-    stroke: var(--rail-secondary);
+    stroke: var(--rail2);
     stroke-width: 1.4;
     stroke-linecap: round;
     opacity: 0.8;
-    filter: drop-shadow(0 0 6px var(--rail-glow));
+    filter: drop-shadow(0 0 6px var(--glow));
   }
 
-  .track-dashed {
+  .dash {
     fill: none;
     stroke: rgba(124, 247, 255, 0.7);
     stroke-width: 1.2;
     stroke-dasharray: 4 6;
-    stroke-linecap: round;
     opacity: 0.7;
   }
 
-  /* Pulsing nodes */
   .node {
     fill: var(--hud);
-    filter: drop-shadow(0 0 6px var(--rail-glow));
-    animation: pulse 2.8s ease-in-out infinite;
+    filter: drop-shadow(0 0 6px var(--glow));
+    animation: pulse 3s ease-in-out infinite;
   }
 
-  .node--accent {
+  .node.accent {
     fill: var(--accent);
     filter: drop-shadow(0 0 10px rgba(255, 75, 106, 0.9));
     animation: pulse-strong 2.4s ease-in-out infinite;
   }
 
-  /* Train “cursor” */
   .train {
-    fill: #ffffff;
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+    fill: #fff;
+    filter: drop-shadow(0 0 8px #fff);
   }
 
-  .train-path {
-    stroke: transparent;
-    fill: none;
+  @keyframes pulse {
+    0%,100% { transform: scale(1); opacity: .8; }
+    50% { transform: scale(1.4); opacity: 1; }
   }
 
-  /* HUD overlays */
-  .hud-overlay {
+  @keyframes pulse-strong {
+    0%,100% { transform: scale(1); opacity: .9; }
+    50% { transform: scale(1.6); opacity: 1; }
+  }
+
+  @keyframes move {
+    0% { offset-distance: 0%; }
+    100% { offset-distance: 100%; }
+  }
+
+  .train {
+    offset-path: path("M 0 220 C 120 180 220 260 340 220 C 460 180 560 260 700 220");
+    offset-rotate: auto;
+    animation: move 9s linear infinite;
+  }
+
+  /* HUD */
+  .hud {
     position: absolute;
-    inset: 10px 10px auto auto;
-    width: 210px;
-    padding: 8px 10px;
+    top: 12px;
+    right: 12px;
+    width: 200px;
+    padding: 10px;
     border-radius: 10px;
-    border: 1px solid rgba(124, 247, 255, 0.4);
-    background: radial-gradient(circle at 0 0, rgba(124, 247, 255, 0.18), transparent 70%);
-    backdrop-filter: blur(10px);
-    font-size: 10px;
-    color: var(--text-soft);
+    border: 1px solid rgba(124, 247, 255, 0.35);
+    background: rgba(5, 8, 18, 0.7);
+    backdrop-filter: blur(8px);
+    color: #bcd2ff;
+    font-size: 11px;
   }
 
-  .hud-overlay h2 {
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
+  .hud h1 {
+    margin: 0 0 6px;
+    font-size: 12px;
+    letter-spacing: 0.15em;
     color: var(--hud);
-    margin-bottom: 4px;
+    text-transform: uppercase;
   }
 
   .hud-row {
@@ -288,222 +146,39 @@
     margin-top: 2px;
   }
 
-  .hud-label {
-    opacity: 0.7;
-  }
-
-  .hud-value {
-    color: #e5ecff;
-  }
-
-  .hud-tag-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 6px;
-  }
-
-  .hud-tag {
-    padding: 2px 6px;
-    border-radius: 999px;
-    border: 1px solid rgba(124, 247, 255, 0.35);
-    background: rgba(5, 8, 18, 0.8);
-    font-size: 9px;
-  }
-
-  .hud-footer {
-    margin-top: 6px;
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    color: rgba(124, 247, 255, 0.8);
-  }
-
-  .hud-footer span {
-    color: var(--accent);
-  }
-
-  /* Bottom status bar */
-  .status-bar {
-    position: absolute;
-    inset: auto 14px 84px 14px;
-    height: 22px;
-    border-radius: 999px;
-    border: 1px solid rgba(124, 247, 255, 0.35);
-    background: linear-gradient(to right, rgba(5, 8, 18, 0.9), rgba(5, 8, 18, 0.4));
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    gap: 10px;
-    font-size: 10px;
-    color: var(--text-soft);
-  }
-
-  .status-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 999px;
-    background: var(--accent);
-    box-shadow: 0 0 8px rgba(255, 75, 106, 0.9);
-    animation: ping 1.6s ease-out infinite;
-  }
-
-  .status-label {
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-  }
-
-  .status-metric {
-    margin-left: auto;
-    display: flex;
-    gap: 8px;
-  }
-
-  .status-metric span {
-    color: #e5ecff;
-  }
-
-  /* Animations */
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.4); opacity: 1; }
-  }
-
-  @keyframes pulse-strong {
-    0%, 100% { transform: scale(1); opacity: 0.9; }
-    50% { transform: scale(1.6); opacity: 1; }
-  }
-
-  @keyframes ping {
-    0% { transform: scale(1); opacity: 1; }
-    70% { transform: scale(1.9); opacity: 0; }
-    100% { transform: scale(1.9); opacity: 0; }
-  }
-
-  @keyframes scan {
-    0% { transform: translateY(-100%); opacity: 0; }
-    20% { opacity: 0.7; }
-    80% { opacity: 0.7; }
-    100% { transform: translateY(100%); opacity: 0; }
-  }
-
-  @keyframes train-move {
-    0% { offset-distance: 0%; }
-    100% { offset-distance: 100%; }
-  }
-
-  .train {
-    offset-path: path("M 0 220 C 120 180 220 260 340 220 C 460 180 560 260 700 220");
-    offset-rotate: auto;
-    animation: train-move 9s linear infinite;
-  }
-
-  /* Mobile tweaks */
-  @media (max-width: 600px) {
-    .widget {
-      height: 420px;
-    }
-    .desk {
-      height: 30%;
-    }
-    .hud-overlay {
-      width: 180px;
-      font-size: 9px;
-    }
+  .hud-row span:last-child {
+    color: #fff;
   }
 </style>
 </head>
+
 <body>
-<div class="widget">
-  <div class="rail-field">
-    <div class="hud-header">
-      <div class="hud-title">GHOST‑OS RAIL SYSTEM</div>
-      <div class="hud-pill">SECTOR 7‑A · CORRIDOR 12</div>
-    </div>
+<div class="rail">
+  <div class="grid"></div>
 
-    <div class="rail-map">
-      <div class="grid"></div>
-
-      <!-- HUD overlay -->
-      <div class="hud-overlay">
-        <h2>NEXUS JUNCTION</h2>
-        <div class="hud-row">
-          <div class="hud-label">TRACK</div>
-          <div class="hud-value">21‑E</div>
-        </div>
-        <div class="hud-row">
-          <div class="hud-label">LOAD</div>
-          <div class="hud-value">68.3%</div>
-        </div>
-        <div class="hud-row">
-          <div class="hud-label">LATENCY</div>
-          <div class="hud-value">05:42:36</div>
-        </div>
-        <div class="hud-tag-row">
-          <div class="hud-tag">TRANSIT HUB 04</div>
-          <div class="hud-tag">DATA LINK ACTIVE</div>
-          <div class="hud-tag">PRIORITY: GHOST‑TIER</div>
-        </div>
-        <div class="hud-footer">
-          ROUTING ENGINE: <span>ONLINE</span>
-        </div>
-      </div>
-
-      <!-- Rail SVG -->
-      <svg viewBox="0 0 720 320" preserveAspectRatio="none">
-        <!-- Main sweeping tracks -->
-        <path class="track-main"
-          d="M 0 220 C 120 180 220 260 340 220 C 460 180 560 260 720 220" />
-        <path class="track-main"
-          d="M 0 260 C 140 300 260 220 380 260 C 520 300 600 220 720 260" />
-        <path class="track-main"
-          d="M 0 180 C 120 140 260 140 380 180 C 520 220 620 140 720 180" />
-
-        <!-- Secondary crossing tracks -->
-        <path class="track-secondary"
-          d="M 40 300 C 120 260 200 220 260 180 C 320 140 420 120 520 110 C 620 100 680 80 720 60" />
-        <path class="track-secondary"
-          d="M 0 80 C 80 100 160 140 220 190 C 280 240 360 260 440 250 C 520 240 620 220 720 200" />
-        <path class="track-secondary"
-          d="M 0 40 C 120 60 220 90 300 140 C 380 190 460 210 560 210 C 640 210 700 200 720 190" />
-
-        <!-- Dashed ghost routes -->
-        <path class="track-dashed"
-          d="M 60 300 C 160 260 260 260 340 240 C 420 220 520 220 640 200" />
-        <path class="track-dashed"
-          d="M 40 140 C 140 160 220 200 300 220 C 380 240 480 250 580 260" />
-
-        <!-- Nodes -->
-        <circle class="node" cx="340" cy="220" r="4" />
-        <circle class="node" cx="380" cy="180" r="4" />
-        <circle class="node" cx="520" cy="210" r="4" />
-        <circle class="node node--accent" cx="260" cy="180" r="5" />
-        <circle class="node" cx="580" cy="260" r="4" />
-
-        <!-- Train cursor (uses CSS offset-path) -->
-        <circle class="train" r="5" />
-      </svg>
-    </div>
+  <div class="hud">
+    <h1>Nexus Junction</h1>
+    <div class="hud-row"><span>Track</span><span>21‑E</span></div>
+    <div class="hud-row"><span>Load</span><span>68%</span></div>
+    <div class="hud-row"><span>Latency</span><span>05:42:36</span></div>
   </div>
 
-  <!-- Desk foreground -->
-  <div class="desk">
-    <div class="desk-item laptop">
-      <div class="laptop-screen"></div>
-    </div>
-    <div class="desk-item mug"></div>
-    <div class="desk-item notebook"></div>
-  </div>
+  <svg viewBox="0 0 720 320">
+    <path class="main" d="M 0 220 C 120 180 220 260 340 220 C 460 180 560 260 720 220" />
+    <path class="main" d="M 0 260 C 140 300 260 220 380 260 C 520 300 600 220 720 260" />
+    <path class="main" d="M 0 180 C 120 140 260 140 380 180 C 520 220 620 140 720 180" />
 
-  <!-- Status bar -->
-  <div class="status-bar">
-    <div class="status-dot"></div>
-    <div class="status-label">Ghost‑OS rail link</div>
-    <div class="status-metric">
-      <div>SECTOR <span>7‑A</span></div>
-      <div>ACTIVE TRACKS <span>12</span></div>
-    </div>
-  </div>
+    <path class="sec" d="M 40 300 C 120 260 200 220 260 180 C 320 140 420 120 520 110 C 620 100 680 80 720 60" />
+    <path class="sec" d="M 0 80 C 80 100 160 140 220 190 C 280 240 360 260 440 250 C 520 240 620 220 720 200" />
+
+    <path class="dash" d="M 60 300 C 160 260 260 260 340 240 C 420 220 520 220 640 200" />
+
+    <circle class="node" cx="340" cy="220" r="4" />
+    <circle class="node" cx="380" cy="180" r="4" />
+    <circle class="node accent" cx="260" cy="180" r="5" />
+
+    <circle class="train" r="5" />
+  </svg>
 </div>
 </body>
 </html>
