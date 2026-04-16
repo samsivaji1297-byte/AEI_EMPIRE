@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Focus Interval Tile</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%, #000 100%);
+      color: #e5e7eb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .card {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 18px;
+      border: 1px solid #1f2937;
+      padding: 20px 22px;
+      width: 320px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    h1 {
+      font-size: 16px;
+      margin: 0;
+    }
+    small {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    .presets {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .chip {
+      flex: 1;
+      text-align: center;
+      padding: 6px 0;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      font-size: 12px;
+      cursor: pointer;
+      background: #020617;
+      color: #e5e7eb;
+    }
+    .chip.active {
+      border-color: #22c55e;
+      background: #022c22;
+      color: #bbf7d0;
+    }
+    .timer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .time {
+      font-size: 40px;
+      letter-spacing: 0.08em;
+      font-variant-numeric: tabular-nums;
+    }
+    .label {
+      font-size: 11px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+    .controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    button {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+      padding: 8px 0;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    button.primary {
+      border-color: #22c55e;
+      background: #16a34a;
+      color: #022c22;
+      font-weight: 600;
+    }
+    button.primary.paused {
+      background: #f97316;
+      border-color: #fdba74;
+      color: #111827;
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    footer {
+      font-size: 10px;
+      color: #6b7280;
+      text-align: center;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <header>
+      <h1>Focus Interval</h1>
+      <small>Pick a block, press start, stay with one thing until the timer ends.</small>
+      <div class="presets">
+        <div class="chip active" data-min="10">10 min</div>
+        <div class="chip" data-min="25">25 min</div>
+        <div class="chip" data-min="50">50 min</div>
+      </div>
+    </header>
+
+    <div class="timer">
+      <div class="time" id="time">10:00</div>
+      <div class="label" id="modeLabel">FOCUS</div>
+    </div>
+
+    <div class="controls">
+      <button class="primary" id="startBtn">Start</button>
+      <button id="resetBtn" disabled>Reset</button>
+    </div>
+
+    <footer>
+      Single-file focus tile. Embed on any page or run from GitHub Pages.
+    </footer>
+  </div>
+
+  <script>
+    const chips = Array.from(document.querySelectorAll('.chip'));
+    const timeEl = document.getElementById('time');
+    const modeLabel = document.getElementById('modeLabel');
+    const startBtn = document.getElementById('startBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let focusMinutes = 10;
+    let remainingSeconds = focusMinutes * 60;
+    let timerId = null;
+    let running = false;
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60).toString().padStart(2, '0');
+      const s = (sec % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function render() {
+      timeEl.textContent = formatTime(remainingSeconds);
+    }
+
+    function setPreset(min) {
+      if (running) return;
+      focusMinutes = min;
+      remainingSeconds = focusMinutes * 60;
+      chips.forEach(c => c.classList.toggle('active', Number(c.dataset.min) === min));
+      modeLabel.textContent = 'FOCUS';
+      render();
+    }
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        setPreset(Number(chip.dataset.min));
+      });
+    });
+
+    function tick() {
+      if (remainingSeconds <= 0) {
+        clearInterval(timerId);
+        timerId = null;
+        running = false;
+        startBtn.textContent = 'Done';
+        startBtn.disabled = true;
+        resetBtn.disabled = false;
+        modeLabel.textContent = 'COMPLETE';
+        try {
+          if (document.visibilityState !== 'visible') {
+            new Notification('Focus interval complete');
+          }
+        } catch (e) {
+          // ignore notification errors
+        }
+        return;
+      }
+      remainingSeconds -= 1;
+      render();
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (!running && remainingSeconds === 0) {
+        remainingSeconds = focusMinutes * 60;
+        render();
+      }
+
+      if (!running) {
+        timerId = setInterval(tick, 1000);
+        running = true;
+        startBtn.textContent = 'Pause';
+        startBtn.classList.add('paused');
+        resetBtn.disabled = false;
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission().catch(() => {});
+        }
+      } else {
+        clearInterval(timerId);
+        timerId = null;
+        running = false;
+        startBtn.textContent = 'Resume';
+        startBtn.classList.remove('paused');
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      if (timerId) clearInterval(timerId);
+      timerId = null;
+      running = false;
+      remainingSeconds = focusMinutes * 60;
+      render();
+      startBtn.textContent = 'Start';
+      startBtn.classList.remove('paused');
+      startBtn.disabled = false;
+      resetBtn.disabled = true;
+      modeLabel.textContent = 'FOCUS';
+    });
+
+    render();
+  </script>
+</body>
+</html>
