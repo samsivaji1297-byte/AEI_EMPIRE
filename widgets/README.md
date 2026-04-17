@@ -26,7 +26,7 @@ created by Claude: Impressive widget ideas and builds https://claude.ai/chat/86f
 ## 📁 Widget Build Reference Table
 
 | Source / Model | Chat Link | GH Folder | Widget Produced | File Location |
-|----------------|-----------|-----------------|---------------|
+|----------------|-----------|-----------|-----------------|---------------|
 | **ChatGPT: Jarvis V1 Build [Ghost‑Deck OS]** | https://chatgpt.com/c/69dd89e6-1924-8320-a66c-de3b1bda0253 | widgets/Ghost-Deck OS | `Jarvis.html` | `widgets/Ghost-Deck OS/` |
 | **ChatGPT: Jarvis V1 Build [Ghost‑Deck OS]** | https://chatgpt.com/c/69dd89e6-1924-8320-a66c-de3b1bda0253 | widgets | `100-hour-timer2.html` | `widgets/100-hour-timer2.html` |
 | **CoPilot: Ghost‑Deck OS Architectural Build** | https://copilot.microsoft.com/chats/nQ5WdZTxMcKedM87ncCJz | widgets/Ghost-Deck OS | `JarvisGhost.html` | `widgets/Ghost-Deck OS/JarvisGhost.html` |
