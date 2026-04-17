@@ -25,9 +25,9 @@ created by Claude: Impressive widget ideas and builds https://claude.ai/chat/86f
 
 ## 📁 Widget Build Reference Table
 
-| Source / Model | Chat Link | Widget Produced | File Location |
+| Source / Model | Chat Link | GH Folder | Widget Produced | File Location |
 |----------------|-----------|-----------------|---------------|
-| **ChatGPT: Jarvis V1 Build [Ghost‑Deck OS]** | https://chatgpt.com/c/69dd89e6-1924-8320-a66c-de3b1bda0253 | `Jarvis.html` | `widgets/Ghost-Deck OS/` |
-| **ChatGPT: Jarvis V1 Build [Ghost‑Deck OS]** | https://chatgpt.com/c/69dd89e6-1924-8320-a66c-de3b1bda0253 | `100-hour-timer2.html` | `widgets/100-hour-timer2.html` |
-| **CoPilot: Ghost‑Deck OS Architectural Build** | https://copilot.microsoft.com/chats/nQ5WdZTxMcKedM87ncCJz | `JarvisGhost.html` | `widgets/Ghost-Deck OS/JarvisGhost.html` |
-| **Claude: Impressive Widget Ideas & Builds** | https://claude.ai/chat/86f06606-63e5-41b7-b8d1-d003d24a01d2 | `fm_media_mission_control.html` | `widgets/FMMedia/fm_media_mission_control.html` |
+| **ChatGPT: Jarvis V1 Build [Ghost‑Deck OS]** | https://chatgpt.com/c/69dd89e6-1924-8320-a66c-de3b1bda0253 | widgets/Ghost-Deck OS | `Jarvis.html` | `widgets/Ghost-Deck OS/` |
+| **ChatGPT: Jarvis V1 Build [Ghost‑Deck OS]** | https://chatgpt.com/c/69dd89e6-1924-8320-a66c-de3b1bda0253 | widgets | `100-hour-timer2.html` | `widgets/100-hour-timer2.html` |
+| **CoPilot: Ghost‑Deck OS Architectural Build** | https://copilot.microsoft.com/chats/nQ5WdZTxMcKedM87ncCJz | widgets/Ghost-Deck OS | `JarvisGhost.html` | `widgets/Ghost-Deck OS/JarvisGhost.html` |
+| **Claude: Impressive Widget Ideas & Builds** | https://claude.ai/chat/86f06606-63e5-41b7-b8d1-d003d24a01d2 | widgets/FMMedia | `fm_media_mission_control.html` | `widgets/FMMedia/fm_media_mission_control.html` |
