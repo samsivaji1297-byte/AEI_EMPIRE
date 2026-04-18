@@ -2,6 +2,8 @@ Use this CoPilot chat to build the master index widget table below:
 CoPilot Chat Name: AEI Widget Table Reconstruction
 Link: https://copilot.microsoft.com/chats/rTcsSMdS1dTVKUfijZfLL
 
+---
+
 ## 📁 Widget Build Reference Table
 
 | Source / Model | Chat Link | GH Folder | Widget Produced | File Location | URL Output | Category | Status (with Notes) |
