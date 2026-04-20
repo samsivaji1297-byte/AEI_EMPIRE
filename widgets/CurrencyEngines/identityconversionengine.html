@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Identity Conversion CTA Engine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background: #020617;
+      color: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .container {
+      max-width: 480px;
+      width: 100%;
+    }
+    .card {
+      background: radial-gradient(circle at top left, #111827, #020617);
+      border-radius: 18px;
+      padding: 20px 18px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+      cursor: pointer;
+      transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, border-color 0.12s ease-out;
+      user-select: none;
+    }
+    .card:active {
+      transform: scale(0.985) translateY(1px);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.9);
+      border-color: rgba(248, 250, 252, 0.7);
+    }
+    .tag {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 10px;
+    }
+    .problem {
+      font-size: 18px;
+      line-height: 1.35;
+      font-weight: 650;
+      margin-bottom: 8px;
+    }
+    .micro {
+      font-size: 13px;
+      line-height: 1.4;
+      color: #d1d5db;
+      margin-bottom: 14px;
+    }
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 550;
+      color: #e5e7eb;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.8);
+    }
+    .cta-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
+    }
+    .hint {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #6b7280;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="card">
+      <div class="tag" id="tag">IDENTITY • CONVERSION NODE</div>
+      <div class="problem" id="problem">
+        You don’t need more motivation. You need a clearer identity.
+      </div>
+      <div class="micro" id="micro">
+        Most people aren’t stuck — they’re just operating from an outdated internal reference.
+      </div>
+      <div class="cta">
+        <span class="cta-dot"></span>
+        <span id="ctaText">If you want the identity reset I use, it’s in the bio.</span>
+      </div>
+    </div>
+    <div class="hint">Tap the card to generate a new problem → micro solution → CTA block.</div>
+  </div>
+
+  <script>
+    const blocks = [
+      {
+        tag: "IDENTITY RESET",
+        problem: "You don’t need more motivation. You need a clearer identity.",
+        micro: "Most people aren’t stuck — they’re just operating from an outdated internal reference.",
+        cta: "If you want the identity reset I use, it’s in the bio."
+      },
+      {
+        tag: "SYSTEM UPGRADE",
+        problem: "You’re not behind. You’re running the wrong mental software.",
+        micro: "Your system hasn’t caught up to who you’ve already become.",
+        cta: "If you want the upgrade, check the link in the bio."
+      },
+      {
+        tag: "INTERNAL COMPASS",
+        problem: "You’re not lost. You’re unreferenced.",
+        micro: "When your internal compass is offline, everything feels harder than it should.",
+        cta: "If you want the 60–90 minute reset, it’s in the bio."
+      },
+      {
+        tag: "STABILITY",
+        problem: "You keep restarting because your identity isn’t stable.",
+        micro: "Habits don’t stick when the identity underneath them is outdated.",
+        cta: "If you want the framework that fixes this, it’s in the bio."
+      },
+      {
+        tag: "ALIGNMENT",
+        problem: "You’re not inconsistent. You’re misaligned.",
+        micro: "Your actions don’t match your internal system — that’s why everything feels like friction.",
+        cta: "If you want the alignment protocol, it’s in the bio."
+      },
+      {
+        tag: "REFERENCE POINT",
+        problem: "You don’t need a new routine. You need a new reference point.",
+        micro: "Once your identity is clear, the rest becomes automatic.",
+        cta: "If you want the identity audit, it’s in the bio."
+      },
+      {
+        tag: "INTERNAL MAP",
+        problem: "You’re not overwhelmed. You’re operating without an internal map.",
+        micro: "Clarity isn’t a feeling — it’s a system.",
+        cta: "If you want the system, it’s in the bio."
+      },
+      {
+        tag: "SYNC",
+        problem: "You’re not broken. You’re out of sync with yourself.",
+        micro: "Your internal system hasn’t updated in years.",
+        cta: "If you want the update, it’s in the bio."
+      },
+      {
+        tag: "ROOT CAUSE",
+        problem: "You don’t need to fix your life. You need to fix the identity running it.",
+        micro: "Everything else is downstream from the story you’re operating from.",
+        cta: "If you want the identity framework, it’s in the bio."
+      },
+      {
+        tag: "DUAL IDENTITY",
+        problem: "You’re not confused. You’re running two identities at once.",
+        micro: "That’s why you feel pulled in every direction at the same time.",
+        cta: "If you want the reset, it’s in the bio."
+      }
+    ];
+
+    const tagEl = document.getElementById("tag");
+    const problemEl = document.getElementById("problem");
+    const microEl = document.getElementById("micro");
+    const ctaTextEl = document.getElementById("ctaText");
+    const cardEl = document.getElementById("card");
+
+    function randomBlock() {
+      return blocks[Math.floor(Math.random() * blocks.length)];
+    }
+
+    function renderBlock() {
+      const b = randomBlock();
+      tagEl.textContent = b.tag + " • CONVERSION NODE";
+      problemEl.textContent = b.problem;
+      microEl.textContent = b.micro;
+      ctaTextEl.textContent = b.cta;
+    }
+
+    cardEl.addEventListener("click", renderBlock);
+  </script>
+</body>
+</html>
