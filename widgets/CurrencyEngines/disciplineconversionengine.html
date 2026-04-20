@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Discipline + Reset CTA Engine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --muted: #888;
+      --accent: #fff;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "SF Pro Display", "Segoe UI", sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-main);
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .ambient {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 30%, rgba(255,255,255,0.06), transparent 70%);
+      animation: pulse 7s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.18; transform: scale(1); }
+      100% { opacity: 0.32; transform: scale(1.08); }
+    }
+
+    .frame {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6vh 6vw;
+      z-index: 1;
+      cursor: pointer;
+    }
+
+    .inner {
+      max-width: 720px;
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 4vh;
+    }
+
+    .hook {
+      min-height: 10vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hook-text {
+      font-size: min(6vw, 26px);
+      font-weight: 500;
+      line-height: 1.3;
+      color: var(--accent);
+    }
+
+    .cta-shell {
+      position: relative;
+      min-height: 18vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cta-block {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+    }
+
+    .cta-text {
+      font-size: min(7vw, 30px);
+      font-weight: 500;
+      line-height: 1.25;
+      color: var(--accent);
+    }
+
+    .cta-sub {
+      margin-top: 1.4vh;
+      font-size: min(3.8vw, 14px);
+      color: var(--muted);
+    }
+
+    .bio-center {
+      margin-top: 2vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .bio-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4em;
+      padding: 0.4em 1em;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.04);
+      font-size: min(3.4vw, 13px);
+      color: var(--fg);
+    }
+
+    .bio-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #fff;
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 3vh;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient"></div>
+
+  <div class="frame" id="tap-area">
+    <div class="inner">
+
+      <!-- HOOK / PROBLEM -->
+      <div class="hook">
+        <div class="hook-text" id="hook-text">
+          You don’t have a discipline problem. You have a reset problem.
+        </div>
+      </div>
+
+      <!-- MICRO + CTA -->
+      <div class="cta-shell">
+        <div class="cta-block">
+          <div class="cta-text" id="cta-main">
+            The 10‑minute reset is in my bio.
+          </div>
+          <div class="cta-sub" id="cta-sub">
+            Most people fail because they restart the wrong way.
+          </div>
+        </div>
+      </div>
+
+      <!-- BIO PILL -->
+      <div class="bio-center">
+        <span class="bio-pill">
+          <span class="bio-dot"></span>
+          <span>Bio is the only link that matters.</span>
+        </span>
+      </div>
+
+    </div>
+
+    <div class="hint">Tap anywhere to change</div>
+  </div>
+
+  <script>
+    (function () {
+      const hookEl = document.getElementById("hook-text");
+      const ctaMainEl = document.getElementById("cta-main");
+      const ctaSubEl = document.getElementById("cta-sub");
+      const tapArea = document.getElementById("tap-area");
+
+      const PAIRS = [
+        {
+          hook: "You don’t have a discipline problem. You have a reset problem.",
+          ctaMain: "The 10‑minute reset is in my bio.",
+          ctaSub: "Most people fail because they restart the wrong way."
+        },
+        {
+          hook: "You’re not inconsistent. You’re resetting back to the wrong identity.",
+          ctaMain: "The identity reset is in my bio.",
+          ctaSub: "Discipline sticks when the identity underneath it matches."
+        },
+        {
+          hook: "You don’t need a new routine. You need a clean slate.",
+          ctaMain: "The reset protocol is in my bio.",
+          ctaSub: "Momentum comes from wiping the mental clutter first."
+        },
+        {
+          hook: "You’re not lacking discipline. You’re overloaded.",
+          ctaMain: "The simple reset is in my bio.",
+          ctaSub: "Your brain can’t focus when it’s carrying too many unfinished loops."
+        },
+        {
+          hook: "You don’t need to start over. You need to restart correctly.",
+          ctaMain: "The restart blueprint is in my bio.",
+          ctaSub: "Most people repeat the same cycle because they reset emotionally, not structurally."
+        },
+        {
+          hook: "Your discipline isn’t broken. Your reference point is.",
+          ctaMain: "The identity anchor is in my bio.",
+          ctaSub: "Once the reference is stable, discipline becomes automatic."
+        },
+        {
+          hook: "You’re not lazy. You’re mentally cluttered.",
+          ctaMain: "The clarity reset is in my bio.",
+          ctaSub: "A clean internal environment makes discipline effortless."
+        },
+        {
+          hook: "You don’t need to push harder. You need to reset smarter.",
+          ctaMain: "The smart reset is in my bio.",
+          ctaSub: "Discipline is a byproduct of internal order."
+        },
+        {
+          hook: "You’re not failing. You’re resetting back to the old you.",
+          ctaMain: "The identity shift is in my bio.",
+          ctaSub: "Reset to the version of you that can actually follow through."
+        },
+        {
+          hook: "Your discipline collapses because your identity collapses first.",
+          ctaMain: "The identity stabilizer is in my bio.",
+          ctaSub: "Fix the identity, and the discipline follows automatically."
+        }
+      ];
+
+      let current = 0;
+
+      function render(idx) {
+        const pair = PAIRS[idx];
+        hookEl.textContent = pair.hook;
+        ctaMainEl.textContent = pair.ctaMain;
+        ctaSubEl.textContent = pair.ctaSub;
+      }
+
+      function next() {
+        current = (current + 1) % PAIRS.length;
+        render(current);
+      }
+
+      tapArea.addEventListener("click", next);
+
+      render(current);
+    })();
+  </script>
+
+</body>
+</html>
