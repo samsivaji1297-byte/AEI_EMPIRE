@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>CTA Reel Engine</title>
+  <title>CTA Reel Engine · Tap to Advance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
@@ -10,7 +10,6 @@
       --fg: #fff;
       --muted: #888;
       --accent: #fff;
-      --cta-duration: 2400ms;
       --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
         "SF Pro Display", "Segoe UI", sans-serif;
     }
@@ -27,7 +26,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Ambient subtle glow */
+    /* Subtle ambient glow */
     .ambient {
       position: absolute;
       inset: 0;
@@ -39,7 +38,7 @@
 
     @keyframes pulse {
       0% { opacity: 0.18; transform: scale(1); }
-      100% { opacity: 0.32; transform: scale(1.12); }
+      100% { opacity: 0.32; transform: scale(1.08); }
     }
 
     .frame {
@@ -51,6 +50,7 @@
       justify-content: center;
       padding: 6vh 6vw;
       z-index: 1;
+      cursor: pointer; /* so it feels tappable */
     }
 
     .inner {
@@ -59,16 +59,24 @@
       text-align: center;
     }
 
+    .cta-shell {
+      position: relative;
+      min-height: 22vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .cta {
-      opacity: 0;
-      transform: translateY(12px);
-      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
       position: absolute;
       inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0 4vw;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease-out, transform 0.5s ease-out;
     }
 
     .cta.active {
@@ -115,15 +123,14 @@
     }
   </style>
 </head>
-
 <body>
 
   <div class="ambient"></div>
 
-  <div class="frame">
+  <div class="frame" id="tap-area">
     <div class="inner">
 
-      <div class="cta-shell" style="position:relative; min-height:22vh;">
+      <div class="cta-shell">
 
         <!-- CTA 1 -->
         <div class="cta active" data-idx="0">
@@ -137,7 +144,7 @@
         <div class="cta" data-idx="1">
           <div>
             <div class="cta-text">The identity map is in my bio.</div>
-            <div class="cta-sub">It shows you the version of you that gets momentum again.</div>
+            <div class="cta-sub">It shows you the version of you that finally gets momentum again.</div>
           </div>
         </div>
 
@@ -180,9 +187,9 @@
   <script>
     (function () {
       const CTAS = Array.from(document.querySelectorAll(".cta"));
+      const tapArea = document.getElementById("tap-area");
       let current = 0;
       const total = CTAS.length;
-      const DURATION = 2400;
 
       function show(idx) {
         CTAS.forEach((el, i) => {
@@ -195,7 +202,12 @@
         show(current);
       }
 
-      setInterval(next, DURATION);
+      // Tap / click anywhere to advance
+      tapArea.addEventListener("click", next);
+
+      // OPTIONAL: auto-change every 30 seconds
+      // Uncomment the line below if you ever want timed rotation as well:
+      // setInterval(next, 30000);
     })();
   </script>
 
