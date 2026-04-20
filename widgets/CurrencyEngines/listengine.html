@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Listicle Curiosity Engine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --muted: #888;
+      --accent: #fff;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "SF Pro Display", "Segoe UI", sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-main);
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .ambient {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 30%, rgba(255,255,255,0.06), transparent 70%);
+      animation: pulse 7s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.18; transform: scale(1); }
+      100% { opacity: 0.32; transform: scale(1.08); }
+    }
+
+    .frame {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6vh 6vw;
+      z-index: 1;
+      cursor: pointer;
+    }
+
+    .inner {
+      max-width: 720px;
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 4vh;
+    }
+
+    .title {
+      font-size: min(6vw, 26px);
+      font-weight: 500;
+      line-height: 1.3;
+      color: var(--accent);
+      min-height: 10vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.4vh;
+      min-height: 18vh;
+      justify-content: center;
+    }
+
+    .item {
+      font-size: min(4.5vw, 18px);
+      color: var(--fg);
+      line-height: 1.35;
+    }
+
+    .cta {
+      margin-top: 2vh;
+      font-size: min(4.8vw, 20px);
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .bio-center {
+      margin-top: 2vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .bio-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4em;
+      padding: 0.4em 1em;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.04);
+      font-size: min(3.4vw, 13px);
+      color: var(--fg);
+    }
+
+    .bio-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #fff;
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 3vh;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient"></div>
+
+  <div class="frame" id="tap-area">
+    <div class="inner">
+
+      <!-- LIST TITLE -->
+      <div class="title" id="title-text">
+        5 signs your identity is outdated.
+      </div>
+
+      <!-- LIST ITEMS -->
+      <div class="list" id="list-container">
+        <div class="item">• You keep restarting every few weeks.</div>
+        <div class="item">• Everything feels harder than it should.</div>
+        <div class="item">• You don’t recognise your own habits anymore.</div>
+        <div class="item">• Your goals don’t match your behaviour.</div>
+        <div class="item">• You feel “off” but can’t explain why.</div>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta" id="cta-text">
+        The identity reset is in my bio.
+      </div>
+
+      <!-- BIO PILL -->
+      <div class="bio-center">
+        <span class="bio-pill">
+          <span class="bio-dot"></span>
+          <span>Bio is the only link that matters.</span>
+        </span>
+      </div>
+
+    </div>
+
+    <div class="hint">Tap anywhere to change</div>
+  </div>
+
+  <script>
+    (function () {
+      const titleEl = document.getElementById("title-text");
+      const listEl = document.getElementById("list-container");
+      const ctaEl = document.getElementById("cta-text");
+      const tapArea = document.getElementById("tap-area");
+
+      const BLOCKS = [
+        {
+          title: "5 signs your identity is outdated.",
+          items: [
+            "• You keep restarting every few weeks.",
+            "• Everything feels harder than it should.",
+            "• You don’t recognise your own habits anymore.",
+            "• Your goals don’t match your behaviour.",
+            "• You feel “off” but can’t explain why."
+          ],
+          cta: "The identity reset is in my bio."
+        },
+        {
+          title: "3 reasons your discipline keeps collapsing.",
+          items: [
+            "• You reset back to the old you.",
+            "• Your environment doesn’t match your goals.",
+            "• Your identity isn’t stable enough to hold the routine."
+          ],
+          cta: "The identity stabiliser is in my bio."
+        },
+        {
+          title: "4 things keeping you stuck right now.",
+          items: [
+            "• Mental clutter.",
+            "• Outdated identity.",
+            "• No internal reference point.",
+            "• Restarting the wrong way."
+          ],
+          cta: "The clarity reset is in my bio."
+        },
+        {
+          title: "5 identity mistakes everyone makes.",
+          items: [
+            "• Trying to change habits before identity.",
+            "• Using motivation instead of structure.",
+            "• Resetting emotionally, not structurally.",
+            "• Copying routines that don’t fit them.",
+            "• Operating from an outdated self‑image."
+          ],
+          cta: "The identity blueprint is in my bio."
+        },
+        {
+          title: "3 shifts that fix 90% of your problems.",
+          items: [
+            "• Update your identity.",
+            "• Clean your internal environment.",
+            "• Anchor to a stable reference point."
+          ],
+          cta: "The identity upgrade is in my bio."
+        }
+      ];
+
+      let current = 0;
+
+      function render(idx) {
+        const block = BLOCKS[idx];
+        titleEl.textContent = block.title;
+
+        listEl.innerHTML = "";
+        block.items.forEach(item => {
+          const div = document.createElement("div");
+          div.className = "item";
+          div.textContent = item;
+          listEl.appendChild(div);
+        });
+
+        ctaEl.textContent = block.cta;
+      }
+
+      function next() {
+        current = (current + 1) % BLOCKS.length;
+        render(current);
+      }
+
+      tapArea.addEventListener("click", next);
+
+      render(current);
+    })();
+  </script>
+
+</body>
+</html>
