@@ -672,7 +672,7 @@
             <ol style="margin-left:16px;margin-bottom:6px;color:var(--text-soft);font-size:11px;">
               <li>Open this file in a code editor.</li>
               <li>Search for <code>GEMINI_API_KEY</code>.</li>
-              <li>Replace <code>AIzaSyCElEjlXAS0470B6tJBKvcH2AH4ItSq0T8</code> with your real key.</li>
+              <li>Replace <code>"AIzaSyCElEjlXAS0470B6tJBKvcH2AH4ItSq0T8"</code> with your real key.</li>
               <li>Open the file in a browser. Start talking to your empire.</li>
             </ol>
             <div class="capability-desc">
@@ -698,7 +698,7 @@
     // ===========================
     // 1. CONFIG
     // ===========================
-    const GEMINI_API_KEY = AIzaSyCElEjlXAS0470B6tJBKvcH2AH4ItSq0T8; // <--- SLOT YOUR KEY HERE
+    const GEMINI_API_KEY = "AIzaSyCElEjlXAS0470B6tJBKvcH2AH4ItSq0T8"; // <--- SLOT YOUR KEY HERE
     const GEMINI_MODEL = "gemini-2.0-flash"; // free-tier friendly
 
     // ===========================
@@ -720,7 +720,7 @@
     // 3. STATUS / KEY CHECK
     // ===========================
     function updateStatus() {
-      const hasKey = GEMINI_API_KEY && GEMINI_API_KEY !== AIzaSyCElEjlXAS0470B6tJBKvcH2AH4ItSq0T8;
+      const hasKey = GEMINI_API_KEY && GEMINI_API_KEY !== "AIzaSyCElEjlXAS0470B6tJBKvcH2AH4ItSq0T8";
       if (hasKey) {
         statusDotEl.classList.remove("off");
         statusTextEl.textContent = "ONLINE · KEY DETECTED";
@@ -751,7 +751,7 @@
     // 5. GEMINI CALL
     // ===========================
     async function callGemini(prompt) {
-      const hasKey = GEMINI_API_KEY && GEMINI_API_KEY !== AIzaSyCElEjlXAS0470B6tJBKvcH2AH4ItSq0T8;
+      const hasKey = GEMINI_API_KEY && GEMINI_API_KEY !== "AIzaSyCElEjlXAS0470B6tJBKvcH2AH4ItSq0T8";
       if (!hasKey) {
         return "No API key set. Open the file, search for GEMINI_API_KEY, and paste your key.";
       }
