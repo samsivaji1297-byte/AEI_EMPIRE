@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CTA Engine v2 — Sweep Edition</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<style>
+  :root {
+    --bg: #000;
+    --fg: #fff;
+    --muted: #8b8f98;
+    --accent: #fff;
+    --font: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* FRAME */
+  .frame {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    padding: 6vh 6vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  /* DIAGONAL SWEEP BACKGROUND */
+  .sweep {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      45deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.08) 50%,
+      rgba(255,255,255,0) 100%
+    );
+    background-size: 200% 200%;
+    animation: sweep 6s linear infinite;
+    z-index: 0;
+  }
+
+  @keyframes sweep {
+    0% { background-position: 200% 200%; }
+    100% { background-position: -200% -200%; }
+  }
+
+  /* CONTENT */
+  .inner {
+    position: relative;
+    z-index: 2;
+    max-width: 720px;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4vh;
+  }
+
+  /* HOOK */
+  .hook-text {
+    font-size: min(6vw, 28px);
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--accent);
+  }
+
+  /* CTA BLOCK */
+  .cta-block {
+    margin-top: 2vh;
+  }
+
+  .cta-main {
+    font-size: min(7vw, 32px);
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--accent);
+  }
+
+  .cta-sub {
+    margin-top: 1.6vh;
+    font-size: min(3.8vw, 14px);
+    color: var(--muted);
+  }
+
+  /* BIO PILL */
+  .bio-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.45em 1.1em;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.04);
+    font-size: min(3.4vw, 13px);
+    color: var(--fg);
+    margin-top: 2vh;
+  }
+
+  .bio-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #fff;
+  }
+
+  /* TAP HINT */
+  .hint {
+    position: absolute;
+    bottom: 3vh;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="frame" id="tap-area">
+  <div class="sweep"></div>
+
+  <div class="inner">
+    <div class="hook-text" id="hook-text">
+      You ever feel like life just… ignores you?
+    </div>
+
+    <div class="cta-block">
+      <div class="cta-main" id="cta-main">
+        The identity shortcut is in my bio.
+      </div>
+      <div class="cta-sub" id="cta-sub">
+        It helps you become the version of you that life actually responds to.
+      </div>
+    </div>
+
+    <div class="bio-pill">
+      <span class="bio-dot"></span>
+      <span>Bio is the only link that matters.</span>
+    </div>
+  </div>
+
+  <div class="hint">Tap to cycle</div>
+</div>
+
+<script>
+  const hookEl = document.getElementById("hook-text");
+  const ctaMainEl = document.getElementById("cta-main");
+  const ctaSubEl = document.getElementById("cta-sub");
+  const tapArea = document.getElementById("tap-area");
+
+  const PAIRS = [
+    {
+      hook: "You ever feel like life just… ignores you?",
+      ctaMain: "The identity shortcut is in my bio.",
+      ctaSub: "It helps you become the version of you that life actually responds to."
+    },
+    {
+      hook: "You’re not lazy. You’re just operating from the wrong version of you.",
+      ctaMain: "The identity map is in my bio.",
+      ctaSub: "It shows you the version of you that actually gets momentum again."
+    },
+    {
+      hook: "Your life isn’t stuck. Your identity is.",
+      ctaMain: "The identity cheat code is in my bio.",
+      ctaSub: "It’s the simple version that actually works for normal people."
+    },
+    {
+      hook: "You don’t need more motivation. You need an upgrade.",
+      ctaMain: "The easy identity upgrade is in my bio.",
+      ctaSub: "It’s the version of you that life finally starts moving for."
+    },
+    {
+      hook: "There’s a version of you that life actually listens to.",
+      ctaMain: "If this hit, the rest is in my bio.",
+      ctaSub: "That’s where the identity shift actually starts."
+    },
+    {
+      hook: "You’ve been trying to fix the wrong thing.",
+      ctaMain: "The identity reset is in my bio.",
+      ctaSub: "Start with who you are, not what you do."
+    },
+    {
+      hook: "Imagine being the version of you that things finally work for.",
+      ctaMain: "The one-page identity blueprint is in my bio.",
+      ctaSub: "Copy it, plug it in, let life catch up."
+    }
+  ];
+
+  let current = 0;
+
+  function render(idx) {
+    const pair = PAIRS[idx];
+    hookEl.textContent = pair.hook;
+    ctaMainEl.textContent = pair.ctaMain;
+    ctaSubEl.textContent = pair.ctaSub;
+  }
+
+  function next() {
+    current = (current + 1) % PAIRS.length;
+    render(current);
+  }
+
+  tapArea.addEventListener("click", next);
+  render(current);
+</script>
+
+</body>
+</html>
