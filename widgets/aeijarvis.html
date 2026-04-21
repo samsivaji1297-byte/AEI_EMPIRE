@@ -2,19 +2,13 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Gemini Test Widget</title>
+  <title>Gemini Diagnostic Widget</title>
   <style>
     body {
       background:#0b0d14;
       color:#e8ecf7;
       font-family:system-ui, sans-serif;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      height:100vh;
-      margin:0;
-      gap:12px;
+      padding:20px;
     }
     input, button {
       padding:10px 14px;
@@ -24,31 +18,25 @@
       color:#e8ecf7;
       font-size:14px;
     }
-    button {
-      cursor:pointer;
-      border-color:#6cf0ff;
-    }
+    button { cursor:pointer; border-color:#6cf0ff; }
     #output {
-      width:90%;
-      max-width:480px;
-      min-height:120px;
-      border:1px solid #2a2f3d;
-      padding:12px;
-      border-radius:8px;
-      background:#0f121b;
+      margin-top:20px;
       white-space:pre-wrap;
+      background:#0f121b;
+      padding:14px;
+      border-radius:8px;
+      border:1px solid #2a2f3d;
     }
   </style>
 </head>
 <body>
 
-  <h2>Gemini API Test</h2>
+<h2>Gemini Diagnostic Widget</h2>
 
-  <input id="userInput" placeholder="Ask something..." style="width:90%;max-width:480px;" />
+<input id="userInput" placeholder="Type a test prompt..." style="width:80%;" />
+<button onclick="runDiag()">Run Diagnostic</button>
 
-  <button onclick="runTest()">Send</button>
-
-  <div id="output">Response will appear here.</div>
+<div id="output">Waiting for input…</div>
 
 <script>
   // ----------------------------------------------------
@@ -56,13 +44,12 @@
   const GEMINI_API_KEY = "AIzaSyCElEjlXAS0470B6tJBKvcH2AH4ItSq0T8";
   // ----------------------------------------------------
 
-  const MODEL = "gemini-1.5-flash";
+  const MODEL = "gemini-1.5-flash"; // safest free-tier model
 
-  async function runTest() {
-    const prompt = document.getElementById("userInput").value.trim();
-    if (!prompt) return;
-
-    document.getElementById("output").textContent = "Thinking...";
+  async function runDiag() {
+    const prompt = document.getElementById("userInput").value.trim() || "diagnostic test";
+    const output = document.getElementById("output");
+    output.textContent = "Running diagnostic...\n";
 
     const url =
       "https://generativelanguage.googleapis.com/v1beta/models/" +
@@ -70,7 +57,9 @@
       ":generateContent?key=" + GEMINI_API_KEY;
 
     const body = {
-      contents: [{ role: "user", parts: [{ text: prompt }] }]
+      contents: [
+        { role: "user", parts: [{ text: prompt }] }
+      ]
     };
 
     try {
@@ -80,16 +69,31 @@
         body: JSON.stringify(body)
       });
 
-      const data = await res.json();
-      const text =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "(No response returned)";
+      const status = res.status;
+      const raw = await res.text();
 
-      document.getElementById("output").textContent = text;
+      output.textContent =
+        "HTTP Status: " + status + "\n\n" +
+        "Raw Response:\n" + raw + "\n\n";
+
+      let json;
+      try { json = JSON.parse(raw); }
+      catch { json = null; }
+
+      if (json) {
+        output.textContent +=
+          "Parsed JSON:\n" + JSON.stringify(json, null, 2) + "\n\n";
+
+        const text =
+          json?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        output.textContent +=
+          "Extracted Text:\n" + (text || "(No response text)") + "\n";
+      }
 
     } catch (err) {
-      document.getElementById("output").textContent =
-        "Error: " + err.message;
+      output.textContent =
+        "Fetch Error:\n" + err.message;
     }
   }
 </script>
