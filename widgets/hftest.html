@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <body>
-<h3>Groq Browser Test (Working Model)</h3>
+<h3>Groq Browser Test (Guaranteed Working Model)</h3>
 
 <textarea id="input" rows="4" cols="40">Hello</textarea><br><br>
 <button onclick="run()">Run</button>
@@ -34,7 +34,7 @@ async function run() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "gemma2-9b-it",
+          model: "deepseek-r1-distill-qwen-32b",
           messages: [{ role: "user", content: text }]
         })
       }
