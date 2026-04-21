@@ -12,6 +12,8 @@
       --muted: #8b8f98;
       --border: #1a1b20;
       --accent: #ffffff;
+      --online: rgba(255,255,255,0.25);
+      --offline: rgba(255,60,60,0.25);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -93,7 +95,6 @@
       justify-content: space-between;
     }
 
-    /* FM OUTPUT BLOCK */
     .fm-output {
       z-index: 1;
       margin-top: 26px;
@@ -107,7 +108,6 @@
       transition: opacity 0.3s ease-out;
     }
 
-    /* EYE */
     .eye {
       z-index: 1;
       margin-top: 20px;
@@ -153,6 +153,23 @@
       margin-top: 20px;
     }
 
+    /* MODE BUTTON */
+    .mode-btn {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 14px;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 999px;
+      color: var(--fg);
+      z-index: 3;
+    }
+
     /* RIPPLE */
     #ripple {
       position: absolute;
@@ -186,15 +203,18 @@
     <div class="eye"></div>
 
     <div class="footer">
-      <div>Node: FM‑04</div>
-      <div>Classification: Sovereign</div>
+      <div id="mode-label">Mode: ONLINE</div>
+      <div>FM‑04</div>
     </div>
+
+    <button class="mode-btn" id="mode-btn">Switch to Offline</button>
 
     <div id="ripple"></div>
   </div>
 
   <script>
     let GROQ_KEY = null;
+    let MODE = "online"; // online | offline
 
     function updateTimestamp() {
       const el = document.getElementById("timestamp");
@@ -219,16 +239,16 @@
 
     function fallbackFM() {
       const lines = [
-        "Signal rerouted through internal core.",
-        "External channel offline. Internal mode engaged.",
+        "Internal generator active. Signal stable.",
+        "External channel offline. Core mode engaged.",
         "FM continues without external input.",
-        "Internal generator active. Sovereign continuity maintained.",
-        "Fallback node online. Integrity stable."
+        "Internal node online. Integrity maintained.",
+        "Fallback route active. Sovereign continuity preserved."
       ];
       return "[internal] " + lines[Math.floor(Math.random() * lines.length)];
     }
 
-    async function fetchFM() {
+    async function fetchFMOnline() {
       if (!GROQ_KEY) {
         GROQ_KEY = prompt("Enter your Groq API key:");
         if (!GROQ_KEY) return { text: fallbackFM(), fallback: true };
@@ -262,11 +282,26 @@
       }
     }
 
+    async function getFMOutput() {
+      if (MODE === "offline") {
+        return { text: fallbackFM(), fallback: true };
+      }
+      return await fetchFMOnline();
+    }
+
+    document.getElementById("mode-btn").addEventListener("click", () => {
+      MODE = MODE === "online" ? "offline" : "online";
+      document.getElementById("mode-label").textContent = "Mode: " + MODE.toUpperCase();
+      document.getElementById("mode-btn").textContent =
+        MODE === "online" ? "Switch to Offline" : "Switch to Online";
+    });
+
     document.getElementById("fm-widget").addEventListener("click", async (e) => {
+      if (e.target.id === "mode-btn") return;
+
       const out = document.getElementById("fm-output");
       const ripple = document.getElementById("ripple");
 
-      // Position ripple
       const rect = e.currentTarget.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
@@ -274,28 +309,21 @@
       ripple.style.left = `${x - 6}px`;
       ripple.style.top = `${y - 6}px`;
 
-      // Start ripple
-      ripple.style.transform = "scale(0)";
-      ripple.style.opacity = "0.4";
-
-      // Temporary loading
       out.style.opacity = 0.4;
       out.textContent = "…";
 
-      const result = await fetchFM();
+      const result = await getFMOutput();
 
-      // Ripple color
-      ripple.style.background = result.fallback
-        ? "rgba(255,60,60,0.25)"
-        : "rgba(255,255,255,0.25)";
+      ripple.style.background = result.fallback ? "var(--offline)" : "var(--online)";
 
-      // Animate ripple
+      ripple.style.transform = "scale(0)";
+      ripple.style.opacity = "0.4";
+
       requestAnimationFrame(() => {
         ripple.style.transform = "scale(22)";
         ripple.style.opacity = "0";
       });
 
-      // Update output
       out.style.opacity = 1;
       typeText(out, result.text);
     });
