@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FM CTA Forge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg: #020204;
+      --fg: #f5f5f5;
+      --muted: #8b8f98;
+      --border: #1a1b20;
+      --accent: #ffffff;
+      --online: rgba(255,255,255,0.25);
+      --offline: rgba(255,60,60,0.25);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: radial-gradient(circle at top, #151720 0, #020204 55%);
+      font-family: system-ui, -apple-system, "Inter", sans-serif;
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      user-select: none;
+    }
+
+    .widget {
+      width: 100%;
+      max-width: 420px;
+      aspect-ratio: 9 / 16;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,0.78), rgba(0,0,0,0.97)),
+        radial-gradient(circle at top, #2a2d38 0, #05060a 55%);
+      padding: 20px 18px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      animation: breathe 6s ease-in-out infinite;
+      cursor: pointer;
+    }
+
+    @keyframes breathe {
+      0% { box-shadow: 0 0 12px rgba(255,255,255,0.04); }
+      50% { box-shadow: 0 0 26px rgba(255,255,255,0.12); }
+      100% { box-shadow: 0 0 12px rgba(255,255,255,0.04); }
+    }
+
+    .grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .scanlines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.03) 0px,
+        rgba(255,255,255,0.03) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      animation: scan 7s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+
+    .header {
+      z-index: 1;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .cta-output {
+      z-index: 1;
+      margin-top: 26px;
+      min-height: 90px;
+      font-family: "SF Mono", "Consolas", monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--accent);
+      white-space: pre-wrap;
+      opacity: 0.9;
+      transition: opacity 0.3s ease-out;
+    }
+
+    .eye {
+      z-index: 1;
+      margin-top: 24px;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.4);
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+      animation: eyePulse 4.5s ease-in-out infinite;
+    }
+
+    @keyframes eyePulse {
+      0% { transform: scale(0.92); opacity: 0.6; }
+      50% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(0.92); opacity: 0.6; }
+    }
+
+    .eye::after {
+      content: "";
+      position: absolute;
+      inset: 22px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      animation: eyeInner 4.5s ease-in-out infinite;
+    }
+
+    @keyframes eyeInner {
+      0% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(1.08); opacity: 0.9; }
+      100% { transform: scale(1); opacity: 0.4; }
+    }
+
+    .footer {
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 22px;
+    }
+
+    .mode-btn {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 14px;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 999px;
+      color: var(--fg);
+      z-index: 3;
+    }
+
+    #ripple {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      width: 12px;
+      height: 12px;
+      opacity: 0;
+      transform: scale(0);
+      transition: transform 1.2s ease-out, opacity 1.2s ease-out;
+      z-index: 2;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="widget" id="cta-widget">
+    <div class="grid"></div>
+    <div class="scanlines"></div>
+
+    <div class="header">
+      <div>FM CTA FORGE</div>
+      <div id="timestamp">--:--:--</div>
+    </div>
+
+    <div class="cta-output" id="cta-output">
+      Tap to generate a CTA…
+    </div>
+
+    <div class="eye"></div>
+
+    <div class="footer">
+      <div id="mode-label">Mode: ONLINE</div>
+      <div>CTA‑01</div>
+    </div>
+
+    <button class="mode-btn" id="mode-btn">Switch to Offline</button>
+
+    <div id="ripple"></div>
+  </div>
+
+  <script>
+    let GROQ_KEY = null;
+    let MODE = "online"; // online | offline
+
+    function updateTimestamp() {
+      const el = document.getElementById("timestamp");
+      const now = new Date();
+      el.textContent = now.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    }
+    setInterval(updateTimestamp, 1000);
+    updateTimestamp();
+
+    function typeText(el, text, speed = 18) {
+      el.textContent = "";
+      let i = 0;
+      function type() {
+        if (i < text.length) {
+          el.textContent += text.charAt(i);
+          i++;
+          setTimeout(type, speed);
+        }
+      }
+      type();
+    }
+
+    function fallbackCTA() {
+      const lines = [
+        "You already know why you're clicking.",
+        "Go become the person you keep pretending to be.",
+        "Stop scrolling. Start becoming.",
+        "You want the identity. It's in the link.",
+        "Go get the version of you that doesn’t hesitate.",
+        "If you were serious, you'd click.",
+        "You know exactly what this is.",
+        "The shift isn’t free. Neither is staying the same.",
+        "You’re one tap away from the identity you talk about.",
+        "If you don’t click, nothing changes.",
+        "You’ve postponed this version of you long enough.",
+        "Either you click, or you keep performing the same life.",
+        "You already know this is for you.",
+        "If you feel called out, that’s the point.",
+        "You don’t need more information. You need to decide.",
+        "You can scroll past this, but you’ll think about it later.",
+        "You talk like you’re ready. Prove it.",
+        "This is the moment you usually skip.",
+        "You know exactly what staying the same costs.",
+        "If you’re still reading, you’re not done with this yet."
+      ];
+      return "[offline] " + lines[Math.floor(Math.random() * lines.length)];
+    }
+
+    async function fetchCTAOnline() {
+      if (!GROQ_KEY) {
+        GROQ_KEY = prompt("Enter your Groq API key:");
+        if (!GROQ_KEY) return { text: fallbackCTA(), fallback: true };
+      }
+
+      try {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + GROQ_KEY,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are FM, generating identity-based CTAs for short-form video. " +
+                  "Output must be cold, minimal, and direct. " +
+                  "Expose the user's hesitation and binary choice: stay the same or click. " +
+                  "No motivation. No advice. No friendliness. No emojis. " +
+                  "One line only. No quotes. No prefixes."
+              },
+              {
+                role: "user",
+                content:
+                  "Generate one identity-based CTA line that would sit under a reel about escaping hesitation and finally acting."
+              }
+            ]
+          })
+        });
+
+        const data = await response.json();
+        const text = data?.choices?.[0]?.message?.content?.trim();
+
+        if (!text) return { text: fallbackCTA(), fallback: true };
+
+        return { text, fallback: false };
+
+      } catch (err) {
+        return { text: fallbackCTA(), fallback: true };
+      }
+    }
+
+    async function getCTAOutput() {
+      if (MODE === "offline") {
+        return { text: fallbackCTA(), fallback: true };
+      }
+      return await fetchCTAOnline();
+    }
+
+    document.getElementById("mode-btn").addEventListener("click", () => {
+      MODE = MODE === "online" ? "offline" : "online";
+      document.getElementById("mode-label").textContent = "Mode: " + MODE.toUpperCase();
+      document.getElementById("mode-btn").textContent =
+        MODE === "online" ? "Switch to Offline" : "Switch to Online";
+    });
+
+    document.getElementById("cta-widget").addEventListener("click", async (e) => {
+      if (e.target.id === "mode-btn") return;
+
+      const out = document.getElementById("cta-output");
+      const ripple = document.getElementById("ripple");
+
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      ripple.style.left = `${x - 6}px`;
+      ripple.style.top = `${y - 6}px`;
+
+      out.style.opacity = 0.4;
+      out.textContent = "…";
+
+      const result = await getCTAOutput();
+
+      ripple.style.background = result.fallback ? "var(--offline)" : "var(--online)";
+      ripple.style.transform = "scale(0)";
+      ripple.style.opacity = "0.4";
+
+      requestAnimationFrame(() => {
+        ripple.style.transform = "scale(22)";
+        ripple.style.opacity = "0";
+      });
+
+      out.style.opacity = 1;
+      typeText(out, result.text);
+    });
+  </script>
+
+</body>
+</html>
