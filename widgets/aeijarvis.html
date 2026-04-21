@@ -1,881 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <title>AEI EMPIRE // GEMINI EMPIRE CONSOLE</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gemini Test Widget</title>
   <style>
-    :root {
-      --bg: #05060a;
-      --bg-alt: #0b0d14;
-      --panel: #0f1119;
-      --accent: #6cf0ff;
-      --accent-soft: rgba(108, 240, 255, 0.12);
-      --accent-strong: rgba(108, 240, 255, 0.32);
-      --text-main: #f5f7ff;
-      --text-soft: #a5acc7;
-      --text-dim: #5b6176;
-      --border-subtle: #1b1f2b;
-      --danger: #ff4b81;
-      --shadow-soft: 0 0 0 1px rgba(255, 255, 255, 0.02),
-                     0 18px 45px rgba(0, 0, 0, 0.85);
-      --radius-lg: 18px;
-      --radius-md: 12px;
-      --radius-pill: 999px;
-      --transition-fast: 160ms ease-out;
-      --transition-med: 220ms ease-out;
-      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-                   "SF Pro Display", "Inter", sans-serif;
-      --grid-gap: 14px;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html, body {
-      height: 100%;
-      background: radial-gradient(circle at top, #15192a 0, #05060a 52%, #020308 100%);
-      color: var(--text-main);
-      font-family: var(--font-main);
-      -webkit-font-smoothing: antialiased;
-    }
-
     body {
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-      padding: 18px;
+      background:#0b0d14;
+      color:#e8ecf7;
+      font-family:system-ui, sans-serif;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+      margin:0;
+      gap:12px;
     }
-
-    .frame {
-      width: 100%;
-      max-width: 1120px;
-      background: radial-gradient(circle at top left, #15192a 0, #05060a 55%, #020308 100%);
-      border-radius: 26px;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      box-shadow: var(--shadow-soft);
-      padding: 18px 18px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      position: relative;
-      overflow: hidden;
+    input, button {
+      padding:10px 14px;
+      border-radius:8px;
+      border:1px solid #2a2f3d;
+      background:#11141d;
+      color:#e8ecf7;
+      font-size:14px;
     }
-
-    .frame::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background:
-        radial-gradient(circle at 0% 0%, rgba(108, 240, 255, 0.12) 0, transparent 55%),
-        radial-gradient(circle at 100% 0%, rgba(255, 75, 129, 0.08) 0, transparent 55%);
-      opacity: 0.7;
-      mix-blend-mode: screen;
-      pointer-events: none;
+    button {
+      cursor:pointer;
+      border-color:#6cf0ff;
     }
-
-    .frame-inner {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-      gap: 14px;
-    }
-
-    @media (max-width: 880px) {
-      .frame-inner {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    .header-row {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .title-block {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .title-main {
-      font-size: 14px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--text-soft);
-    }
-
-    .title-sub {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .badge-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .badge {
-      border-radius: var(--radius-pill);
-      padding: 4px 10px;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      border: 1px solid var(--border-subtle);
-      color: var(--text-soft);
-      background: rgba(5, 6, 10, 0.8);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .badge-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 30% 30%, #6cf0ff, #1b7f8a);
-      box-shadow: 0 0 10px rgba(108, 240, 255, 0.7);
-    }
-
-    .badge-hot {
-      border-color: rgba(255, 75, 129, 0.6);
-      color: #ffb3cd;
-      background: linear-gradient(135deg, rgba(255, 75, 129, 0.12), rgba(5, 6, 10, 0.9));
-    }
-
-    .panel {
-      background: radial-gradient(circle at top, #15192a 0, #05060a 60%, #020308 100%);
-      border-radius: var(--radius-lg);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85);
-      padding: 14px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .panel::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background:
-        radial-gradient(circle at 0% 0%, rgba(108, 240, 255, 0.08) 0, transparent 55%),
-        radial-gradient(circle at 100% 0%, rgba(255, 75, 129, 0.06) 0, transparent 55%);
-      opacity: 0.5;
-      mix-blend-mode: screen;
-      pointer-events: none;
-    }
-
-    .panel-inner {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .panel-title {
-      font-size: 13px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-soft);
-    }
-
-    .panel-subtitle {
-      font-size: 11px;
-      color: var(--text-dim);
-    }
-
-    .chip-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .chip {
-      border-radius: var(--radius-pill);
-      padding: 4px 9px;
-      font-size: 11px;
-      border: 1px solid rgba(108, 240, 255, 0.25);
-      color: var(--accent);
-      background: rgba(5, 10, 14, 0.9);
-      cursor: pointer;
-      transition: background var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
-    }
-
-    .chip:hover {
-      background: rgba(108, 240, 255, 0.08);
-      transform: translateY(-1px);
-      border-color: rgba(108, 240, 255, 0.6);
-    }
-
-    .chip.secondary {
-      border-color: rgba(255, 255, 255, 0.08);
-      color: var(--text-soft);
-    }
-
-    .chip.secondary:hover {
-      border-color: rgba(255, 255, 255, 0.25);
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .chat-window {
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      background: radial-gradient(circle at top, rgba(108, 240, 255, 0.06), rgba(5, 6, 10, 0.96));
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      height: 320px;
-      max-height: 360px;
-    }
-
-    .chat-log {
-      flex: 1;
-      overflow-y: auto;
-      padding-right: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-size: 12px;
-    }
-
-    .chat-msg {
-      padding: 7px 9px;
-      border-radius: 10px;
-      max-width: 92%;
-      line-height: 1.4;
-      white-space: pre-wrap;
-    }
-
-    .chat-msg.user {
-      align-self: flex-end;
-      background: linear-gradient(135deg, rgba(108, 240, 255, 0.18), rgba(108, 240, 255, 0.04));
-      border: 1px solid rgba(108, 240, 255, 0.5);
-      color: var(--text-main);
-    }
-
-    .chat-msg.ai {
-      align-self: flex-start;
-      background: rgba(10, 12, 20, 0.96);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      color: var(--text-soft);
-    }
-
-    .chat-input-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .chat-input {
-      flex: 1;
-      border-radius: var(--radius-pill);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(5, 6, 10, 0.96);
-      padding: 7px 11px;
-      font-size: 12px;
-      color: var(--text-main);
-      outline: none;
-      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
-    }
-
-    .chat-input:focus {
-      border-color: rgba(108, 240, 255, 0.7);
-      box-shadow: 0 0 0 1px rgba(108, 240, 255, 0.4);
-      background: rgba(5, 8, 14, 0.98);
-    }
-
-    .chat-send-btn {
-      border-radius: var(--radius-pill);
-      border: 1px solid rgba(108, 240, 255, 0.7);
-      background: linear-gradient(135deg, rgba(108, 240, 255, 0.18), rgba(108, 240, 255, 0.04));
-      color: var(--accent);
-      font-size: 11px;
-      padding: 7px 12px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
-    }
-
-    .chat-send-btn:hover {
-      background: linear-gradient(135deg, rgba(108, 240, 255, 0.28), rgba(108, 240, 255, 0.08));
-      transform: translateY(-1px);
-      box-shadow: 0 0 18px rgba(108, 240, 255, 0.45);
-    }
-
-    .chat-send-btn:disabled {
-      opacity: 0.5;
-      cursor: default;
-      box-shadow: none;
-      transform: none;
-    }
-
-    .status-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      font-size: 11px;
-      color: var(--text-dim);
-    }
-
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border-radius: var(--radius-pill);
-      padding: 3px 8px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(5, 6, 10, 0.9);
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #3dd68c;
-      box-shadow: 0 0 10px rgba(61, 214, 140, 0.7);
-    }
-
-    .status-dot.off {
-      background: #ff4b81;
-      box-shadow: 0 0 10px rgba(255, 75, 129, 0.7);
-    }
-
-    .right-panel-section {
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      background: radial-gradient(circle at top, rgba(108, 240, 255, 0.04), rgba(5, 6, 10, 0.96));
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      font-size: 12px;
-    }
-
-    .section-title {
-      font-size: 11px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-soft);
-    }
-
-    .capability-list {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 6px;
-    }
-
-    .capability-item {
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      background: rgba(5, 6, 10, 0.96);
-      padding: 7px 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .capability-label {
-      font-size: 11px;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-    }
-
-    .capability-desc {
-      font-size: 11px;
-      color: var(--text-soft);
-    }
-
-    .cta-btn {
-      border-radius: var(--radius-pill);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(5, 6, 10, 0.96);
-      color: var(--text-soft);
-      font-size: 11px;
-      padding: 6px 10px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      transition: background var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
-    }
-
-    .cta-btn:hover {
-      background: rgba(255, 255, 255, 0.04);
-      transform: translateY(-1px);
-      border-color: rgba(108, 240, 255, 0.6);
-    }
-
-    .mini-tag {
-      font-size: 10px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-    }
-
-    .idea-output {
-      border-radius: 10px;
-      border: 1px dashed rgba(108, 240, 255, 0.4);
-      background: rgba(5, 6, 10, 0.96);
-      padding: 7px 8px;
-      min-height: 60px;
-      font-size: 11px;
-      color: var(--text-soft);
-      white-space: pre-wrap;
-    }
-
-    .pill-inline {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border-radius: 999px;
-      padding: 3px 8px;
-      border: 1px solid rgba(108, 240, 255, 0.4);
-      font-size: 10px;
-      color: var(--accent);
-      background: rgba(5, 6, 10, 0.96);
-    }
-
-    .pill-inline span {
-      opacity: 0.8;
-    }
-
-    .footer-row {
-      position: relative;
-      z-index: 1;
-      margin-top: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 10px;
-      color: var(--text-dim);
-      flex-wrap: wrap;
-    }
-
-    .footer-row strong {
-      color: var(--text-soft);
-      font-weight: 500;
-    }
-
-    .linkish {
-      color: var(--accent);
-      cursor: pointer;
-      text-decoration: none;
-      border-bottom: 1px dashed rgba(108, 240, 255, 0.5);
-    }
-
-    .linkish:hover {
-      border-bottom-style: solid;
-    }
-
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: rgba(5, 6, 10, 0.9);
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: rgba(108, 240, 255, 0.35);
-      border-radius: 999px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(108, 240, 255, 0.6);
+    #output {
+      width:90%;
+      max-width:480px;
+      min-height:120px;
+      border:1px solid #2a2f3d;
+      padding:12px;
+      border-radius:8px;
+      background:#0f121b;
+      white-space:pre-wrap;
     }
   </style>
 </head>
 <body>
-  <div class="frame">
-    <div class="header-row">
-      <div class="title-block">
-        <div class="title-main">AEI EMPIRE // GEMINI NODE</div>
-        <div class="title-sub">Jarvis‑Lite Console · Free‑Tier Capabilities</div>
-      </div>
-      <div class="badge-row">
-        <div class="badge">
-          <div class="badge-dot"></div>
-          LIVE LLM CORE
-        </div>
-        <div class="badge badge-hot">
-          GEMINI FREE TIER
-        </div>
-        <div class="badge">
-          1‑FILE // BROWSER‑ONLY
-        </div>
-      </div>
-    </div>
 
-    <div class="frame-inner">
-      <!-- LEFT: CHAT + INTENT CHIPS -->
-      <div class="panel">
-        <div class="panel-inner">
-          <div class="panel-header">
-            <div>
-              <div class="panel-title">Autonomous Dialogue Core</div>
-              <div class="panel-subtitle">Chat · Reason · Plan · Generate · All via Gemini API</div>
-            </div>
-            <div class="status-pill" id="status-pill">
-              <div class="status-dot off" id="status-dot"></div>
-              <span id="status-text">API KEY NOT SET</span>
-            </div>
-          </div>
+  <h2>Gemini API Test</h2>
 
-          <div class="chip-row">
-            <button class="chip" data-prompt="Design a daily ritual that keeps my empire aligned with my highest identity.">
-              RITUAL DESIGN
-            </button>
-            <button class="chip" data-prompt="Generate 5 content hooks that would make the 99% stop scrolling and click.">
-              VIRAL HOOKS
-            </button>
-            <button class="chip" data-prompt="Scan my life for micro‑quits and propose a simple integrity protocol.">
-              MICRO‑QUITS SCAN
-            </button>
-            <button class="chip secondary" data-prompt="Explain, in simple language, what this console could automate for me.">
-              EXPLAIN THIS CONSOLE
-            </button>
-          </div>
+  <input id="userInput" placeholder="Ask something..." style="width:90%;max-width:480px;" />
 
-          <div class="chat-window">
-            <div class="chat-log" id="chat-log">
-              <div class="chat-msg ai">
-                Gemini console online.  
-                Drop a question, click a chip, or ask:  
-                <span style="color:#6cf0ff;">“What can you run for me on autopilot?”</span>
-              </div>
-            </div>
-            <div class="chat-input-row">
-              <input
-                id="chat-input"
-                class="chat-input"
-                type="text"
-                placeholder="Type a command, question, or idea..."
-              />
-              <button id="chat-send" class="chat-send-btn">
-                <span>Send</span>
-                <span>➤</span>
-              </button>
-            </div>
-          </div>
+  <button onclick="runTest()">Send</button>
 
-          <div class="status-row">
-            <div>
-              <span class="mini-tag">Models:</span>
-              <span class="pill-inline">
-                <span>gemini‑2.0‑flash</span>
-              </span>
-              <span class="pill-inline" style="border-color:rgba(255,255,255,0.25);color:#a5acc7;">
-                <span>Free‑tier · JSON‑friendly</span>
-              </span>
-            </div>
-            <div>
-              <span class="mini-tag">Loop:</span>
-              <span>Input → Interpret → Respond · (Extendable to tools / agents)</span>
-            </div>
-          </div>
-        </div>
-      </div>
+  <div id="output">Response will appear here.</div>
 
-      <!-- RIGHT: CAPABILITIES + IDEA GENERATOR -->
-      <div class="panel">
-        <div class="panel-inner">
-          <div class="panel-header">
-            <div>
-              <div class="panel-title">Empire‑Scale Capabilities</div>
-              <div class="panel-subtitle">What a single free‑tier key can run for you</div>
-            </div>
-          </div>
+<script>
+  // ----------------------------------------------------
+  //  ONLY EDIT THIS LINE ↓↓↓
+  const GEMINI_API_KEY = "AIzaSyCElEjlXAS0470B6tJBKvcH2AH4ItSq0T8";
+  // ----------------------------------------------------
 
-          <div class="right-panel-section">
-            <div class="section-title">Capability Map</div>
-            <div class="capability-list">
-              <div class="capability-item">
-                <div class="capability-label">1 · Conversational Core</div>
-                <div class="capability-desc">
-                  Build a Jarvis‑lite assistant that remembers context, parses intent, and responds in your empire’s voice.
-                </div>
-              </div>
-              <div class="capability-item">
-                <div class="capability-label">2 · Content Engines</div>
-                <div class="capability-desc">
-                  Generate posts, scripts, emails, landing copy, and listicles that plug directly into your HTML engines.
-                </div>
-              </div>
-              <div class="capability-item">
-                <div class="capability-label">3 · Ritual & Integrity Loops</div>
-                <div class="capability-desc">
-                  Design daily check‑ins, micro‑quits scans, and integrity prompts that keep you aligned without manual thinking.
-                </div>
-              </div>
-              <div class="capability-item">
-                <div class="capability-label">4 · Knowledge & Planning</div>
-                <div class="capability-desc">
-                  Use long‑context reasoning to plan launches, map pillars, and simulate empire scenarios inside one console.
-                </div>
-              </div>
-            </div>
-          </div>
+  const MODEL = "gemini-2.0-flash";
 
-          <div class="right-panel-section">
-            <div class="section-title">Idea Pulse · One‑Tap Prompts</div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
-              <button class="cta-btn" id="btn-idea-products">
-                PRODUCT IDEAS
-              </button>
-              <button class="cta-btn" id="btn-idea-automation">
-                AUTOPILOT LOOPS
-              </button>
-              <button class="cta-btn" id="btn-idea-mass">
-                MASS‑MARKET ANGLES
-              </button>
-            </div>
-            <div class="idea-output" id="idea-output">
-              Tap a button to have Gemini propose concrete builds you could ship from this console.
-            </div>
-          </div>
+  async function runTest() {
+    const prompt = document.getElementById("userInput").value.trim();
+    if (!prompt) return;
 
-          <div class="right-panel-section">
-            <div class="section-title">Key Slot · How to Wire This</div>
-            <div class="capability-desc" style="margin-bottom:6px;">
-              This file is fully self‑contained. To activate live Gemini calls:
-            </div>
-            <ol style="margin-left:16px;margin-bottom:6px;color:var(--text-soft);font-size:11px;">
-              <li>Open this file in a code editor.</li>
-              <li>Search for <code>GEMINI_API_KEY</code>.</li>
-              <li>Replace <code>"AIzaSyCElEjlXAS0470B6tJBKvcH2AH4ItSq0T8"</code> with your real key.</li>
-              <li>Open the file in a browser. Start talking to your empire.</li>
-            </ol>
-            <div class="capability-desc">
-              No backend required. For production, you’d proxy the key server‑side — but for local experiments, this is enough to feel the autonomy.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    document.getElementById("output").textContent = "Thinking...";
 
-    <div class="footer-row">
-      <div>
-        <strong>Jarvis‑Lite Pattern:</strong> Chat core now · tools, memory, and scheduled loops later — same surface.
-      </div>
-      <div>
-        <span class="mini-tag">Next:</span>
-        <span class="linkish" id="link-next">Show me the agent loop architecture.</span>
-      </div>
-    </div>
-  </div>
+    const url =
+      "https://generativelanguage.googleapis.com/v1beta/models/" +
+      MODEL +
+      ":generateContent?key=" + GEMINI_API_KEY;
 
-  <script>
-    // ===========================
-    // 1. CONFIG
-    // ===========================
-    const GEMINI_API_KEY = "AIzaSyCElEjlXAS0470B6tJBKvcH2AH4ItSq0T8"; // <--- SLOT YOUR KEY HERE
-    const GEMINI_MODEL = "gemini-2.0-flash"; // free-tier friendly
+    const body = {
+      contents: [{ role: "user", parts: [{ text: prompt }] }]
+    };
 
-    // ===========================
-    // 2. DOM HOOKS
-    // ===========================
-    const chatLogEl = document.getElementById("chat-log");
-    const chatInputEl = document.getElementById("chat-input");
-    const chatSendBtn = document.getElementById("chat-send");
-    const statusDotEl = document.getElementById("status-dot");
-    const statusTextEl = document.getElementById("status-text");
-    const chips = document.querySelectorAll(".chip");
-    const ideaOutputEl = document.getElementById("idea-output");
-    const btnIdeaProducts = document.getElementById("btn-idea-products");
-    const btnIdeaAutomation = document.getElementById("btn-idea-automation");
-    const btnIdeaMass = document.getElementById("btn-idea-mass");
-    const linkNext = document.getElementById("link-next");
-
-    // ===========================
-    // 3. STATUS / KEY CHECK
-    // ===========================
-    function updateStatus() {
-      const hasKey = GEMINI_API_KEY && GEMINI_API_KEY !== "AIzaSyCElEjlXAS0470B6tJBKvcH2AH4ItSq0T8";
-      if (hasKey) {
-        statusDotEl.classList.remove("off");
-        statusTextEl.textContent = "ONLINE · KEY DETECTED";
-      } else {
-        statusDotEl.classList.add("off");
-        statusTextEl.textContent = "API KEY NOT SET";
-      }
-    }
-    updateStatus();
-
-    // ===========================
-    // 4. CHAT RENDER HELPERS
-    // ===========================
-    function appendMessage(role, text) {
-      const msg = document.createElement("div");
-      msg.className = "chat-msg " + (role === "user" ? "user" : "ai");
-      msg.textContent = text;
-      chatLogEl.appendChild(msg);
-      chatLogEl.scrollTop = chatLogEl.scrollHeight;
-    }
-
-    function setLoading(isLoading) {
-      chatSendBtn.disabled = isLoading;
-      chatSendBtn.textContent = isLoading ? "Thinking..." : "Send";
-    }
-
-    // ===========================
-    // 5. GEMINI CALL
-    // ===========================
-    async function callGemini(prompt) {
-      const hasKey = GEMINI_API_KEY && GEMINI_API_KEY !== "AIzaSyCElEjlXAS0470B6tJBKvcH2AH4ItSq0T8";
-      if (!hasKey) {
-        return "No API key set. Open the file, search for GEMINI_API_KEY, and paste your key.";
-      }
-
-      const url = "https://generativelanguage.googleapis.com/v1beta/models/" +
-                  encodeURIComponent(GEMINI_MODEL) +
-                  ":generateContent?key=" + encodeURIComponent(GEMINI_API_KEY);
-
-      const body = {
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: prompt }]
-          }
-        ]
-      };
-
-      try {
-        const res = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(body)
-        });
-
-        if (!res.ok) {
-          const errText = await res.text();
-          console.error("Gemini error:", errText);
-          return "Gemini API error: " + res.status + " · " + errText;
-        }
-
-        const data = await res.json();
-        const text =
-          data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-          "(No response text returned.)";
-        return text;
-      } catch (err) {
-        console.error("Gemini fetch error:", err);
-        return "Network or fetch error while calling Gemini.";
-      }
-    }
-
-    // ===========================
-    // 6. CHAT HANDLERS
-    // ===========================
-    async function handleUserMessage(raw) {
-      const text = raw.trim();
-      if (!text) return;
-
-      appendMessage("user", text);
-      chatInputEl.value = "";
-      setLoading(true);
-
-      const reply = await callGemini(text);
-      appendMessage("ai", reply);
-
-      setLoading(false);
-    }
-
-    chatSendBtn.addEventListener("click", () => {
-      handleUserMessage(chatInputEl.value);
-    });
-
-    chatInputEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        handleUserMessage(chatInputEl.value);
-      }
-    });
-
-    chips.forEach((chip) => {
-      chip.addEventListener("click", () => {
-        const prompt = chip.getAttribute("data-prompt") || "";
-        handleUserMessage(prompt);
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
       });
-    });
 
-    // ===========================
-    // 7. IDEA GENERATOR BUTTONS
-    // ===========================
-    async function runIdeaPrompt(prompt) {
-      ideaOutputEl.textContent = "Thinking...";
-      const reply = await callGemini(prompt);
-      ideaOutputEl.textContent = reply;
+      const data = await res.json();
+      const text =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "(No response returned)";
+
+      document.getElementById("output").textContent = text;
+
+    } catch (err) {
+      document.getElementById("output").textContent =
+        "Error: " + err.message;
     }
+  }
+</script>
 
-    btnIdeaProducts.addEventListener("click", () => {
-      runIdeaPrompt(
-        "Generate 5 concrete, single‑file HTML product ideas that use a Gemini free‑tier key and feel like 'Empire OS' modules. " +
-        "Each idea should be: (1) simple to build, (2) obviously valuable to normal people, (3) easy to demo in under 30 seconds."
-      );
-    });
-
-    btnIdeaAutomation.addEventListener("click", () => {
-      runIdeaPrompt(
-        "Propose 5 autonomous loops I could run from this console using Gemini free tier. " +
-        "Think: daily scans, ritual prompts, content bursts, integrity checks, and planning pulses."
-      );
-    });
-
-    btnIdeaMass.addEventListener("click", () => {
-      runIdeaPrompt(
-        "Give me 5 mass‑market angles for this kind of console. " +
-        "Each angle should be phrased as a promise to the 99% that makes them want to click immediately."
-      );
-    });
-
-    // ===========================
-    // 8. NEXT LINK: AGENT LOOP EXPLANATION
-    // ===========================
-    linkNext.addEventListener("click", () => {
-      appendMessage(
-        "ai",
-        "Agent loop sketch:\n\n" +
-        "1) Observe: Read current state (inputs, logs, schedule).\n" +
-        "2) Decide: Use Gemini to choose the next best action.\n" +
-        "3) Act: Call tools (APIs, scripts, content engines) or write to files.\n" +
-        "4) Reflect: Ask Gemini to evaluate the effect and adjust.\n" +
-        "5) Repeat on a timer or trigger.\n\n" +
-        "This console is the front‑end. The loop lives behind it, calling Gemini as the reasoning core."
-      );
-      chatLogEl.scrollTop = chatLogEl.scrollHeight;
-    });
-  </script>
 </body>
 </html>
