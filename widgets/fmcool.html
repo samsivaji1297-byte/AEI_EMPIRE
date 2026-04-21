@@ -152,6 +152,19 @@
       color: var(--muted);
       margin-top: 20px;
     }
+
+    /* RIPPLE */
+    #ripple {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      width: 12px;
+      height: 12px;
+      opacity: 0;
+      transform: scale(0);
+      transition: transform 1.2s ease-out, opacity 1.2s ease-out;
+      z-index: 2;
+    }
   </style>
 </head>
 
@@ -176,6 +189,8 @@
       <div>Node: FM‑04</div>
       <div>Classification: Sovereign</div>
     </div>
+
+    <div id="ripple"></div>
   </div>
 
   <script>
@@ -202,10 +217,21 @@
       type();
     }
 
+    function fallbackFM() {
+      const lines = [
+        "Signal rerouted through internal core.",
+        "External channel offline. Internal mode engaged.",
+        "FM continues without external input.",
+        "Internal generator active. Sovereign continuity maintained.",
+        "Fallback node online. Integrity stable."
+      ];
+      return "[internal] " + lines[Math.floor(Math.random() * lines.length)];
+    }
+
     async function fetchFM() {
       if (!GROQ_KEY) {
         GROQ_KEY = prompt("Enter your Groq API key:");
-        if (!GROQ_KEY) return "No API key provided.";
+        if (!GROQ_KEY) return { text: fallbackFM(), fallback: true };
       }
 
       try {
@@ -225,20 +251,53 @@
         });
 
         const data = await response.json();
-        return data.choices?.[0]?.message?.content || "No response.";
+        const text = data.choices?.[0]?.message?.content;
+
+        if (!text) return { text: fallbackFM(), fallback: true };
+
+        return { text, fallback: false };
+
       } catch (err) {
-        return "ERROR: " + err.toString();
+        return { text: fallbackFM(), fallback: true };
       }
     }
 
-    document.getElementById("fm-widget").addEventListener("click", async () => {
+    document.getElementById("fm-widget").addEventListener("click", async (e) => {
       const out = document.getElementById("fm-output");
+      const ripple = document.getElementById("ripple");
+
+      // Position ripple
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      ripple.style.left = `${x - 6}px`;
+      ripple.style.top = `${y - 6}px`;
+
+      // Start ripple
+      ripple.style.transform = "scale(0)";
+      ripple.style.opacity = "0.4";
+
+      // Temporary loading
       out.style.opacity = 0.4;
       out.textContent = "…";
 
-      const line = await fetchFM();
+      const result = await fetchFM();
+
+      // Ripple color
+      ripple.style.background = result.fallback
+        ? "rgba(255,60,60,0.25)"
+        : "rgba(255,255,255,0.25)";
+
+      // Animate ripple
+      requestAnimationFrame(() => {
+        ripple.style.transform = "scale(22)";
+        ripple.style.opacity = "0";
+      });
+
+      // Update output
       out.style.opacity = 1;
-      typeText(out, line);
+      typeText(out, result.text);
     });
   </script>
 
