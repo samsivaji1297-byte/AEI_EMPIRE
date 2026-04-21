@@ -7,110 +7,85 @@
 body {
   margin: 0;
   padding: 0;
-  background: #050505;
+  background: #0a0a0a;
   font-family: "SF Mono", "Consolas", monospace;
-  color: #00eaff;
+  color: #d0d0d0;
   text-align: center;
   overflow-x: hidden;
 }
 
-/* --- Industrial Scanlines Overlay --- */
+/* --- Industrial Noise Overlay --- */
 body::before {
   content: "";
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
   pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.03) 0px,
-    rgba(255,255,255,0.03) 1px,
-    transparent 2px,
-    transparent 4px
-  );
-  opacity: 0.15;
+  background: url('https://grainy-gradients.vercel.app/noise.svg');
+  opacity: 0.08;
   z-index: 5;
 }
 
-/* --- Orb Container --- */
+/* --- Orb --- */
 #orb {
-  width: 160px;
-  height: 160px;
+  width: 150px;
+  height: 150px;
   margin: 60px auto 30px auto;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #00eaff 0%, #003b47 40%, #000 100%);
+  background: radial-gradient(circle at 30% 30%, #444 0%, #111 60%, #000 100%);
   box-shadow:
-    0 0 40px rgba(0, 234, 255, 0.7),
-    inset 0 0 30px rgba(0, 234, 255, 0.4);
-  animation: pulse 3.5s infinite ease-in-out;
+    0 0 20px rgba(255,255,255,0.05),
+    inset 0 0 40px rgba(255,255,255,0.08);
+  animation: mechPulse 3.8s infinite ease-in-out;
   position: relative;
 }
 
-/* --- Orb Inner Glow --- */
-#orb::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0,234,255,0.4), transparent 70%);
-  filter: blur(20px);
-  animation: innerPulse 4s infinite ease-in-out;
+@keyframes mechPulse {
+  0% { transform: scale(1); box-shadow: inset 0 0 40px rgba(255,255,255,0.08); }
+  50% { transform: scale(1.05); box-shadow: inset 0 0 60px rgba(255,255,255,0.15); }
+  100% { transform: scale(1); box-shadow: inset 0 0 40px rgba(255,255,255,0.08); }
 }
 
-@keyframes pulse {
-  0% { transform: scale(1); box-shadow: 0 0 40px rgba(0,234,255,0.7); }
-  50% { transform: scale(1.08); box-shadow: 0 0 70px rgba(0,234,255,1); }
-  100% { transform: scale(1); box-shadow: 0 0 40px rgba(0,234,255,0.7); }
-}
-
-@keyframes innerPulse {
-  0% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-  100% { opacity: 0.4; }
-}
-
-/* --- Input Area --- */
+/* --- Input --- */
 textarea {
   width: 85%;
   max-width: 500px;
   height: 90px;
-  background: #0a0a0a;
-  border: 1px solid #003b47;
-  color: #00eaff;
+  background: #111;
+  border: 1px solid #333;
+  color: #d0d0d0;
   padding: 12px;
   font-size: 15px;
   border-radius: 6px;
   outline: none;
-  box-shadow: 0 0 10px rgba(0,234,255,0.2);
 }
 
 /* --- Button --- */
 button {
   margin-top: 18px;
   padding: 12px 28px;
-  background: linear-gradient(90deg, #003b47, #00eaff);
+  background: linear-gradient(90deg, #222, #444);
   border: none;
-  color: #000;
+  color: #d0d0d0;
   font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
   font-size: 16px;
-  box-shadow: 0 0 15px rgba(0,234,255,0.4);
 }
 
-/* --- Output Window --- */
+/* --- Output --- */
 #output {
   margin: 30px auto;
   width: 85%;
   max-width: 500px;
-  background: #0a0a0a;
-  border: 1px solid #003b47;
+  background: #111;
+  border: 1px solid #333;
   padding: 15px;
   border-radius: 6px;
   white-space: pre-wrap;
   text-align: left;
-  box-shadow: inset 0 0 20px rgba(0,234,255,0.15);
   min-height: 80px;
+  color: #d0d0d0;
 }
 </style>
 </head>
@@ -126,6 +101,40 @@ button {
 
 <script>
 let GROQ_KEY = null;
+
+/* --- Fake Typing Animation --- */
+function typeText(element, text, speed = 18) {
+  element.textContent = "";
+  let i = 0;
+  function type() {
+    if (i < text.length) {
+      element.textContent += text.charAt(i);
+      i++;
+      setTimeout(type, speed);
+    }
+  }
+  type();
+}
+
+/* --- Voice Output (Industrial Female) --- */
+function speak(text) {
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 0.9;
+  utter.pitch = 0.7;
+  utter.volume = 0.9;
+
+  // Try to pick a female voice if available
+  const voices = speechSynthesis.getVoices();
+  const female = voices.find(v =>
+    v.name.toLowerCase().includes("samantha") ||
+    v.name.toLowerCase().includes("female") ||
+    v.name.toLowerCase().includes("victoria")
+  );
+
+  if (female) utter.voice = female;
+
+  speechSynthesis.speak(utter);
+}
 
 async function run() {
   const text = document.getElementById("input").value;
@@ -159,7 +168,9 @@ async function run() {
     const data = await response.json();
     const msg = data.choices?.[0]?.message?.content || "No response.";
 
-    document.getElementById("output").textContent = msg;
+    const output = document.getElementById("output");
+    typeText(output, msg);   // Fake typing animation
+    speak(msg);              // Voice output
 
   } catch (err) {
     document.getElementById("output").textContent = "ERROR:\n" + err.toString();
