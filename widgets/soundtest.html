@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body style="background:black;display:flex;align-items:center;justify-content:center;height:100vh;color:white;">
+<button id="go">Generate Sound</button>
+
+<script>
+document.getElementById("go").onclick = () => {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  osc.type = "sawtooth";       // industrial vibe
+  osc.frequency.value = 80;    // deep drone
+  gain.gain.value = 0.05;      // subtle
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.start();
+  osc.stop(ctx.currentTime + 2); // 2‑second generated sound
+};
+</script>
+</body>
+</html>
