@@ -3,170 +3,89 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Fake Recording Test</title>
+<title>Sigil Recording Mode</title>
 <style>
     body {
         margin: 0;
         background: #000;
         overflow: hidden;
-        font-family: monospace;
-        color: #fff;
-    }
-
-    #container {
-        position: fixed;
-        inset: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-direction: column;
-        opacity: 0;
-        transition: opacity 1.2s ease;
+        height: 100vh;
+        font-family: sans-serif;
     }
 
-    #recIndicator {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        font-size: 18px;
+    /* Centered sigil container */
+    #sigil {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.25);
         display: flex;
         align-items: center;
-        gap: 8px;
-        opacity: 0;
-        transition: opacity 0.5s ease;
+        justify-content: center;
+        position: relative;
+        animation: breathe 4s ease-in-out infinite;
     }
 
-    #recDot {
-        width: 12px;
-        height: 12px;
-        background: red;
+    /* Inner rotating symbol */
+    #inner {
+        width: 70px;
+        height: 70px;
+        border: 2px solid rgba(255,255,255,0.4);
         border-radius: 50%;
-        animation: pulse 1s infinite;
-    }
-
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.3; }
-        100% { opacity: 1; }
-    }
-
-    #timecode {
         position: absolute;
-        top: 20px;
-        right: 20px;
-        font-size: 18px;
-        opacity: 0;
-        transition: opacity 0.5s ease;
+        animation: rotate 12s linear infinite;
     }
 
+    /* Subtle glow ring */
+    #glow {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
+        filter: blur(20px);
+        opacity: 0.35;
+        animation: pulse 5s ease-in-out infinite;
+    }
+
+    /* Micro distortion overlay */
     #grain {
         pointer-events: none;
         position: fixed;
         inset: 0;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.15"/></svg>');
-        opacity: 0.25;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.12"/></svg>');
         mix-blend-mode: overlay;
+        opacity: 0.18;
     }
 
-    #vignette {
-        pointer-events: none;
-        position: fixed;
-        inset: 0;
-        background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
-        opacity: 0.7;
+    @keyframes breathe {
+        0% { transform: scale(1); border-color: rgba(255,255,255,0.25); }
+        50% { transform: scale(1.06); border-color: rgba(255,255,255,0.45); }
+        100% { transform: scale(1); border-color: rgba(255,255,255,0.25); }
     }
 
-    #startOverlay {
-        position: fixed;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0,0,0,0.85);
-        color: #fff;
-        font-size: 22px;
-        letter-spacing: 2px;
-        cursor: pointer;
-        transition: opacity 0.8s ease;
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+        0% { opacity: 0.25; }
+        50% { opacity: 0.45; }
+        100% { opacity: 0.25; }
     }
 </style>
 </head>
 <body>
 
-<div id="startOverlay">TAP TO ENTER RECORDING MODE</div>
-
-<div id="container">
-    <div id="recIndicator">
-        <div id="recDot"></div>
-        REC
-    </div>
-    <div id="timecode">00:00:00</div>
+<div id="glow"></div>
+<div id="sigil">
+    <div id="inner"></div>
 </div>
-
 <div id="grain"></div>
-<div id="vignette"></div>
-
-<script>
-// Procedural ambient sound
-let audioCtx;
-function startAmbient() {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.type = "sine";
-    osc.frequency.value = 80;
-
-    gain.gain.value = 0.05;
-
-    osc.connect(gain).connect(audioCtx.destination);
-    osc.start();
-
-    // Slow drift
-    setInterval(() => {
-        osc.frequency.value = 80 + Math.sin(Date.now() / 2000) * 5;
-    }, 50);
-}
-
-// Fake timecode
-let startTime = null;
-function updateTimecode() {
-    if (!startTime) return;
-    const elapsed = Math.floor((Date.now() - startTime) / 1000);
-
-    const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
-    const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
-    const s = String(elapsed % 60).padStart(2, '0');
-
-    document.getElementById("timecode").textContent = `${h}:${m}:${s}`;
-    requestAnimationFrame(updateTimecode);
-}
-
-// Camera drift
-function drift() {
-    const x = Math.sin(Date.now() / 3000) * 1.5;
-    const y = Math.cos(Date.now() / 4000) * 1.5;
-    document.body.style.transform = `translate(${x}px, ${y}px)`;
-    requestAnimationFrame(drift);
-}
-drift();
-
-// Start sequence
-document.getElementById("startOverlay").addEventListener("click", () => {
-    document.getElementById("startOverlay").style.opacity = 0;
-    setTimeout(() => {
-        document.getElementById("startOverlay").style.display = "none";
-    }, 800);
-
-    document.getElementById("container").style.opacity = 1;
-    document.getElementById("recIndicator").style.opacity = 1;
-    document.getElementById("timecode").style.opacity = 1;
-
-    startTime = Date.now();
-    updateTimecode();
-    startAmbient();
-});
-</script>
 
 </body>
 </html>
