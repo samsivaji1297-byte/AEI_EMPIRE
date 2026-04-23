@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Micro Media Studio</title>
+<title>Trailer Engine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
 <meta name="theme-color" content="#000000" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 
 <style>
 /* -----------------------------------------------------------
-   MICRO MEDIA STUDIO — VISUAL ENGINE
+   TRAILER ENGINE — VISUAL SYSTEM
    ----------------------------------------------------------- */
 
 :root {
@@ -36,7 +36,7 @@ html, body {
 }
 
 /* Fullscreen container */
-#studio {
+#engine {
   position: relative;
   width: 100%;
   height: 100%;
@@ -44,7 +44,7 @@ html, body {
   overflow: hidden;
 }
 
-/* Cinematic fog */
+/* Fog */
 #fog {
   position: absolute;
   inset: 0;
@@ -70,7 +70,7 @@ html, body {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  transition: transform 0.2s ease-out;
+  transition: transform 0.6s ease-out;
 }
 
 /* Scene container */
@@ -80,10 +80,18 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0;
+  transform: scale(0.92) translateY(20px);
+  transition: opacity 1.2s ease, transform 1.2s ease;
+}
+
+.scene.active {
+  opacity: 1;
+  transform: scale(1) translateY(0);
 }
 
 /* Title card */
-.title-card {
+.title {
   font-size: 32px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -93,16 +101,16 @@ html, body {
   transition: opacity 1.2s ease, transform 1.2s ease;
 }
 
-.title-card.visible {
+.title.visible {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
 
-/* Light pulse */
+/* Light sweep */
 .light {
   position: absolute;
-  width: 240px;
-  height: 240px;
+  width: 260px;
+  height: 260px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255,255,255,0.9), rgba(123,92,255,0.0));
   mix-blend-mode: screen;
@@ -116,50 +124,48 @@ html, body {
   transform: scale(1.4);
 }
 
-/* Director UI */
-#director {
+/* Fade transition overlay */
+#fade {
   position: absolute;
-  bottom: calc(20px + var(--safe-bottom));
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 12px;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
 }
 
-.btn {
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: var(--fg);
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  backdrop-filter: blur(10px);
-}
-
-.btn:active {
-  background: rgba(255,255,255,0.18);
+#fade.on {
+  opacity: 1;
 }
 </style>
 </head>
 
 <body>
-<div id="studio">
+<div id="engine">
   <canvas id="particles"></canvas>
   <div id="fog"></div>
+  <div id="fade"></div>
 
   <div id="camera">
+
+    <!-- SCENE 1 -->
     <div class="scene" id="scene1">
       <div class="light" id="light1"></div>
-      <div class="title-card" id="title1">Micro Media Studio</div>
+      <div class="title" id="title1">Awakening</div>
     </div>
-  </div>
 
-  <div id="director">
-    <button class="btn" id="action1">Scene 1</button>
-    <button class="btn" id="action2">Flash</button>
-    <button class="btn" id="action3">Pulse</button>
+    <!-- SCENE 2 -->
+    <div class="scene" id="scene2">
+      <div class="light" id="light2"></div>
+      <div class="title" id="title2">The Shift</div>
+    </div>
+
+    <!-- SCENE 3 -->
+    <div class="scene" id="scene3">
+      <div class="light" id="light3"></div>
+      <div class="title" id="title3">Become Inevitable</div>
+    </div>
+
   </div>
 </div>
 
@@ -222,7 +228,7 @@ initParticles();
 drawParticles();
 
 /* -----------------------------------------------------------
-   CAMERA SYSTEM (PARALLAX)
+   CAMERA PARALLAX
    ----------------------------------------------------------- */
 
 const camera = document.getElementById("camera");
@@ -236,28 +242,55 @@ if (window.DeviceOrientationEvent) {
 }
 
 /* -----------------------------------------------------------
-   SCENE DIRECTOR
+   TRAILER TIMELINE ENGINE
    ----------------------------------------------------------- */
 
-const title1 = document.getElementById("title1");
-const light1 = document.getElementById("light1");
+const fade = document.getElementById("fade");
 
-document.getElementById("action1").onclick = () => {
-  title1.classList.add("visible");
-};
+const scenes = [
+  { id: "scene1", title: "title1", light: "light1", duration: 2600 },
+  { id: "scene2", title: "title2", light: "light2", duration: 2600 },
+  { id: "scene3", title: "title3", light: "light3", duration: 2600 }
+];
 
-document.getElementById("action2").onclick = () => {
-  light1.classList.add("on");
-  setTimeout(() => light1.classList.remove("on"), 1200);
-};
+let index = 0;
 
-document.getElementById("action3").onclick = () => {
-  title1.classList.remove("visible");
-  setTimeout(() => title1.classList.add("visible"), 100);
-};
+function playScene(i) {
+  const s = scenes[i];
+  const scene = document.getElementById(s.id);
+  const title = document.getElementById(s.title);
+  const light = document.getElementById(s.light);
+
+  fade.classList.add("on");
+
+  setTimeout(() => {
+    document.querySelectorAll(".scene").forEach(sc => sc.classList.remove("active"));
+    scene.classList.add("active");
+
+    title.classList.remove("visible");
+    light.classList.remove("on");
+
+    fade.classList.remove("on");
+
+    setTimeout(() => {
+      title.classList.add("visible");
+      light.classList.add("on");
+    }, 400);
+
+  }, 900);
+
+  setTimeout(() => {
+    index++;
+    if (index < scenes.length) {
+      playScene(index);
+    }
+  }, s.duration);
+}
+
+setTimeout(() => playScene(0), 600);
 
 /* -----------------------------------------------------------
-   SOUND ENGINE (AMBIENT PAD)
+   SOUND ENGINE
    ----------------------------------------------------------- */
 
 let audioCtx = null;
