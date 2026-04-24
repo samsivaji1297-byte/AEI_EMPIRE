@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Cinematic Ritual Engine v1.5</title>
+<title>Cinematic Content Engine One</title>
 <style>
   html, body {
     margin: 0;
@@ -14,7 +14,27 @@
     color: #f2f2f7;
   }
 
-  /* Procedural Apple‑style gradient fog */
+  /* CAMERA MOVEMENT (subtle zoom + drift) */
+  .camera {
+    position: absolute;
+    inset: 0;
+    transform-origin: center;
+    animation: camZoom 22s ease-in-out infinite alternate,
+               camDrift 18s ease-in-out infinite alternate;
+  }
+
+  @keyframes camZoom {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.06); }
+  }
+
+  @keyframes camDrift {
+    0% { transform: translate(0,0); }
+    50% { transform: translate(-12px, 8px); }
+    100% { transform: translate(6px, -6px); }
+  }
+
+  /* BACKGROUND GRADIENT FOG */
   .bg {
     position: absolute;
     inset: 0;
@@ -22,17 +42,34 @@
                 radial-gradient(circle at 70% 80%, rgba(255,255,255,0.05), transparent 60%),
                 linear-gradient(180deg, #0a0a0c 0%, #000 100%);
     filter: blur(40px);
-    animation: drift 18s ease-in-out infinite alternate;
     opacity: 0.9;
   }
 
-  @keyframes drift {
-    0% { transform: scale(1.05) translate(0,0); }
-    50% { transform: scale(1.1) translate(20px, -10px); }
-    100% { transform: scale(1.05) translate(-10px, 10px); }
+  /* PARALLAX PARTICLES */
+  .particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
   }
 
-  /* Centered text container */
+  .particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 50%;
+    filter: blur(2px);
+    animation: float 14s ease-in-out infinite alternate;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0) translateX(0); opacity: 0.4; }
+    50% { opacity: 0.7; }
+    100% { transform: translateY(-40px) translateX(20px); opacity: 0.4; }
+  }
+
+  /* TEXT CONTAINER */
   .center {
     position: absolute;
     top: 50%;
@@ -52,7 +89,7 @@
     transform: translateY(22px);
     transition: opacity 1.4s cubic-bezier(0.25, 0.1, 0.25, 1),
                 transform 1.4s cubic-bezier(0.25, 0.1, 0.25, 1);
-    color: #f2f2f7; /* unified premium colour */
+    color: #f2f2f7;
     text-shadow: 0 0 18px rgba(255,255,255,0.08);
   }
 
@@ -61,7 +98,7 @@
     transform: translateY(0);
   }
 
-  /* Subtle Apple‑style glow pulse */
+  /* Apple‑style glow pulse */
   .pulse {
     animation: pulse 6s ease-in-out infinite;
   }
@@ -71,22 +108,25 @@
     50% { text-shadow: 0 0 22px rgba(255,255,255,0.12); }
     100% { text-shadow: 0 0 12px rgba(255,255,255,0.05); }
   }
-
 </style>
 </head>
 <body>
 
-<div class="bg"></div>
+<div class="camera">
+  <div class="bg"></div>
+  <div class="particles" id="particles"></div>
 
-<div class="center">
-  <div id="hook" class="line pulse"></div>
-  <div id="tension" class="line"></div>
-  <div id="relief" class="line"></div>
-  <div id="gap" class="line"></div>
-  <div id="trigger" class="line"></div>
+  <div class="center">
+    <div id="hook" class="line pulse"></div>
+    <div id="tension" class="line"></div>
+    <div id="relief" class="line"></div>
+    <div id="gap" class="line"></div>
+    <div id="trigger" class="line"></div>
+  </div>
 </div>
 
 <script>
+/* TEXT SEQUENCES */
 const sequences = [
   {
     hook: "You’re not failing because your ideas are bad.",
@@ -113,18 +153,32 @@ const sequences = [
 
 const seq = sequences[Math.floor(Math.random() * sequences.length)];
 
-document.getElementById("hook").textContent = seq.hook;
-document.getElementById("tension").textContent = seq.tension;
-document.getElementById("relief").textContent = seq.relief;
-document.getElementById("gap").textContent = seq.gap;
-document.getElementById("trigger").textContent = seq.trigger;
+hook.textContent = seq.hook;
+tension.textContent = seq.tension;
+relief.textContent = seq.relief;
+gap.textContent = seq.gap;
+trigger.textContent = seq.trigger;
 
-/* Cinematic reveal timing */
+/* CINEMATIC TIMING */
 setTimeout(() => hook.classList.add("visible"), 300);
 setTimeout(() => tension.classList.add("visible"), 2000);
 setTimeout(() => relief.classList.add("visible"), 3600);
 setTimeout(() => gap.classList.add("visible"), 5200);
 setTimeout(() => trigger.classList.add("visible"), 6800);
+
+/* PARTICLE GENERATION */
+const particleContainer = document.getElementById("particles");
+
+for (let i = 0; i < 40; i++) {
+  const p = document.createElement("div");
+  p.classList.add("particle");
+  p.style.left = Math.random() * 100 + "%";
+  p.style.top = Math.random() * 100 + "%";
+  p.style.animationDuration = 10 + Math.random() * 12 + "s";
+  p.style.animationDelay = Math.random() * 6 + "s";
+  p.style.opacity = 0.3 + Math.random() * 0.4;
+  particleContainer.appendChild(p);
+}
 </script>
 
 </body>
