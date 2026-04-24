@@ -5,6 +5,10 @@ The important CoPilot Chats are:
 - CoPilot: Micro-Quits and Integrity Engine
 - CoPilot: Root node and library development 
 
+disciplineconversionengine came from: Root node and library development
+identityconversionengine came from: Root node and library development
+listengine came from: Root node and library development
+
 ---
 
 ## 📁 Widget Build Reference Table
