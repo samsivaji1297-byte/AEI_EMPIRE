@@ -1,381 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Content Physics Widget</title>
-  <style>
-    :root {
-      --bg: #050509;
-      --fg: #f5f5f7;
-      --muted: #8b8b93;
-      --accent: #7f5cff;
-      --accent-soft: rgba(127, 92, 255, 0.18);
-      --border: #1b1b23;
-      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-    }
+<meta charset="UTF-8" />
+<title>Content Physics Ritual Engine</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #050509;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+    color: #f5f5f7;
+  }
 
-    * {
-      box-sizing: border-box;
-    }
+  /* Cinematic fog */
+  .fog {
+    position: absolute;
+    inset: 0;
+    background: url('https://i.imgur.com/8fKQZ5C.png');
+    background-size: cover;
+    opacity: 0.18;
+    animation: drift 22s linear infinite;
+    filter: blur(12px);
+  }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at top, #141424 0, #050509 55%);
-      color: var(--fg);
-      font-family: var(--font-main);
-    }
+  @keyframes drift {
+    0% { transform: scale(1.1) translate(0,0); }
+    50% { transform: scale(1.15) translate(20px, -10px); }
+    100% { transform: scale(1.1) translate(0,0); }
+  }
 
-    .widget-shell {
-      width: 100%;
-      max-width: 720px;
-      padding: 24px 22px 20px;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: radial-gradient(circle at top left, rgba(127, 92, 255, 0.12), transparent 55%),
-                  radial-gradient(circle at bottom right, rgba(0, 255, 204, 0.06), transparent 55%),
-                  #050509;
-      box-shadow:
-        0 24px 60px rgba(0, 0, 0, 0.75),
-        0 0 0 1px rgba(255, 255, 255, 0.02);
-      position: relative;
-      overflow: hidden;
-    }
+  /* Centered text container */
+  .center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 900px;
+    text-align: center;
+  }
 
-    .widget-shell::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background:
-        radial-gradient(circle at 10% 0%, rgba(127, 92, 255, 0.12), transparent 55%),
-        radial-gradient(circle at 90% 100%, rgba(0, 255, 204, 0.08), transparent 55%);
-      opacity: 0.7;
-      mix-blend-mode: screen;
-      pointer-events: none;
-    }
+  .line {
+    opacity: 0;
+    font-size: 2.4rem;
+    line-height: 1.3;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    transform: translateY(20px);
+    transition: opacity 1.2s ease, transform 1.2s ease;
+  }
 
-    .widget-inner {
-      position: relative;
-      z-index: 1;
-    }
+  .visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
 
-    .widget-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
+  /* Color coding for phases */
+  .hook { color: #ffffff; }
+  .tension { color: #ff9b9b; }
+  .relief { color: #b8ffcf; }
+  .gap { color: #ffe7b3; }
+  .trigger { color: #c7c7ff; }
 
-    .widget-title {
-      font-size: 13px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .widget-pill {
-      font-size: 11px;
-      padding: 4px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(127, 92, 255, 0.5);
-      background: radial-gradient(circle at top, rgba(127, 92, 255, 0.18), rgba(5, 5, 9, 0.9));
-      color: #d7d4ff;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #7f5cff;
-      box-shadow: 0 0 10px rgba(127, 92, 255, 0.9);
-    }
-
-    .lines {
-      margin: 6px 0 10px;
-      padding: 14px 14px 10px;
-      border-radius: 14px;
-      background: rgba(5, 5, 12, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(12px);
-    }
-
-    .line {
-      font-size: 14px;
-      line-height: 1.5;
-      margin: 4px 0;
-      opacity: 0;
-      transform: translateY(4px);
-      transition: opacity 260ms ease-out, transform 260ms ease-out;
-    }
-
-    .line.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .line-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--muted);
-      margin-bottom: 2px;
-    }
-
-    .line-text {
-      color: #f5f5f7;
-    }
-
-    .line--hook .line-text { color: #f5f5ff; }
-    .line--tension .line-text { color: #ffb3b3; }
-    .line--relief .line-text { color: #b8ffc8; }
-    .line--gap .line-text { color: #ffe9b3; }
-    .line--trigger .line-text { color: #c7c7ff; }
-
-    .controls {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 10px;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      border-radius: 999px;
-      border: 1px solid rgba(127, 92, 255, 0.7);
-      background: radial-gradient(circle at top, rgba(127, 92, 255, 0.3), rgba(5, 5, 9, 0.95));
-      color: #f5f5ff;
-      padding: 7px 14px;
-      font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 160ms ease-out, transform 120ms ease-out, box-shadow 160ms ease-out;
-      box-shadow: 0 0 0 0 rgba(127, 92, 255, 0.4);
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 18px rgba(127, 92, 255, 0.5);
-    }
-
-    .btn:active {
-      transform: translateY(0);
-      box-shadow: 0 0 10px rgba(127, 92, 255, 0.4);
-    }
-
-    .btn-secondary {
-      border-color: rgba(255, 255, 255, 0.12);
-      background: rgba(10, 10, 16, 0.9);
-      color: var(--muted);
-      box-shadow: none;
-    }
-
-    .meta {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-
-    .reel-block {
-      margin-top: 14px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px dashed rgba(255, 255, 255, 0.08);
-      background: rgba(5, 5, 12, 0.85);
-    }
-
-    .reel-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    .reel-text {
-      font-size: 12px;
-      line-height: 1.5;
-      white-space: pre-line;
-      color: #e5e5f0;
-    }
-
-    @media (max-width: 600px) {
-      .widget-shell {
-        margin: 16px;
-        padding: 18px 16px 16px;
-      }
-      .lines {
-        padding: 10px 10px 8px;
-      }
-    }
-  </style>
+</style>
 </head>
 <body>
-  <div class="widget-shell">
-    <div class="widget-inner">
-      <div class="widget-header">
-        <div class="widget-title">Content Physics Engine</div>
-        <div class="widget-pill">
-          <span class="dot"></span>
-          <span>Micro‑Ritual v1</span>
-        </div>
-      </div>
 
-      <div class="lines" id="lines">
-        <!-- Lines injected by JS -->
-      </div>
+<div class="fog"></div>
 
-      <div class="controls">
-        <button class="btn" id="regenBtn">
-          <span>Generate Sequence</span>
-        </button>
-        <button class="btn btn-secondary" id="copyReelBtn">
-          <span>Copy Reel Script</span>
-        </button>
-      </div>
+<div class="center">
+  <div id="hook" class="line hook"></div>
+  <div id="tension" class="line tension"></div>
+  <div id="relief" class="line relief"></div>
+  <div id="gap" class="line gap"></div>
+  <div id="trigger" class="line trigger"></div>
+</div>
 
-      <div class="meta">
-        Hook → Tension → Partial Relief → Gap → Trigger.  
-        Use as IG reel text & voiceover script.
-      </div>
+<script>
+const sequences = [
+  {
+    hook: "You’re not failing because your ideas are bad.",
+    tension: "You’re failing because your ideas never survive the scroll.",
+    relief: "Once you see content as physics, everything behaves differently.",
+    gap: "Right now, your content has no gravity.",
+    trigger: "Fix the physics and distribution becomes inevitable."
+  },
+  {
+    hook: "Most creators don’t have a strategy.",
+    tension: "They have a coping mechanism for being ignored.",
+    relief: "That’s why everything feels loud but weightless.",
+    gap: "If your content leaves no residue, it can’t compound.",
+    trigger: "Design for residue and people start orbiting you."
+  },
+  {
+    hook: "You don’t need more reach.",
+    tension: "You need more people who can’t stop thinking about one line you said.",
+    relief: "That comes from engineered emotional residue.",
+    gap: "If your content lets them stay the same, it can’t move money.",
+    trigger: "Write for the version of them that’s already outgrown their life."
+  }
+];
 
-      <div class="reel-block">
-        <div class="reel-label">Reel Script</div>
-        <div class="reel-text" id="reelText"></div>
-      </div>
-    </div>
-  </div>
+const seq = sequences[Math.floor(Math.random() * sequences.length)];
 
-  <script>
-    const sequences = [
-      {
-        hook: "You’re not failing because your ideas are bad.",
-        tension: "You’re failing because your ideas never survive the scroll.",
-        relief: "Once you see content as physics, not posts, everything starts behaving differently.",
-        gap: "Right now, your content has no gravity. It doesn’t bend anyone’s behaviour.",
-        trigger: "Fix the physics and the algorithm stops being a gatekeeper and becomes a conveyor belt."
-      },
-      {
-        hook: "Most creators don’t have a content strategy.",
-        tension: "They have a coping mechanism for their fear of being ignored.",
-        relief: "That’s why everything they post feels loud but weightless.",
-        gap: "If your content doesn’t create tension and then leave a deliberate gap, it can’t print demand.",
-        trigger: "Once you design for unresolved tension, your profile becomes a waiting room, not a gallery."
-      },
-      {
-        hook: "You don’t need more reach.",
-        tension: "You need more people who can’t stop thinking about one thing you said.",
-        relief: "That doesn’t come from value. It comes from engineered emotional residue.",
-        gap: "If your content leaves no residue, it can’t compound. It just evaporates.",
-        trigger: "Design for residue and even your ‘bad’ posts start dragging people into your world."
-      },
-      {
-        hook: "The algorithm isn’t suppressing you.",
-        tension: "It’s just brutally honest about how forgettable your content physics are.",
-        relief: "It rewards anything that creates micro‑tension and promises partial relief.",
-        gap: "If your first 3 seconds don’t disturb their default state, you never existed.",
-        trigger: "Once you architect those 3 seconds, distribution becomes a side effect, not a miracle."
-      },
-      {
-        hook: "You’re trying to explain when you should be destabilising.",
-        tension: "Explanation satisfies the mind. Destabilisation recruits the nervous system.",
-        relief: "People don’t buy because they understand. They buy because they can’t stay the same.",
-        gap: "If your content lets them stay the same, it can’t move money.",
-        trigger: "Write for the version of them that’s already outgrown their current behaviour."
-      }
-    ];
+document.getElementById("hook").textContent = seq.hook;
+document.getElementById("tension").textContent = seq.tension;
+document.getElementById("relief").textContent = seq.relief;
+document.getElementById("gap").textContent = seq.gap;
+document.getElementById("trigger").textContent = seq.trigger;
 
-    const labels = {
-      hook: "Hook",
-      tension: "Tension",
-      relief: "Partial Relief",
-      gap: "Gap",
-      trigger: "Trigger"
-    };
+/* Timed cinematic reveal */
+setTimeout(() => document.getElementById("hook").classList.add("visible"), 200);
+setTimeout(() => document.getElementById("tension").classList.add("visible"), 1800);
+setTimeout(() => document.getElementById("relief").classList.add("visible"), 3400);
+setTimeout(() => document.getElementById("gap").classList.add("visible"), 5000);
+setTimeout(() => document.getElementById("trigger").classList.add("visible"), 6600);
+</script>
 
-    const order = ["hook", "tension", "relief", "gap", "trigger"];
-
-    const linesContainer = document.getElementById("lines");
-    const reelTextEl = document.getElementById("reelText");
-    const regenBtn = document.getElementById("regenBtn");
-    const copyReelBtn = document.getElementById("copyReelBtn");
-
-    function pickRandomSequence() {
-      return sequences[Math.floor(Math.random() * sequences.length)];
-    }
-
-    function renderSequence(seq) {
-      linesContainer.innerHTML = "";
-      reelTextEl.textContent = "";
-
-      const fragment = document.createDocumentFragment();
-      const reelLines = [];
-
-      order.forEach((key, index) => {
-        const wrapper = document.createElement("div");
-        wrapper.className = `line line--${key}`;
-
-        const labelEl = document.createElement("div");
-        labelEl.className = "line-label";
-        labelEl.textContent = labels[key];
-
-        const textEl = document.createElement("div");
-        textEl.className = "line-text";
-        textEl.textContent = seq[key];
-
-        wrapper.appendChild(labelEl);
-        wrapper.appendChild(textEl);
-        fragment.appendChild(wrapper);
-
-        reelLines.push(`${labels[key]}: ${seq[key]}`);
-      });
-
-      linesContainer.appendChild(fragment);
-
-      // Staggered reveal
-      const lineEls = Array.from(linesContainer.querySelectorAll(".line"));
-      lineEls.forEach((el, i) => {
-        setTimeout(() => {
-          el.classList.add("visible");
-        }, 120 * i);
-      });
-
-      // Reel script block
-      reelTextEl.textContent =
-        "0.0–0.3s — " + seq.hook + "\n" +
-        "0.3–1.5s — " + seq.tension + "\n" +
-        "1.5–2.5s — " + seq.relief + "\n" +
-        "2.5–3.5s — " + seq.gap + "\n" +
-        "3.5–5.0s — " + seq.trigger;
-    }
-
-    function generate() {
-      const seq = pickRandomSequence();
-      renderSequence(seq);
-    }
-
-    regenBtn.addEventListener("click", generate);
-
-    copyReelBtn.addEventListener("click", () => {
-      const text = reelTextEl.textContent.trim();
-      if (!text) return;
-      navigator.clipboard.writeText(text).catch(() => {});
-      copyReelBtn.textContent = "Copied";
-      setTimeout(() => (copyReelBtn.textContent = "Copy Reel Script"), 900);
-    });
-
-    // Initial render
-    generate();
-  </script>
 </body>
 </html>
