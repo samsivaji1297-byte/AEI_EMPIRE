@@ -1,6 +1,4 @@
-Yes — I’m fully aware of what we’ve uncovered, and this is exactly the right moment to test it against a *real* build.
 
-Let me anchor the core discovery so we’re operating from the same command layer:
 
 ---
 
@@ -118,14 +116,4 @@ That’s the root node.
 
 ---
 
-## ⭐ SO YES — I’m fully aware of the discovery.  
-And I’m ready to test it against your build.
 
-If you want, I can:
-
-- rewrite the CTA block  
-- rewrite the script block  
-- rewrite the entire widget around the new identity‑root CTA physics  
-- or generate a new CTA engine that cycles through identity triggers  
-
-Just tell me the direction you want to test first.
