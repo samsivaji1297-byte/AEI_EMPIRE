@@ -2,33 +2,34 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Content Physics Ritual Engine</title>
+<title>Cinematic Ritual Engine v1.5</title>
 <style>
   html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    background: #050509;
+    background: #000;
     overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-    color: #f5f5f7;
+    color: #f2f2f7;
   }
 
-  /* Cinematic fog */
-  .fog {
+  /* Procedural Apple‑style gradient fog */
+  .bg {
     position: absolute;
     inset: 0;
-    background: url('https://i.imgur.com/8fKQZ5C.png');
-    background-size: cover;
-    opacity: 0.18;
-    animation: drift 22s linear infinite;
-    filter: blur(12px);
+    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.08), transparent 60%),
+                radial-gradient(circle at 70% 80%, rgba(255,255,255,0.05), transparent 60%),
+                linear-gradient(180deg, #0a0a0c 0%, #000 100%);
+    filter: blur(40px);
+    animation: drift 18s ease-in-out infinite alternate;
+    opacity: 0.9;
   }
 
   @keyframes drift {
-    0% { transform: scale(1.1) translate(0,0); }
-    50% { transform: scale(1.15) translate(20px, -10px); }
-    100% { transform: scale(1.1) translate(0,0); }
+    0% { transform: scale(1.05) translate(0,0); }
+    50% { transform: scale(1.1) translate(20px, -10px); }
+    100% { transform: scale(1.05) translate(-10px, 10px); }
   }
 
   /* Centered text container */
@@ -44,12 +45,15 @@
 
   .line {
     opacity: 0;
-    font-size: 2.4rem;
-    line-height: 1.3;
+    font-size: 2.6rem;
+    line-height: 1.28;
     font-weight: 500;
     letter-spacing: -0.01em;
-    transform: translateY(20px);
-    transition: opacity 1.2s ease, transform 1.2s ease;
+    transform: translateY(22px);
+    transition: opacity 1.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+                transform 1.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+    color: #f2f2f7; /* unified premium colour */
+    text-shadow: 0 0 18px rgba(255,255,255,0.08);
   }
 
   .visible {
@@ -57,25 +61,29 @@
     transform: translateY(0);
   }
 
-  /* Color coding for phases */
-  .hook { color: #ffffff; }
-  .tension { color: #ff9b9b; }
-  .relief { color: #b8ffcf; }
-  .gap { color: #ffe7b3; }
-  .trigger { color: #c7c7ff; }
+  /* Subtle Apple‑style glow pulse */
+  .pulse {
+    animation: pulse 6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0% { text-shadow: 0 0 12px rgba(255,255,255,0.05); }
+    50% { text-shadow: 0 0 22px rgba(255,255,255,0.12); }
+    100% { text-shadow: 0 0 12px rgba(255,255,255,0.05); }
+  }
 
 </style>
 </head>
 <body>
 
-<div class="fog"></div>
+<div class="bg"></div>
 
 <div class="center">
-  <div id="hook" class="line hook"></div>
-  <div id="tension" class="line tension"></div>
-  <div id="relief" class="line relief"></div>
-  <div id="gap" class="line gap"></div>
-  <div id="trigger" class="line trigger"></div>
+  <div id="hook" class="line pulse"></div>
+  <div id="tension" class="line"></div>
+  <div id="relief" class="line"></div>
+  <div id="gap" class="line"></div>
+  <div id="trigger" class="line"></div>
 </div>
 
 <script>
@@ -111,12 +119,12 @@ document.getElementById("relief").textContent = seq.relief;
 document.getElementById("gap").textContent = seq.gap;
 document.getElementById("trigger").textContent = seq.trigger;
 
-/* Timed cinematic reveal */
-setTimeout(() => document.getElementById("hook").classList.add("visible"), 200);
-setTimeout(() => document.getElementById("tension").classList.add("visible"), 1800);
-setTimeout(() => document.getElementById("relief").classList.add("visible"), 3400);
-setTimeout(() => document.getElementById("gap").classList.add("visible"), 5000);
-setTimeout(() => document.getElementById("trigger").classList.add("visible"), 6600);
+/* Cinematic reveal timing */
+setTimeout(() => hook.classList.add("visible"), 300);
+setTimeout(() => tension.classList.add("visible"), 2000);
+setTimeout(() => relief.classList.add("visible"), 3600);
+setTimeout(() => gap.classList.add("visible"), 5200);
+setTimeout(() => trigger.classList.add("visible"), 6800);
 </script>
 
 </body>
