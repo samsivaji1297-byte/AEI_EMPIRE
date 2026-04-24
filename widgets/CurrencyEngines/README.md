@@ -3,7 +3,7 @@ The important CoPilot Chats are:
 - CoPilot: 99ENGINE-CTA Node
 - CoPilot: Negative-Sum Creature Concept
 - CoPilot: Micro-Quits and Integrity Engine
-- 
+- CoPilot: Root node and library development 
 
 ---
 
