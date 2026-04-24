@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Consistency Root Node Engine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <style>
+    :root {
+      /* ===== CORE THEME ===== */
+      --bg: #000000;
+      --text: #ededed;
+      --accent: #f5f5f5;
+      --muted: #777777;
+
+      /* ===== LAYOUT ===== */
+      --frame-padding-v: 6vh;
+      --frame-padding-h: 6vw;
+      --output-max-width: 720px;
+      --output-font-size: 1.1rem;
+      --output-line-height: 1.6;
+      --controls-bg: #050505;
+      --controls-border: #151515;
+
+      /* ===== FOG / PARTICLES ===== */
+      --fog-opacity: 0.16;
+      --particle-color: rgba(237, 237, 237, 0.45);
+      --particle-count: 60;
+      --particle-size-min: 1;
+      --particle-size-max: 3;
+      --particle-speed-min: 0.05;
+      --particle-speed-max: 0.25;
+
+      /* ===== MISC ===== */
+      --radius: 14px;
+      --transition-fast: 0.18s ease-out;
+      --font-stack: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-stack);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow: hidden;
+    }
+
+    body {
+      position: relative;
+    }
+
+    /* ===== BACKGROUND LAYERS ===== */
+
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      background: #000;
+    }
+
+    .fog-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      opacity: var(--fog-opacity);
+      background-image:
+        radial-gradient(circle at 10% 20%, #ffffff11 0, transparent 55%),
+        radial-gradient(circle at 80% 0%, #ffffff0f 0, transparent 55%),
+        radial-gradient(circle at 0% 80%, #ffffff0b 0, transparent 55%),
+        radial-gradient(circle at 80% 80%, #ffffff08 0, transparent 55%);
+      mix-blend-mode: screen;
+      animation: fogMove 40s linear infinite alternate;
+    }
+
+    @keyframes fogMove {
+      0% {
+        transform: translate3d(-10px, 0, 0) scale(1.02);
+      }
+      50% {
+        transform: translate3d(10px, -10px, 0) scale(1.04);
+      }
+      100% {
+        transform: translate3d(-5px, 10px, 0) scale(1.03);
+      }
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+
+    .app-shell {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-zone {
+      flex: 0 0 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--frame-padding-v) var(--frame-padding-h) 2vh var(--frame-padding-h);
+    }
+
+    .output-frame {
+      width: 100%;
+      max-width: var(--output-max-width);
+      margin: 0 auto;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: radial-gradient(circle at top, #111111aa 0, #050505ee 55%, #000000ff 100%);
+      padding: 5vh 5vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .output-inner {
+      max-width: 100%;
+    }
+
+    .output-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.2rem;
+    }
+
+    .output-text {
+      font-size: var(--output-font-size);
+      line-height: var(--output-line-height);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    /* ===== CONTROLS ===== */
+
+    .controls-zone {
+      flex: 1 1 auto;
+      background: linear-gradient(to top, var(--controls-bg), transparent);
+      border-top: 1px solid var(--controls-border);
+      padding: 1.2rem var(--frame-padding-h) env(safe-area-inset-bottom, 1rem);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .controls-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding-bottom: 2rem;
+    }
+
+    .controls-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.8rem;
+    }
+
+    .controls-title {
+      font-size: 0.8rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .controls-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+      opacity: 0.8;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .control-block {
+      background: #050505;
+      border-radius: 10px;
+      border: 1px solid #151515;
+      padding: 0.7rem 0.75rem 0.8rem;
+    }
+
+    .control-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    select, button {
+      font-family: var(--font-stack);
+      font-size: 0.8rem;
+    }
+
+    select {
+      width: 100%;
+      background: #050505;
+      color: var(--text);
+      border-radius: 7px;
+      border: 1px solid #222;
+      padding: 0.35rem 0.5rem;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+        linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+      background-position: calc(100% - 12px) calc(50% - 3px),
+        calc(100% - 7px) calc(50% - 3px);
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      padding: 0.4rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid #333;
+      background: #080808;
+      color: var(--text);
+      cursor: pointer;
+      transition: background var(--transition-fast), border-color var(--transition-fast),
+        transform var(--transition-fast), opacity var(--transition-fast);
+      outline: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn span {
+      font-size: 0.75rem;
+    }
+
+    .btn-primary {
+      border-color: var(--accent);
+      background: linear-gradient(to right, #111111, #181818);
+    }
+
+    .btn:hover {
+      background: #101010;
+      border-color: #444;
+      transform: translateY(-0.5px);
+    }
+
+    .btn:active {
+      transform: translateY(0.5px) scale(0.99);
+      opacity: 0.9;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.4rem;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.8rem;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-note {
+      font-size: 0.7rem;
+      color: var(--muted);
+      opacity: 0.9;
+    }
+
+    .pill {
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid #222;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    @media (max-width: 768px) {
+      .output-frame {
+        padding: 4vh 5vw;
+      }
+      .output-text {
+        font-size: 1rem;
+      }
+      .controls-zone {
+        padding-inline: 4vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- PARTICLES BACKGROUND -->
+  <canvas id="bg-canvas"></canvas>
+  <!-- FOG OVERLAY -->
+  <div class="fog-layer"></div>
+
+  <div class="app-shell">
+    <!-- TOP: RECORDING ZONE -->
+    <section class="top-zone">
+      <div class="output-frame">
+        <div class="output-inner">
+          <div class="output-label">Consistency root node transmission</div>
+          <div id="outputText" class="output-text">
+You can’t stay consistent.
+
+Here’s why your consistency keeps breaking down — and why it’s not a discipline problem, it’s an identity problem.
+
+If you want the reset, it’s in my bio.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOTTOM: OPERATOR CONSOLE (OUT OF RECORDING CROP) -->
+    <section class="controls-zone">
+      <div class="controls-inner">
+        <div class="controls-header">
+          <div>
+            <div class="controls-title">Operator console</div>
+            <div class="controls-sub">Generate reel‑ready transmissions from the “You can’t stay consistent” root node.</div>
+          </div>
+          <div class="pill">Root node: consistency</div>
+        </div>
+
+        <div class="controls-grid">
+          <div class="control-block">
+            <div class="control-label">Engine wrapper</div>
+            <select id="engineSelect"></select>
+          </div>
+
+          <div class="control-block">
+            <div class="control-label">Emotional angle</div>
+            <select id="angleSelect"></select>
+          </div>
+
+          <div class="control-block">
+            <div class="control-label">Identity reframe</div>
+            <select id="reframeSelect"></select>
+          </div>
+
+          <div class="control-block">
+            <div class="control-label">Micro‑solution</div>
+            <select id="microSelect"></select>
+          </div>
+
+          <div class="control-block">
+            <div class="control-label">CTA ending</div>
+            <select id="ctaSelect"></select>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn" id="randomiseBtn">
+            <span>🎲 Randomise selectors</span>
+          </button>
+          <button class="btn btn-primary" id="generateBtn">
+            <span>⚡ Generate transmission</span>
+          </button>
+          <button class="btn" id="copyBtn">
+            <span>📋 Copy output</span>
+          </button>
+        </div>
+
+        <div class="footer-row">
+          <div class="footer-note">
+            Tip: keep the top zone in frame when recording. Crop out the browser chrome — the output frame is already inset for reels.
+          </div>
+          <div class="footer-note">
+            Config is modular — edit arrays & variables at the top of the file to evolve this engine.
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    /* ===========================
+       CONFIG: EDIT THIS BLOCK
+       =========================== */
+
+    const CONFIG = {
+      rootNode: "You can’t stay consistent.",
+      engines: [
+        "5 reasons you can’t stay consistent…",
+        "If you struggle with staying consistent, read this.",
+        "Stop trying to force consistency — that’s why it collapses.",
+        "Here’s why your consistency keeps breaking down.",
+        "Nobody talks about why consistency feels impossible.",
+        "You’re not inconsistent — you’re misaligned.",
+        "Try this 3‑step reset if you can’t stay consistent.",
+        "The Consistency Reset Loop.",
+        "Discipline isn’t your problem — identity is.",
+        "You can’t stay consistent because you’re acting from the wrong identity."
+      ],
+      angles: [
+        "You’re tired of disappointing yourself.",
+        "You’re sick of restarting every Monday.",
+        "You’re closer to consistency than you think.",
+        "It’s not your fault your consistency collapses.",
+        "You’re not built for the habits you’re trying to force.",
+        "You’re juggling too much to stay consistent.",
+        "You don’t trust yourself to follow through anymore.",
+        "You lose momentum faster than you gain it.",
+        "You don’t actually know what consistency means for you.",
+        "You don’t need more discipline — you need a reset."
+      ],
+      reframes: [
+        "You’re not inconsistent — you’re misaligned.",
+        "You’re not lazy — you’re overloaded.",
+        "You’re not unmotivated — you’re disconnected.",
+        "You’re not failing — you’re using the wrong identity.",
+        "You’re not broken — your system is.",
+        "You’re not behind — you’re unanchored.",
+        "You’re not undisciplined — you’re unfocused.",
+        "You’re not stuck — you’re scattered.",
+        "You’re not weak — you’re mis‑structured.",
+        "You’re not inconsistent — you’re in identity limbo."
+      ],
+      microSolutions: [
+        "Do one thing for 5 minutes today to rebuild self‑trust.",
+        "Act as the version of you who’s already consistent — just for the next hour.",
+        "Remove one thing that makes your habit harder than it needs to be.",
+        "Start your day with a 30‑second identity reset instead of a 30‑minute scroll.",
+        "Stack one tiny win before 10am — nothing else, just that.",
+        "Change one thing in your environment that cues the habit you actually want.",
+        "Pick one habit, not five — and let everything else be optional.",
+        "Do the habit even if it’s tiny — never break the chain.",
+        "Ask yourself: “What would consistency look like if it were easy?”",
+        "Write one sentence that defines who you’re becoming — and act from that."
+      ],
+      ctas: [
+        "If you want the reset, it’s in my bio.",
+        "If you want to rebuild consistency, start here.",
+        "If you want the identity shift, I built it for you.",
+        "If you want to stop restarting, the link is waiting.",
+        "If you want the framework, it’s in the bio.",
+        "If you want to fix this, I made something for you.",
+        "If you want to stop collapsing, start with the reset.",
+        "If you want the 3‑step method, it’s in the link.",
+        "If you want to rebuild self‑trust, go to my bio.",
+        "If you want the identity reset, it’s ready."
+      ]
+    };
+
+    /* ===========================
+       UTILS
+       =========================== */
+
+    function $(id) {
+      return document.getElementById(id);
+    }
+
+    function randomFrom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function fillSelect(selectEl, arr) {
+      selectEl.innerHTML = "";
+      arr.forEach((item, idx) => {
+        const opt = document.createElement("option");
+        opt.value = String(idx);
+        opt.textContent = item;
+        selectEl.appendChild(opt);
+      });
+    }
+
+    /* ===========================
+       INIT CONTROLS
+       =========================== */
+
+    const engineSelect = $("engineSelect");
+    const angleSelect = $("angleSelect");
+    const reframeSelect = $("reframeSelect");
+    const microSelect = $("microSelect");
+    const ctaSelect = $("ctaSelect");
+    const outputTextEl = $("outputText");
+
+    fillSelect(engineSelect, CONFIG.engines);
+    fillSelect(angleSelect, CONFIG.angles);
+    fillSelect(reframeSelect, CONFIG.reframes);
+    fillSelect(microSelect, CONFIG.microSolutions);
+    fillSelect(ctaSelect, CONFIG.ctas);
+
+    function randomiseSelectors() {
+      engineSelect.selectedIndex = Math.floor(Math.random() * CONFIG.engines.length);
+      angleSelect.selectedIndex = Math.floor(Math.random() * CONFIG.angles.length);
+      reframeSelect.selectedIndex = Math.floor(Math.random() * CONFIG.reframes.length);
+      microSelect.selectedIndex = Math.floor(Math.random() * CONFIG.microSolutions.length);
+      ctaSelect.selectedIndex = Math.floor(Math.random() * CONFIG.ctas.length);
+    }
+
+    function generateTransmission() {
+      const engine = CONFIG.engines[engineSelect.value];
+      const angle = CONFIG.angles[angleSelect.value];
+      const reframe = CONFIG.reframes[reframeSelect.value];
+      const micro = CONFIG.microSolutions[microSelect.value];
+      const cta = CONFIG.ctas[ctaSelect.value];
+
+      const lines = [
+        CONFIG.rootNode,
+        "",
+        engine,
+        "",
+        angle,
+        reframe,
+        "",
+        micro,
+        "",
+        cta
+      ];
+
+      outputTextEl.textContent = lines.join("\n");
+    }
+
+    function copyOutput() {
+      const text = outputTextEl.textContent || "";
+      if (!navigator.clipboard) {
+        // Fallback
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand("copy");
+        } catch (e) {}
+        document.body.removeChild(textarea);
+        return;
+      }
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+
+    $("randomiseBtn").addEventListener("click", () => {
+      randomiseSelectors();
+    });
+
+    $("generateBtn").addEventListener("click", () => {
+      generateTransmission();
+    });
+
+    $("copyBtn").addEventListener("click", () => {
+      copyOutput();
+    });
+
+    // Initialise with a random combo once
+    randomiseSelectors();
+    generateTransmission();
+
+    /* ===========================
+       PARTICLE BACKGROUND
+       =========================== */
+
+    (function initParticles() {
+      const canvas = $("bg-canvas");
+      const ctx = canvas.getContext("2d");
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      let particles = [];
+
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+      }
+
+      window.addEventListener("resize", resize, { passive: true });
+      resize();
+
+      const count = parseInt(getComputedStyle(document.documentElement)
+        .getPropertyValue("--particle-count")) || 60;
+
+      function createParticle() {
+        const sizeMin = parseFloat(getComputedStyle(document.documentElement)
+          .getPropertyValue("--particle-size-min")) || 1;
+        const sizeMax = parseFloat(getComputedStyle(document.documentElement)
+          .getPropertyValue("--particle-size-max")) || 3;
+        const speedMin = parseFloat(getComputedStyle(document.documentElement)
+          .getPropertyValue("--particle-speed-min")) || 0.05;
+        const speedMax = parseFloat(getComputedStyle(document.documentElement)
+          .getPropertyValue("--particle-speed-max")) || 0.25;
+
+        const size = sizeMin + Math.random() * (sizeMax - sizeMin);
+        const speed = speedMin + Math.random() * (speedMax - speedMin);
+
+        return {
+          x: Math.random() * width,
+          y: Math.random() * height,
+          size,
+          speed,
+          drift: (Math.random() - 0.5) * 0.1
+        };
+      }
+
+      function init() {
+        particles = [];
+        for (let i = 0; i < count; i++) {
+          particles.push(createParticle());
+        }
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "rgba(0,0,0,1)";
+        ctx.fillRect(0, 0, width, height);
+
+        const color = getComputedStyle(document.documentElement)
+          .getPropertyValue("--particle-color") || "rgba(237,237,237,0.45)";
+        ctx.fillStyle = color;
+
+        for (let p of particles) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+
+          p.y -= p.speed;
+          p.x += p.drift;
+
+          if (p.y + p.size < 0) {
+            p.y = height + p.size;
+            p.x = Math.random() * width;
+          }
+          if (p.x < -10) p.x = width + 10;
+          if (p.x > width + 10) p.x = -10;
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      init();
+      draw();
+    })();
+  </script>
+</body>
+</html>
