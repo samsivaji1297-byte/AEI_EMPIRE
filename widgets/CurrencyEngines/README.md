@@ -1,6 +1,8 @@
 The important CoPilot Chats are:
 - CoPilot: FM Engines - Strategic Shift
 - CoPilot: 99ENGINE-CTA Node
+- CoPilot: Negative-Sum Creature Concept
+- 
 
 ---
 
