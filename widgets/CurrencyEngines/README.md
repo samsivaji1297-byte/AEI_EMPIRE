@@ -1,3 +1,7 @@
+The important CoPilot Chats are:
+- CoPilot: FM Engines - Strategic Shift
+- 
+
 ---
 
 ## 📁 Widget Build Reference Table
