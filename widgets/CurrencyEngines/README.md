@@ -5,9 +5,7 @@ The important CoPilot Chats are:
 - CoPilot: Micro-Quits and Integrity Engine
 - CoPilot: Root node and library development 
 
-disciplineconversionengine came from: Root node and library development
-identityconversionengine came from: Root node and library development
-listengine came from: Root node and library development
+**CoPilot: Root node and library development** - this chat, is key....
 
 ---
 
@@ -20,3 +18,6 @@ listengine came from: Root node and library development
 | **CoPilot: 99ENGINE-CTA Node** | https://copilot.microsoft.com/chats/E4aqS7MScKjdu6mA8YQ4x | widgets/CurrencyEngines | `FMCTAEngineoneupgraded.html` | `widgets/CurrencyEngines/FMCTAEngineoneupgraded.html` | https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/CurrencyEngines/FMCTAEngineoneupgraded.html | FM Media Widgets - CTA Engine Focus | Active and Developmental Base version, this is where key iterations occur |
 | **CoPilot: FM Engines - Strategic Shift** | https://copilot.microsoft.com/chats/nmhGcHLNbgMqdpYbD88ft | widgets/CurrencyEngines | `FMCTAEnginetwo.html` | `widgets/CurrencyEngines/FMCTAEnginetwo.html` | https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/CurrencyEngines/FMCTAEnginetwo.html | FM Media Widgets - Output Engine | Active and Developmental Base version, this is where content iterations occur |
 | **CoPilot: Currency-Generating Reel Engines** | https://copilot.microsoft.com/chats/PEsspPLRE3TCSi21SzYdG | widgets/CurrencyEngines | `FMCurrencyReelEngine_One.html` | `widgets/CurrencyEngines/FMCurrencyReelEngine_One.html` | https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/CurrencyEngines/FMCurrencyReelEngine_One.html | FM Media Widgets - Currency and Aesthetic Engine | Semi-Active and Experimental Base version, need to figure out the concept for this |
+| **CoPilot: Root node and library development** | https://copilot.microsoft.com/chats/Kh5kbZMKGwSeVMJ52Rg58 | widgets/CurrencyEngines | `disciplineconversionengine.html` | `widgets/CurrencyEngines/disciplineconversionengine.html` | https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/CurrencyEngines/disciplineconversionengine.html | FM Media Widgets - Important Visual and Inflow Engine | Active and Main Experimental version, this is where cruical evolutions and builds occur from |
+| **CoPilot: Root node and library development** | https://copilot.microsoft.com/chats/Kh5kbZMKGwSeVMJ52Rg58 | widgets/CurrencyEngines | `identityconversionengine.html` | `widgets/CurrencyEngines/identityconversionengine.html` | https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/CurrencyEngines/identityconversionengine.html | FM Media Widgets - Important Visual and Inflow Engine | Active and Main Experimental version, this is where cruical evolutions and builds occur from |
+| **CoPilot: Root node and library development** | https://copilot.microsoft.com/chats/Kh5kbZMKGwSeVMJ52Rg58 | widgets/CurrencyEngines | `listengine.html` | `widgets/CurrencyEngines/listengine.html` | https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/CurrencyEngines/listengine.html | FM Media Widgets - Important Visual and Inflow Engine | Active and Main Experimental version, this is where cruical evolutions and builds occur from |
