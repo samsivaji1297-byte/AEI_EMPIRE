@@ -7,6 +7,9 @@ The important CoPilot Chats are:
 
 **CoPilot: Root node and library development** - this chat, is key....
 
+**CoPilot: Building a Root Node Framework for Viral Content** - THIS IS MAIN KEY / IN USE CHAT
+Link: https://copilot.microsoft.com/chats/T3mFhx8dfy7GGibc7BNfT
+
 ---
 
 ## 📁 Widget Build Reference Table
