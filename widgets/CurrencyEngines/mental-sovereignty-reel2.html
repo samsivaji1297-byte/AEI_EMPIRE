@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Mental Sovereignty Engine V3</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,sans-serif;
+}
+
+body{
+  position:relative;
+}
+
+.bg{
+  position:absolute;
+  inset:-20%;
+  filter:blur(40px);
+  transition:all 1.2s ease;
+  animation:float 14s ease-in-out infinite alternate;
+}
+
+@keyframes float{
+  from{transform:scale(1) translate(0,0);}
+  to{transform:scale(1.15) translate(-20px,-30px);}
+}
+
+.apple{
+  background:
+  radial-gradient(circle at 20% 20%, rgba(255,255,255,.10), transparent 25%),
+  radial-gradient(circle at 70% 30%, rgba(80,140,255,.25), transparent 35%),
+  linear-gradient(180deg,#060606,#000);
+}
+
+.noir{
+  background:
+  radial-gradient(circle at 25% 20%, rgba(255,180,100,.12), transparent 30%),
+  radial-gradient(circle at 80% 40%, rgba(255,255,255,.05), transparent 20%),
+  linear-gradient(180deg,#040404,#000);
+}
+
+.cyber{
+  background:
+  radial-gradient(circle at 20% 20%, rgba(0,255,255,.18), transparent 25%),
+  radial-gradient(circle at 80% 40%, rgba(120,80,255,.22), transparent 30%),
+  linear-gradient(180deg,#020202,#000);
+}
+
+.overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom,rgba(255,255,255,.04),transparent);
+  backdrop-filter:blur(16px);
+}
+
+.noise{
+  position:absolute;
+  inset:0;
+  opacity:.04;
+  background-image:radial-gradient(circle, white 1px, transparent 1px);
+  background-size:4px 4px;
+}
+
+.top{
+  position:absolute;
+  top:5vh;
+  left:6vw;
+  right:6vw;
+  z-index:5;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.brand{
+  font-size:12px;
+  letter-spacing:2px;
+  opacity:.6;
+}
+
+button,select{
+  appearance:none;
+  border:none;
+  color:white;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(20px);
+  padding:10px 14px;
+  border-radius:999px;
+  font-size:12px;
+}
+
+.controls{
+  position:absolute;
+  left:6vw;
+  right:6vw;
+  bottom:4vh;
+  z-index:6;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.center{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  padding:0 8vw;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.kicker{
+  font-size:13px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  opacity:.5;
+  margin-bottom:22px;
+}
+
+.main{
+  font-size:clamp(36px,8vw,84px);
+  line-height:1.02;
+  font-weight:680;
+  letter-spacing:-2px;
+  max-width:92%;
+  text-wrap:balance;
+  opacity:0;
+  transform:translateY(30px);
+  animation:in .8s forwards;
+}
+
+.sub{
+  margin-top:22px;
+  font-size:clamp(20px,4.4vw,34px);
+  line-height:1.32;
+  color:rgba(255,255,255,.72);
+  max-width:90%;
+  text-wrap:balance;
+  opacity:0;
+  transform:translateY(20px);
+  animation:in .8s .15s forwards;
+}
+
+.reveal{
+  margin-top:28px;
+  font-size:clamp(18px,4vw,28px);
+  line-height:1.35;
+  opacity:.92;
+  max-width:88%;
+  text-wrap:balance;
+  opacity:0;
+  transform:translateY(20px);
+  animation:in .8s .3s forwards;
+}
+
+.cta{
+  position:absolute;
+  bottom:15vh;
+  left:8vw;
+  right:8vw;
+  z-index:5;
+  font-size:14px;
+  opacity:.45;
+}
+
+@keyframes in{
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="bg" class="bg apple"></div>
+<div class="overlay"></div>
+<div class="noise"></div>
+
+<div class="top">
+  <div class="brand">MENTAL SOVEREIGNTY</div>
+  <button id="modeBtn">Simple</button>
+</div>
+
+<div class="center">
+  <div class="kicker" id="kicker">Recognition</div>
+  <div class="main" id="main"></div>
+  <div class="sub" id="sub"></div>
+  <div class="reveal" id="reveal"></div>
+</div>
+
+<div class="cta">Return to yourself → link in bio</div>
+
+<div class="controls" id="controls" style="display:none;">
+  <select id="cluster"></select>
+  <select id="overlay"></select>
+  <select id="wrapper"></select>
+  <button id="generate">Generate</button>
+</div>
+
+<script>
+const DB = {
+  Discipline:{
+    cluster:["Pattern Fatigue","Shame","Identity Shift","Confusion"],
+    wrappers:[
+      "3 reasons you can't stay disciplined",
+      "Here's why consistency feels impossible",
+      "If discipline keeps slipping...",
+      "Stop doing this if you want consistency"
+    ],
+    payloads:[
+      "You keep restarting from zero.",
+      "Your habits collapse under pressure.",
+      "You rely on bursts of motivation.",
+      "You don't trust yourself to follow through."
+    ],
+    reveals:[
+      "This isn't laziness. It's fractured self-trust.",
+      "Misalignment feels like procrastination.",
+      "You're forcing a life your nervous system rejects."
+    ]
+  },
+
+  Productivity:{
+    cluster:["Emotional Exhaustion","Confusion","Pattern Fatigue"],
+    wrappers:[
+      "Why you're productive but still feel behind",
+      "3 hidden reasons you're burnt out",
+      "Nobody talks about this productivity trap"
+    ],
+    payloads:[
+      "You're always doing, never arriving.",
+      "Rest feels guilty.",
+      "You confuse output with meaning."
+    ],
+    reveals:[
+      "You're optimising a life that may not be yours.",
+      "Exhaustion often comes from inner contradiction."
+    ]
+  },
+
+  Confidence:{
+    cluster:["Shame","Identity Shift","Confusion"],
+    wrappers:[
+      "Why confidence feels fake",
+      "3 reasons self-belief keeps disappearing",
+      "If you struggle with confidence..."
+    ],
+    payloads:[
+      "You perform certainty but feel hollow.",
+      "Comparison keeps rewriting your self-image.",
+      "You seek proof before permission."
+    ],
+    reveals:[
+      "Confidence grows when identity becomes authentic.",
+      "The strongest self-belief is self-recognition."
+    ]
+  },
+
+  Purpose:{
+    cluster:["Confusion","Identity Shift","Quiet Ambition"],
+    wrappers:[
+      "Why nothing feels meaningful lately",
+      "3 signs you've drifted from yourself",
+      "The real reason you feel lost"
+    ],
+    payloads:[
+      "Everything feels flat.",
+      "Achievement no longer satisfies.",
+      "You keep asking what's missing."
+    ],
+    reveals:[
+      "Your inner compass has been buried beneath noise.",
+      "Meaning returns when alignment returns."
+    ]
+  }
+};
+
+const styles=["apple","noir","cyber"];
+const overlays=Object.keys(DB);
+
+const clusterSel=document.getElementById("cluster");
+const overlaySel=document.getElementById("overlay");
+const wrapperSel=document.getElementById("wrapper");
+
+const main=document.getElementById("main");
+const sub=document.getElementById("sub");
+const reveal=document.getElementById("reveal");
+const kicker=document.getElementById("kicker");
+const bg=document.getElementById("bg");
+const controls=document.getElementById("controls");
+
+let advanced=false;
+
+function rand(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+function populate(){
+  overlaySel.innerHTML=overlays.map(o=>`<option>${o}</option>`).join("");
+  refreshOverlay();
+}
+
+function refreshOverlay(){
+  const data=DB[overlaySel.value];
+  clusterSel.innerHTML=data.cluster.map(v=>`<option>${v}</option>`).join("");
+  wrapperSel.innerHTML=data.wrappers.map(v=>`<option>${v}</option>`).join("");
+}
+
+overlaySel.onchange=refreshOverlay;
+
+function generate(simple=true){
+  const overlay = simple ? rand(overlays) : overlaySel.value;
+  const data = DB[overlay];
+
+  const cluster = simple ? rand(data.cluster) : clusterSel.value;
+  const wrapper = simple ? rand(data.wrappers) : wrapperSel.value;
+  const payload = rand(data.payloads);
+  const deep = rand(data.reveals);
+
+  kicker.textContent = cluster;
+  main.textContent = wrapper;
+  sub.textContent = payload;
+  reveal.textContent = deep;
+
+  main.className="main";
+  sub.className="sub";
+  reveal.className="reveal";
+
+  bg.className="bg "+rand(styles);
+}
+
+document.getElementById("modeBtn").onclick=()=>{
+  advanced=!advanced;
+  controls.style.display=advanced?"flex":"none";
+  document.getElementById("modeBtn").textContent=advanced?"Advanced":"Simple";
+};
+
+document.getElementById("generate").onclick=()=>generate(false);
+
+document.body.addEventListener("click",(e)=>{
+  if(e.target.tagName==="BUTTON" || e.target.tagName==="SELECT") return;
+  generate(!advanced);
+});
+
+populate();
+generate(true);
+</script>
+
+</body>
+</html>
