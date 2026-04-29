@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Mental Sovereignty Reel Engine</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",sans-serif;
+    color:white;
+}
+
+body{
+    position:relative;
+}
+
+/* animated background */
+.bg{
+    position:absolute;
+    inset:-20%;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(80,80,255,.22), transparent 40%),
+        radial-gradient(circle at 80% 30%, rgba(255,255,255,.08), transparent 30%),
+        radial-gradient(circle at 50% 80%, rgba(100,200,255,.16), transparent 40%),
+        linear-gradient(180deg,#050505,#000);
+    filter:blur(30px);
+    animation:floatBG 12s ease-in-out infinite alternate;
+}
+
+@keyframes floatBG{
+    from{
+        transform:scale(1) translateY(0px);
+    }
+    to{
+        transform:scale(1.15) translateY(-40px);
+    }
+}
+
+.overlay{
+    position:absolute;
+    inset:0;
+    background:
+        linear-gradient(to bottom, rgba(255,255,255,.04), transparent),
+        rgba(0,0,0,.32);
+    backdrop-filter:blur(12px);
+}
+
+.container{
+    position:relative;
+    z-index:2;
+    width:100%;
+    height:100%;
+    padding:11vh 8vw;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.label{
+    font-size:13px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    opacity:.55;
+    margin-bottom:28px;
+}
+
+.main{
+    font-size: clamp(34px,7vw,72px);
+    line-height:1.05;
+    font-weight:650;
+    letter-spacing:-1.8px;
+    opacity:0;
+    transform:translateY(35px);
+    animation:enter .9s cubic-bezier(.2,.8,.2,1) forwards;
+    text-wrap:balance;
+}
+
+.sub{
+    margin-top:26px;
+    font-size: clamp(19px,4vw,30px);
+    line-height:1.35;
+    font-weight:400;
+    opacity:0;
+    color:rgba(255,255,255,.72);
+    transform:translateY(30px);
+    animation:enter .9s .25s cubic-bezier(.2,.8,.2,1) forwards;
+    text-wrap:balance;
+}
+
+.cta{
+    position:absolute;
+    bottom:7vh;
+    left:8vw;
+    right:8vw;
+    font-size:15px;
+    letter-spacing:1px;
+    opacity:.45;
+}
+
+.brand{
+    position:absolute;
+    top:6vh;
+    left:8vw;
+    font-size:14px;
+    letter-spacing:2px;
+    opacity:.38;
+}
+
+.tap{
+    position:absolute;
+    right:8vw;
+    bottom:7vh;
+    font-size:14px;
+    opacity:.25;
+}
+
+@keyframes enter{
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.fadeOut{
+    animation:fadeOut .45s forwards;
+}
+
+@keyframes fadeOut{
+    to{
+        opacity:0;
+        transform:translateY(-15px);
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="overlay"></div>
+
+<div class="brand">MENTAL SOVEREIGNTY</div>
+
+<div class="container">
+    <div class="label">Recognition</div>
+    <div class="main" id="main"></div>
+    <div class="sub" id="sub"></div>
+</div>
+
+<div class="cta">Return to yourself → link in bio</div>
+<div class="tap">tap</div>
+
+<script>
+const content = [
+{
+main:"3 signs you're living someone else's life",
+sub:"You feel exhausted. You overthink everything. Nothing feels truly yours."
+},
+{
+main:"You're not lazy.",
+sub:"You're disconnected from who you actually are."
+},
+{
+main:"Most anxiety is misalignment.",
+sub:"Your mind knows when your life isn't yours."
+},
+{
+main:"You were taught what to chase.",
+sub:"Not what genuinely matters to you."
+},
+{
+main:"Burnout isn't always overwork.",
+sub:"Sometimes it's years of pretending."
+},
+{
+main:"Read this slowly.",
+sub:"The version of you beneath conditioning is still there."
+},
+{
+main:"You already know.",
+sub:"Deep down, you know what aligns—and what doesn't."
+},
+{
+main:"Your authentic self isn't missing.",
+sub:"It's buried under noise."
+},
+{
+main:"Stop performing.",
+sub:"Start recognising who you are underneath."
+},
+{
+main:"Mental sovereignty changes everything.",
+sub:"When you become yourself, life becomes clear."
+}
+];
+
+const main = document.getElementById("main");
+const sub = document.getElementById("sub");
+
+function render(){
+    const item = content[Math.floor(Math.random()*content.length)];
+
+    main.classList.add("fadeOut");
+    sub.classList.add("fadeOut");
+
+    setTimeout(()=>{
+        main.className="main";
+        sub.className="sub";
+
+        main.textContent=item.main;
+        sub.textContent=item.sub;
+    },400);
+}
+
+render();
+document.body.addEventListener("click", render);
+</script>
+
+</body>
+</html>
