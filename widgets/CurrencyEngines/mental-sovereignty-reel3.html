@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Mental Sovereignty Engine V4</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,sans-serif;
+}
+
+body{
+  position:relative;
+}
+
+/* Cinematic drifting background */
+.bg{
+  position:absolute;
+  inset:-20%;
+  filter:blur(50px);
+  opacity:0.9;
+  animation:drift 18s ease-in-out infinite alternate;
+}
+
+@keyframes drift{
+  from{transform:scale(1) translate(0,0);}
+  to{transform:scale(1.18) translate(-30px,-40px);}
+}
+
+/* Three sovereign-grade styles */
+.apple{
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,.10), transparent 25%),
+    radial-gradient(circle at 70% 30%, rgba(80,140,255,.25), transparent 35%),
+    linear-gradient(180deg,#060606,#000);
+}
+
+.noir{
+  background:
+    radial-gradient(circle at 25% 20%, rgba(255,180,100,.12), transparent 30%),
+    radial-gradient(circle at 80% 40%, rgba(255,255,255,.05), transparent 20%),
+    linear-gradient(180deg,#040404,#000);
+}
+
+.cyber{
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0,255,255,.18), transparent 25%),
+    radial-gradient(circle at 80% 40%, rgba(120,80,255,.22), transparent 30%),
+    linear-gradient(180deg,#020202,#000);
+}
+
+/* Subtle glass + noise */
+.overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom,rgba(255,255,255,.04),transparent);
+  backdrop-filter:blur(18px);
+}
+
+.noise{
+  position:absolute;
+  inset:0;
+  opacity:.04;
+  background-image:radial-gradient(circle, white 1px, transparent 1px);
+  background-size:4px 4px;
+}
+
+/* Top branding */
+.top{
+  position:absolute;
+  top:5vh;
+  left:6vw;
+  right:6vw;
+  z-index:5;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.brand{
+  font-size:12px;
+  letter-spacing:3px;
+  opacity:.55;
+}
+
+/* Center transmission block */
+.center{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  padding:0 8vw;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.kicker{
+  font-size:13px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  opacity:.45;
+  margin-bottom:22px;
+}
+
+.main{
+  font-size:clamp(38px,8vw,86px);
+  line-height:1.02;
+  font-weight:680;
+  letter-spacing:-2px;
+  max-width:92%;
+  text-wrap:balance;
+  opacity:0;
+  transform:translateY(30px);
+  animation:fadeIn .9s forwards;
+}
+
+.sub{
+  margin-top:26px;
+  font-size:clamp(20px,4.4vw,34px);
+  line-height:1.32;
+  color:rgba(255,255,255,.75);
+  max-width:90%;
+  text-wrap:balance;
+  opacity:0;
+  transform:translateY(20px);
+  animation:fadeIn .9s .15s forwards;
+}
+
+.reveal{
+  margin-top:28px;
+  font-size:clamp(18px,4vw,28px);
+  line-height:1.35;
+  opacity:.92;
+  max-width:88%;
+  text-wrap:balance;
+  opacity:0;
+  transform:translateY(20px);
+  animation:fadeIn .9s .3s forwards;
+}
+
+.activation{
+  margin-top:32px;
+  font-size:clamp(18px,4vw,28px);
+  line-height:1.35;
+  color:rgba(255,255,255,.85);
+  font-weight:500;
+  opacity:0;
+  transform:translateY(20px);
+  animation:fadeIn .9s .45s forwards;
+}
+
+@keyframes fadeIn{
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+/* CTA */
+.cta{
+  position:absolute;
+  bottom:14vh;
+  left:8vw;
+  right:8vw;
+  z-index:5;
+  font-size:14px;
+  opacity:.45;
+  text-align:left;
+}
+
+/* Hidden advanced controls */
+.controls{
+  position:absolute;
+  left:6vw;
+  right:6vw;
+  bottom:4vh;
+  z-index:6;
+  display:none;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+button,select{
+  appearance:none;
+  border:none;
+  color:white;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(20px);
+  padding:10px 14px;
+  border-radius:999px;
+  font-size:12px;
+}
+</style>
+</head>
+<body>
+
+<div id="bg" class="bg noir"></div>
+<div class="overlay"></div>
+<div class="noise"></div>
+
+<div class="top">
+  <div class="brand">MENTAL SOVEREIGNTY</div>
+  <button id="modeBtn">Simple</button>
+</div>
+
+<div class="center">
+  <div class="kicker" id="kicker"></div>
+  <div class="main" id="main"></div>
+  <div class="sub" id="sub"></div>
+  <div class="reveal" id="reveal"></div>
+  <div class="activation" id="activation"></div>
+</div>
+
+<div class="cta">Return to yourself →</div>
+
+<div class="controls" id="controls">
+  <select id="identity"></select>
+  <select id="cluster"></select>
+  <select id="wrapper"></select>
+  <button id="generate">Generate</button>
+</div>
+
+<script>
+/* V4 DATABASE — identity overlays included */
+const DB = {
+  "The One Who No Longer Breaks Self‑Trust":{
+    cluster:["Identity Shift","Pattern Fatigue","Shame"],
+    wrappers:[
+      "Here’s the real reason you keep slipping.",
+      "If discipline keeps collapsing…",
+      "Nobody talks about this part of growth."
+    ],
+    payloads:[
+      "You’re not inconsistent. You’re misaligned.",
+      "You keep trying to build a life your nervous system doesn’t believe belongs to you.",
+      "Every time you push forward, your identity pulls you back."
+    ],
+    reveals:[
+      "Your problem was never discipline. It was identity lag.",
+      "You’re still running the system with an outdated self‑concept.",
+      "Misalignment feels like procrastination."
+    ],
+    activations:[
+      "Become the one who no longer negotiates with their own potential.",
+      "Move like the version of you who already trusts themselves.",
+      "Shift the identity and the behaviour follows."
+    ]
+  },
+
+  "The One Who’s Finally Becoming Real":{
+    cluster:["Shame","Identity Shift","Quiet Ambition"],
+    wrappers:[
+      "Nobody talks about this part of growth.",
+      "If everything feels flat lately…",
+      "Here’s why you feel lost."
+    ],
+    payloads:[
+      "You’re not behind. You’re shedding versions of yourself that were never yours.",
+      "You feel lost because you’re no longer performing the identity that kept you safe.",
+      "Your system is rewriting itself."
+    ],
+    reveals:[
+      "The emptiness isn’t failure — it’s space for the real you.",
+      "You’re not collapsing. You’re recalibrating.",
+      "Identity death always feels like confusion."
+    ],
+    activations:[
+      "Become the one who’s finally becoming real.",
+      "Step into the identity that fits.",
+      "Let the old version fall away."
+    ]
+  },
+
+  "The One Who Moves With Inevitability":{
+    cluster:["Pattern Fatigue","Confusion","Identity Shift"],
+    wrappers:[
+      "If money still feels hard…",
+      "Here’s the real reason you feel stuck.",
+      "Nobody explains this part of success."
+    ],
+    payloads:[
+      "You’re not struggling with money. You’re struggling with identity.",
+      "You keep trying to earn like the version of you who doubts themselves.",
+      "Survival identity can’t hold expansion."
+    ],
+    reveals:[
+      "Your income ceiling is just your self‑concept in numeric form.",
+      "Money expands when identity expands.",
+      "Your system is built for safety, not growth."
+    ],
+    activations:[
+      "Move like the one who is inevitable.",
+      "Operate from the identity that can hold abundance.",
+      "Shift the identity and the numbers follow."
+    ]
+  }
+};
+
+const styles=["apple","noir","cyber"];
+const identities=Object.keys(DB);
+
+const identitySel=document.getElementById("identity");
+const clusterSel=document.getElementById("cluster");
+const wrapperSel=document.getElementById("wrapper");
+
+const kicker=document.getElementById("kicker");
+const main=document.getElementById("main");
+const sub=document.getElementById("sub");
+const reveal=document.getElementById("reveal");
+const activation=document.getElementById("activation");
+const bg=document.getElementById("bg");
+const controls=document.getElementById("controls");
+
+let advanced=false;
+
+function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function populate(){
+  identitySel.innerHTML=identities.map(i=>`<option>${i}</option>`).join("");
+  refreshIdentity();
+}
+
+function refreshIdentity(){
+  const data=DB[identitySel.value];
+  clusterSel.innerHTML=data.cluster.map(v=>`<option>${v}</option>`).join("");
+  wrapperSel.innerHTML=data.wrappers.map(v=>`<option>${v}</option>`).join("");
+}
+
+identitySel.onchange=refreshIdentity;
+
+function generate(simple=true){
+  const identity = simple ? rand(identities) : identitySel.value;
+  const data = DB[identity];
+
+  const cluster = simple ? rand(data.cluster) : clusterSel.value;
+  const wrapper = simple ? rand(data.wrappers) : wrapperSel.value;
+  const payload = rand(data.payloads);
+  const deep = rand(data.reveals);
+  const act = rand(data.activations);
+
+  kicker.textContent = cluster;
+  main.textContent = wrapper;
+  sub.textContent = payload;
+  reveal.textContent = deep;
+  activation.textContent = act;
+
+  main.className="main";
+  sub.className="sub";
+  reveal.className="reveal";
+  activation.className="activation";
+
+  bg.className="bg "+rand(styles);
+}
+
+document.getElementById("modeBtn").onclick=()=>{
+  advanced=!advanced;
+  controls.style.display=advanced?"flex":"none";
+  document.getElementById("modeBtn").textContent=advanced?"Advanced":"Simple";
+};
+
+document.getElementById("generate").onclick=()=>generate(false);
+
+document.body.addEventListener("click",(e)=>{
+  if(e.target.tagName==="BUTTON" || e.target.tagName==="SELECT") return;
+  generate(!advanced);
+});
+
+populate();
+generate(true);
+</script>
+
+</body>
+</html>
