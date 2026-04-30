@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Mental Sovereignty Studio v2</title>
+<style>
+:root{
+  --bg:#040404;
+  --fg:#f5f5f7;
+  --muted:rgba(255,255,255,.62);
+  --glass:rgba(255,255,255,.06);
+  --line:rgba(255,255,255,.12);
+  --accent:#9fd8ff;
+  --accent2:#9effd4;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;
+}
+body{touch-action:manipulation;}
+#app{
+  position:fixed; inset:0;
+  width:100%;
+  height:100dvh;
+  overflow:hidden;
+}
+.bg,.grain,.particles{
+  position:absolute; inset:0; pointer-events:none;
+}
+.bg{
+  background:
+    radial-gradient(circle at 15% 20%, rgba(110,140,255,.22), transparent 35%),
+    radial-gradient(circle at 85% 25%, rgba(70,255,220,.14), transparent 35%),
+    radial-gradient(circle at 50% 85%, rgba(255,255,255,.06), transparent 35%),
+    linear-gradient(180deg,#020202,#0b0b0d 60%,#030303);
+  animation:floatbg 12s ease-in-out infinite alternate;
+  transform-origin:center;
+}
+@keyframes floatbg{
+  from{transform:scale(1) translateY(0)}
+  to{transform:scale(1.08) translateY(-16px)}
+}
+.grain{
+  opacity:.07;
+  background-image:
+    radial-gradient(circle at 20% 20%, #fff 0 1px, transparent 1px),
+    radial-gradient(circle at 80% 40%, #fff 0 1px, transparent 1px),
+    radial-gradient(circle at 60% 70%, #fff 0 1px, transparent 1px);
+  background-size: 7px 7px, 9px 9px, 11px 11px;
+  animation:grain 0.25s steps(2) infinite;
+}
+@keyframes grain{
+  from{transform:translate(0,0)}
+  to{transform:translate(-2px,2px)}
+}
+.particle{
+  position:absolute; width:3px; height:3px; border-radius:50%;
+  background:rgba(255,255,255,.18);
+  filter:blur(.5px);
+  animation:rise linear infinite;
+}
+@keyframes rise{
+  from{transform:translateY(20px);opacity:0}
+  15%{opacity:1}
+  85%{opacity:1}
+  to{transform:translateY(-110vh);opacity:0}
+}
+.screen{
+  position:absolute; inset:0;
+  padding:
+    calc(28px + var(--safe-top))
+    22px
+    calc(30px + var(--safe-bottom))
+    22px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  opacity:0;
+  transform:scale(1.02);
+  transition:.55s cubic-bezier(.22,1,.36,1);
+  pointer-events:none;
+}
+.screen.active{
+  opacity:1;
+  transform:scale(1);
+  pointer-events:auto;
+}
+.panel{
+  width:min(100%,430px);
+  max-width:430px;
+  margin:0 auto;
+  border-radius:34px;
+  background:var(--glass);
+  border:1px solid var(--line);
+  backdrop-filter:blur(40px);
+  -webkit-backdrop-filter:blur(40px);
+  box-shadow:0 30px 80px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08);
+  padding:24px;
+}
+.kicker{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  color:var(--muted);
+  margin-bottom:18px;
+}
+h1{
+  margin:0;
+  font-size:42px;
+  line-height:.95;
+  letter-spacing:-.05em;
+}
+.sub{
+  margin-top:14px;
+  color:var(--muted);
+  line-height:1.45;
+  font-size:15px;
+}
+.grid{
+  margin-top:26px;
+  display:grid;
+  gap:14px;
+}
+.btn{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.05);
+  color:#fff;
+  border-radius:22px;
+  padding:18px;
+  cursor:pointer;
+  transition:.25s ease;
+}
+.btn:active{transform:scale(.98)}
+.btn strong{display:block;font-size:19px;margin-bottom:5px}
+.btn span{font-size:13px;color:var(--muted)}
+.topbar{
+  position:absolute; top:calc(10px + var(--safe-top)); left:16px; right:16px;
+  height:3px; border-radius:999px; overflow:hidden;
+  background:rgba(255,255,255,.08);
+  opacity:0;
+  transition:.3s;
+}
+.topbar.show{opacity:1}
+#progress{
+  height:100%; width:0%;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  box-shadow:0 0 20px rgba(159,216,255,.55);
+}
+.center{
+  width:min(100%,560px);
+  margin:0 auto;
+  text-align:center;
+}
+.big{
+  font-size:clamp(34px,8vw,72px);
+  line-height:.92;
+  letter-spacing:-.06em;
+  font-weight:700;
+  opacity:0;
+  filter:blur(14px);
+  transform:translateY(24px) scale(.98);
+  transition:.8s cubic-bezier(.22,1,.36,1);
+}
+.big.show{
+  opacity:1; filter:blur(0);
+  transform:translateY(0) scale(1);
+}
+.small{
+  margin-top:18px;
+  font-size:18px;
+  line-height:1.5;
+  color:var(--muted);
+  opacity:0;
+  transition:.8s ease .15s;
+}
+.small.show{opacity:1}
+.cards{
+  margin-top:28px;
+  display:grid;
+  gap:14px;
+}
+.card{
+  padding:18px;
+  border-radius:24px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.05);
+  text-align:left;
+  opacity:0;
+  filter:blur(10px);
+  transform:translateY(16px);
+  transition:.7s cubic-bezier(.22,1,.36,1);
+}
+.card.show{
+  opacity:1; filter:blur(0); transform:translateY(0);
+}
+.card b{
+  display:block;
+  margin-bottom:8px;
+  font-size:11px;
+  letter-spacing:.16em;
+  color:var(--accent2);
+}
+.card p{
+  margin:0;
+  font-size:17px;
+  line-height:1.35;
+}
+.footerHold{
+  margin-top:26px;
+  padding:20px;
+  border-radius:26px;
+  background:#fff;
+  color:#000;
+  opacity:0;
+  transform:translateY(16px);
+  transition:.7s cubic-bezier(.22,1,.36,1);
+}
+.footerHold.show{opacity:1;transform:translateY(0)}
+.footerHold small{
+  display:block;
+  text-transform:uppercase;
+  font-size:11px;
+  letter-spacing:.16em;
+  opacity:.55;
+  margin-bottom:6px;
+}
+.footerHold strong{
+  display:block;
+  font-size:22px;
+  line-height:1.1;
+}
+.price{
+  margin-top:8px;
+  font-size:34px;
+  font-weight:800;
+  letter-spacing:-.05em;
+}
+.back{
+  position:absolute;
+  left:16px;
+  bottom:calc(12px + var(--safe-bottom));
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.38);
+  cursor:pointer;
+  user-select:none;
+}
+.hint{
+  position:absolute;
+  right:16px;
+  bottom:calc(12px + var(--safe-bottom));
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.28);
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="bg"></div>
+  <div class="grain"></div>
+  <div class="particles" id="particles"></div>
+  <div class="topbar" id="topbar"><div id="progress"></div></div>
+
+  <!-- Launcher -->
+  <section class="screen active" id="launcher">
+    <div class="panel">
+      <div class="kicker">Mental Sovereignty Framework</div>
+      <h1>Psychological Architecture for Authentic Self-Recognition</h1>
+      <div class="sub">A pocket-sized cinematic content engine for screen recording, posting, and iterating — directly from iPhone Safari.</div>
+      <div class="grid">
+        <div class="btn" data-mode="hero"><strong>Hero Reel</strong><span>Contained 25–30s cinematic reel</span></div>
+        <div class="btn" data-mode="factory"><strong>Infinite Factory</strong><span>Endless generated variations</span></div>
+        <div class="btn" data-mode="quote"><strong>Quote Loop</strong><span>Short luxury looping clip</span></div>
+        <div class="btn" data-mode="swipe"><strong>Swipe Deck</strong><span>Manual browse / ideation</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Player -->
+  <section class="screen" id="player">
+    <div class="center">
+      <div class="kicker" id="modeLabel">Hero Reel</div>
+      <div class="big" id="big"></div>
+      <div class="small" id="small"></div>
+      <div class="cards" id="cards"></div>
+      <div class="footerHold" id="footer">
+        <small id="footerSmall">reclaim yourself</small>
+        <strong>Mental Sovereignty Framework</strong>
+        <div class="price">$19</div>
+      </div>
+    </div>
+    <div class="back" id="back">Back</div>
+    <div class="hint" id="hint"></div>
+  </section>
+</div>
+
+<script>
+const hooks = [
+  "YOU ARE NOT LOST",
+  "YOU BECAME WHAT GOT REWARDED",
+  "YOU ARE CONDITIONED",
+  "HAVE YOU EVER MET YOUR AUTHENTIC SELF?",
+  "BENEATH THE NOISE IS WHO YOU ARE"
+];
+const subtitles = [
+  "Most people inherit an identity before they choose one.",
+  "Performance can become a prison you decorate.",
+  "Approval is a subtle addiction.",
+  "Your authentic self is uncovered, not invented.",
+  "Silence is where your real voice returns."
+];
+const triplets = [
+  [
+    "You feel exhausted trying to be what others expect.",
+    "You shift personalities depending on who you're around.",
+    "Quiet moments make uncomfortable truths surface."
+  ],
+  [
+    "Family expectations became identity.",
+    "Culture became your inner voice.",
+    "Approval became your compass."
+  ],
+  [
+    "You neglect sleep and clarity disappears.",
+    "You ignore yourself and numbness grows.",
+    "You keep performing and forget who performs."
+  ]
+];
+const quotes = [
+  "Reclaim authorship over your life.",
+  "Become who you are.",
+  "Stop living borrowed beliefs.",
+  "Recognition is where sovereignty begins."
+];
+const ctas = [
+  "reclaim yourself",
+  "become who you are",
+  "install sovereignty",
+  "return home to yourself"
+];
+
+const launcher = document.getElementById('launcher');
+const player = document.getElementById('player');
+const topbar = document.getElementById('topbar');
+const progress = document.getElementById('progress');
+const big = document.getElementById('big');
+const small = document.getElementById('small');
+const cards = document.getElementById('cards');
+const footer = document.getElementById('footer');
+const footerSmall = document.getElementById('footerSmall');
+const modeLabel = document.getElementById('modeLabel');
+const hint = document.getElementById('hint');
+
+let timers = [];
+let autoplay = true;
+let swipeIndex = 0;
+
+function rand(arr){ return arr[Math.floor(Math.random()*arr.length)] }
+function clearTimers(){ timers.forEach(clearTimeout); timers=[]; }
+function resetScene(){
+  big.className='big';
+  small.className='small';
+  cards.innerHTML='';
+  footer.className='footerHold';
+  progress.style.transition='none';
+  progress.style.width='0%';
+  void progress.offsetWidth;
+}
+function setProgress(ms){
+  progress.style.transition=`width ${ms}ms linear`;
+  progress.style.width='100%';
+}
+function showPlayer(label){
+  launcher.classList.remove('active');
+  player.classList.add('active');
+  topbar.classList.add('show');
+  modeLabel.textContent = label;
+}
+function backHome(){
+  clearTimers();
+  topbar.classList.remove('show');
+  player.classList.remove('active');
+  launcher.classList.add('active');
+}
+document.getElementById('back').onclick = backHome;
+
+function renderTriplet(arr){
+  cards.innerHTML='';
+  arr.forEach((txt,i)=>{
+    const el = document.createElement('div');
+    el.className='card';
+    el.innerHTML=`<b>0${i+1}</b><p>${txt}</p>`;
+    cards.appendChild(el);
+    timers.push(setTimeout(()=>el.classList.add('show'), i*220));
+  });
+}
+
+function hero(){
+  autoplay = true;
+  hint.textContent = "tap to restart";
+  showPlayer("Hero Reel");
+  playHero();
+}
+function playHero(){
+  clearTimers(); resetScene();
+  const trip = rand(triplets);
+  const hook = rand(hooks);
+  const sub = rand(subtitles);
+  const quote = rand(quotes);
+  const cta = rand(ctas);
+
+  setProgress(26000);
+
+  big.textContent = hook;
+  timers.push(setTimeout(()=>big.classList.add('show'),120));
+
+  small.textContent = sub;
+  timers.push(setTimeout(()=>small.classList.add('show'),1100));
+
+  timers.push(setTimeout(()=>{
+    big.textContent = "3 SIGNS YOU'VE LOST YOUR CENTER";
+    small.textContent = "";
+    cards.innerHTML="";
+    renderTriplet(trip);
+    big.classList.add('show');
+  }, 5200));
+
+  timers.push(setTimeout(()=>{
+    big.textContent = quote.toUpperCase();
+    small.textContent = "";
+    cards.innerHTML="";
+  }, 14500));
+
+  timers.push(setTimeout(()=>{
+    footerSmall.textContent = cta;
+    footer.classList.add('show');
+  }, 19000));
+
+  timers.push(setTimeout(playHero,26000));
+}
+
+function factory(){
+  autoplay = true;
+  hint.textContent = "tap for new";
+  showPlayer("Infinite Factory");
+  renderFactory();
+}
+function renderFactory(){
+  clearTimers(); resetScene();
+  setProgress(12000);
+  big.textContent = rand(hooks);
+  big.classList.add('show');
+  small.textContent = rand(subtitles);
+  small.classList.add('show');
+  renderTriplet(rand(triplets));
+  footerSmall.textContent = rand(ctas);
+  timers.push(setTimeout(()=>footer.classList.add('show'),1200));
+  timers.push(setTimeout(renderFactory,12000));
+}
+
+function quoteLoop(){
+  autoplay = true;
+  hint.textContent = "tap for new";
+  showPlayer("Quote Loop");
+  renderQuote();
+}
+function renderQuote(){
+  clearTimers(); resetScene();
+  setProgress(8000);
+  big.textContent = rand(quotes).toUpperCase();
+  big.classList.add('show');
+  small.textContent = rand(ctas) + " — $19";
+  small.classList.add('show');
+  timers.push(setTimeout(renderQuote,8000));
+}
+
+function swipe(){
+  autoplay = false;
+  hint.textContent = "tap for next";
+  showPlayer("Swipe Deck");
+  renderSwipe();
+}
+function renderSwipe(){
+  clearTimers(); resetScene();
+  progress.style.width='100%';
+  const t = triplets[swipeIndex % triplets.length];
+  big.textContent = hooks[swipeIndex % hooks.length];
+  big.classList.add('show');
+  small.textContent = subtitles[swipeIndex % subtitles.length];
+  small.classList.add('show');
+  renderTriplet(t);
+  footerSmall.textContent = ctas[swipeIndex % ctas.length];
+  footer.classList.add('show');
+}
+
+document.querySelectorAll('.btn').forEach(btn=>{
+  btn.onclick = ()=>{
+    const mode = btn.dataset.mode;
+    if(mode==='hero') hero();
+    if(mode==='factory') factory();
+    if(mode==='quote') quoteLoop();
+    if(mode==='swipe') swipe();
+  };
+});
+
+player.addEventListener('click', ()=>{
+  if(!player.classList.contains('active')) return;
+  if(modeLabel.textContent === "Swipe Deck"){
+    swipeIndex++;
+    renderSwipe();
+  }else{
+    if(modeLabel.textContent === "Hero Reel") playHero();
+    if(modeLabel.textContent === "Infinite Factory") renderFactory();
+    if(modeLabel.textContent === "Quote Loop") renderQuote();
+  }
+});
+
+(function particles(){
+  const wrap = document.getElementById('particles');
+  for(let i=0;i<18;i++){
+    const p = document.createElement('div');
+    p.className='particle';
+    p.style.left = Math.random()*100 + '%';
+    p.style.bottom = (-20 - Math.random()*50) + 'px';
+    p.style.animationDuration = (12 + Math.random()*12) + 's';
+    p.style.animationDelay = (-Math.random()*20) + 's';
+    wrap.appendChild(p);
+  }
+})();
+</script>
+</body>
+</html>
