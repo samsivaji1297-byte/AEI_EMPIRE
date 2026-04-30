@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+/>
+<title>Mental Sovereignty Studio</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",sans-serif;
+    background:#050505;
+    color:white;
+}
+
+body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+}
+
+.bg{
+    position:absolute;
+    inset:0;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(87,105,255,.22), transparent 35%),
+        radial-gradient(circle at 80% 30%, rgba(0,220,170,.14), transparent 35%),
+        radial-gradient(circle at 50% 80%, rgba(255,255,255,.06), transparent 40%),
+        linear-gradient(180deg,#050505,#0d0d0d);
+    animation: drift 10s ease-in-out infinite alternate;
+}
+
+@keyframes drift{
+    from{transform:scale(1) translateY(0px);}
+    to{transform:scale(1.08) translateY(-15px);}
+}
+
+.frame{
+    width:min(92vw,430px);
+    height:min(92vh,860px);
+    border-radius:42px;
+    padding:28px;
+    position:relative;
+    z-index:2;
+    overflow:hidden;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.12);
+    backdrop-filter:blur(40px);
+    -webkit-backdrop-filter:blur(40px);
+    box-shadow:
+      0 30px 80px rgba(0,0,0,.5),
+      inset 0 1px 0 rgba(255,255,255,.08);
+    display:flex;
+    flex-direction:column;
+}
+
+.badge{
+    align-self:flex-start;
+    padding:10px 16px;
+    border-radius:999px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.12);
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,.7);
+}
+
+.hero{
+    margin-top:34px;
+    font-size:44px;
+    line-height:.98;
+    font-weight:700;
+    letter-spacing:-.04em;
+    opacity:0;
+    transform:translateY(30px);
+    animation:rise .8s forwards;
+}
+
+.points{
+    margin-top:34px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.point{
+    padding:18px;
+    border-radius:24px;
+    background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.08);
+    opacity:0;
+    transform:translateY(20px);
+}
+
+.point span{
+    display:block;
+    font-size:13px;
+    color:#7fffd4;
+    margin-bottom:8px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+.point p{
+    font-size:18px;
+    line-height:1.35;
+    color:rgba(255,255,255,.9);
+}
+
+.quote{
+    margin-top:auto;
+    font-size:20px;
+    line-height:1.45;
+    color:rgba(255,255,255,.72);
+    font-weight:300;
+    opacity:0;
+    transform:translateY(20px);
+}
+
+.cta{
+    margin-top:26px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px;
+    border-radius:28px;
+    background:white;
+    color:black;
+    opacity:0;
+    transform:translateY(20px);
+}
+
+.cta-left small{
+    display:block;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    opacity:.55;
+    margin-bottom:6px;
+}
+
+.cta-left strong{
+    display:block;
+    font-size:20px;
+    line-height:1.2;
+}
+
+.price{
+    font-size:32px;
+    font-weight:700;
+    letter-spacing:-.04em;
+}
+
+.tap{
+    position:absolute;
+    bottom:18px;
+    left:0;
+    right:0;
+    text-align:center;
+    font-size:12px;
+    color:rgba(255,255,255,.35);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+}
+
+.show1{ animation:rise .8s .2s forwards; }
+.show2{ animation:rise .8s .4s forwards; }
+.show3{ animation:rise .8s .6s forwards; }
+.show4{ animation:rise .8s .8s forwards; }
+.show5{ animation:rise .8s 1s forwards; }
+
+@keyframes rise{
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+
+<div class="frame" id="frame">
+    <div class="badge">Mental Sovereignty</div>
+
+    <div class="hero" id="hero"></div>
+
+    <div class="points">
+        <div class="point show1"><span>01</span><p id="p1"></p></div>
+        <div class="point show2"><span>02</span><p id="p2"></p></div>
+        <div class="point show3"><span>03</span><p id="p3"></p></div>
+    </div>
+
+    <div class="quote show4" id="quote"></div>
+
+    <div class="cta show5">
+        <div class="cta-left">
+            <small>Link in bio</small>
+            <strong>Mental Sovereignty Framework</strong>
+        </div>
+        <div class="price" id="price">$19</div>
+    </div>
+
+    <div class="tap">tap anywhere</div>
+</div>
+
+<script>
+const posts = [
+{
+hero:"3 signs you're living someone else's life",
+p1:"You feel exhausted trying to be who others expect.",
+p2:"You're successful on paper—but empty inside.",
+p3:"Silence feels uncomfortable because your real voice appears.",
+quote:"Most people never become themselves—they become what gets rewarded.",
+price:"$19"
+},
+{
+hero:"You're not lazy. You're psychologically fragmented.",
+p1:"Too many voices shaping your decisions.",
+p2:"Too much performance, not enough authenticity.",
+p3:"No clear internal compass left.",
+quote:"You do not need fixing. You need recognition.",
+price:"$19"
+},
+{
+hero:"The most dangerous prison is invisible conditioning",
+p1:"Family expectations become identity.",
+p2:"Culture becomes your inner voice.",
+p3:"Approval becomes your addiction.",
+quote:"Mental sovereignty is reclaiming authorship over your life.",
+price:"$19"
+},
+{
+hero:"Have you actually been looking after yourself?",
+p1:"Poor sleep clouds clarity.",
+p2:"Burnout disconnects you from self.",
+p3:"Neglect becomes numbness.",
+quote:"Self-respect is where sovereignty begins.",
+price:"$19"
+},
+{
+hero:"Your authentic self has been waiting",
+p1:"Under the masks.",
+p2:"Under the expectations.",
+p3:"Under the noise.",
+quote:"The return home is inward.",
+price:"$19"
+}
+];
+
+let index = 0;
+
+function animate(){
+    document.querySelectorAll(".hero,.point,.quote,.cta").forEach(el=>{
+        el.style.animation="none";
+        el.offsetHeight;
+    });
+
+    document.querySelector(".hero").style.animation="rise .8s forwards";
+    document.querySelectorAll(".point")[0].style.animation="rise .8s .2s forwards";
+    document.querySelectorAll(".point")[1].style.animation="rise .8s .4s forwards";
+    document.querySelectorAll(".point")[2].style.animation="rise .8s .6s forwards";
+    document.querySelector(".quote").style.animation="rise .8s .8s forwards";
+    document.querySelector(".cta").style.animation="rise .8s 1s forwards";
+}
+
+function render(){
+    const post = posts[index];
+
+    hero.textContent = post.hero;
+    p1.textContent = post.p1;
+    p2.textContent = post.p2;
+    p3.textContent = post.p3;
+    quote.textContent = post.quote;
+    price.textContent = post.price;
+
+    animate();
+}
+
+function next(){
+    index = (index + 1) % posts.length;
+    render();
+}
+
+document.body.addEventListener("click", next);
+document.body.addEventListener("touchstart", next);
+
+render();
+</script>
+
+</body>
+</html>
