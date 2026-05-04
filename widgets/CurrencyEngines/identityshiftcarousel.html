@@ -1,406 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Identity-Shift Carousel Widget</title>
-  <style>
-    :root {
-      --bg-dark: #050509;
-      --bg-light: #f7f7fb;
-      --accent: #7b5cff;
-      --accent-soft: rgba(123, 92, 255, 0.18);
-      --text-main: #f5f5ff;
-      --text-muted: #a0a0c0;
-      --text-dark: #11111a;
-      --radius: 18px;
-      --transition: 200ms ease-out;
-      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.45);
-    }
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Cinematic Identity Carousel Engine</title>
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at top, #171727 0, #050509 55%, #020208 100%);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-      color: var(--text-main);
-    }
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,sans-serif;
+}
 
-    .widget-shell {
-      width: 360px;
-      max-width: 100vw;
-      background: linear-gradient(145deg, #0b0b14, #050509);
-      border-radius: 24px;
-      padding: 18px 18px 22px;
-      box-shadow: var(--shadow-soft);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      position: relative;
-      overflow: hidden;
-    }
+body{
+  position:relative;
+}
 
-    .widget-shell::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background:
-        radial-gradient(circle at 10% 0%, rgba(123, 92, 255, 0.25), transparent 55%),
-        radial-gradient(circle at 90% 100%, rgba(0, 255, 200, 0.18), transparent 55%);
-      opacity: 0.7;
-      pointer-events: none;
-      z-index: -1;
-    }
+/* Cinematic drifting background */
+.bg{
+  position:absolute;
+  inset:-25%;
+  filter:blur(60px);
+  opacity:0.85;
+  animation:drift 22s ease-in-out infinite alternate;
+}
 
-    .widget-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
+@keyframes drift{
+  from{transform:scale(1) translate(0,0);}
+  to{transform:scale(1.22) translate(-40px,-50px);}
+}
 
-    .widget-title {
-      font-size: 13px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
+.bgStyle{
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,.10), transparent 30%),
+    radial-gradient(circle at 80% 40%, rgba(255,255,255,.06), transparent 30%),
+    linear-gradient(180deg,#050505,#000);
+}
 
-    .widget-pill {
-      font-size: 11px;
-      padding: 4px 9px;
-      border-radius: 999px;
-      background: rgba(5, 5, 12, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      color: var(--text-muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
+/* Subtle glass + noise */
+.overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom,rgba(255,255,255,.04),transparent);
+  backdrop-filter:blur(18px);
+}
 
-    .widget-pill-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: #4ade80;
-      box-shadow: 0 0 8px rgba(74, 222, 128, 0.9);
-    }
+.noise{
+  position:absolute;
+  inset:0;
+  opacity:.04;
+  background-image:radial-gradient(circle, white 1px, transparent 1px);
+  background-size:4px 4px;
+}
 
-    .carousel-shell {
-      position: relative;
-      border-radius: var(--radius);
-      overflow: hidden;
-      background: radial-gradient(circle at top, #1b1b2b 0, #050509 55%, #020208 100%);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
+/* Slide container */
+.slide{
+  position:absolute;
+  inset:0;
+  padding:0 8vw;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  opacity:0;
+  transform:translateY(40px);
+  transition:opacity .8s ease, transform .8s ease;
+}
 
-    .slide {
-      display: none;
-      padding: 22px 20px 20px;
-      min-height: 260px;
-    }
+.slide.active{
+  opacity:1;
+  transform:translateY(0);
+}
 
-    .slide.active {
-      display: block;
-    }
+/* Typography */
+.main{
+  font-size:clamp(38px,8vw,86px);
+  line-height:1.05;
+  font-weight:680;
+  letter-spacing:-1.5px;
+  max-width:92%;
+  text-wrap:balance;
+  margin-bottom:28px;
+}
 
-    .slide-tag {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-muted);
-      margin-bottom: 10px;
-    }
+.body{
+  font-size:clamp(20px,4.4vw,34px);
+  line-height:1.32;
+  color:rgba(255,255,255,.78);
+  max-width:90%;
+  text-wrap:balance;
+}
 
-    .slide-heading {
-      font-size: 22px;
-      line-height: 1.25;
-      font-weight: 650;
-      margin-bottom: 10px;
-    }
+/* CTA slide */
+.cta{
+  font-size:clamp(22px,5vw,40px);
+  line-height:1.25;
+  font-weight:600;
+  color:#fff;
+  max-width:90%;
+}
 
-    .slide-sub {
-      font-size: 13px;
-      line-height: 1.5;
-      color: var(--text-muted);
-      margin-bottom: 14px;
-    }
+/* Navigation */
+.nav{
+  position:absolute;
+  bottom:6vh;
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  z-index:10;
+}
 
-    .slide-meta {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: rgba(255, 255, 255, 0.45);
-    }
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  background:rgba(255,255,255,.25);
+  transition:all .25s ease;
+}
 
-    .slide-cta {
-      font-size: 14px;
-      font-weight: 600;
-      margin-top: 6px;
-      color: #fefce8;
-    }
+.dot.active{
+  width:22px;
+  background:#fff;
+}
 
-    .slide-cta span {
-      color: #facc15;
-    }
+/* Tap zones */
+.tap-left, .tap-right{
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:50%;
+  z-index:20;
+}
 
-    .slide-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 9px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      font-size: 11px;
-      color: #e5e7eb;
-      margin-top: 10px;
-    }
-
-    .slide-badge-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 10px rgba(123, 92, 255, 0.9);
-    }
-
-    .carousel-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px 8px;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      background: radial-gradient(circle at bottom, rgba(15, 23, 42, 0.85), rgba(2, 6, 23, 0.95));
-    }
-
-    .nav-buttons {
-      display: flex;
-      gap: 6px;
-    }
-
-    .nav-btn {
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.45);
-      background: rgba(15, 23, 42, 0.9);
-      color: #e5e7eb;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 13px;
-      transition: background var(--transition), transform var(--transition), border-color var(--transition);
-    }
-
-    .nav-btn:hover {
-      background: rgba(30, 64, 175, 0.9);
-      border-color: rgba(191, 219, 254, 0.9);
-      transform: translateY(-1px);
-    }
-
-    .nav-btn:active {
-      transform: translateY(0);
-    }
-
-    .progress-dots {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-    }
-
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: rgba(148, 163, 184, 0.45);
-      transition: background var(--transition), transform var(--transition), width var(--transition);
-    }
-
-    .dot.active {
-      background: #e5e7eb;
-      width: 14px;
-      transform: translateY(-0.5px);
-    }
-
-    .footer-meta {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: rgba(148, 163, 184, 0.9);
-    }
-
-    .footer-meta span {
-      color: #facc15;
-    }
-
-    @media (max-width: 420px) {
-      .widget-shell {
-        border-radius: 0;
-        height: 100vh;
-        max-width: 100vw;
-      }
-    }
-  </style>
+.tap-left{ left:0; }
+.tap-right{ right:0; }
+</style>
 </head>
 <body>
-  <div class="widget-shell">
-    <div class="widget-header">
-      <div class="widget-title">Identity-shift carousel</div>
-      <div class="widget-pill">
-        <span class="widget-pill-dot"></span>
-        Engine: v1.0
-      </div>
-    </div>
 
-    <div class="carousel-shell" id="carousel">
-      <!-- Slides will be injected here -->
-    </div>
-  </div>
+<div id="bg" class="bg bgStyle"></div>
+<div class="overlay"></div>
+<div class="noise"></div>
 
-  <script>
-    // -----------------------------
-    // CONFIG: IDENTITY-SHIFT ORGANISM
-    // -----------------------------
-    const carouselConfig = {
-      overlay: "Money",
-      rootNode: "I’m tired of scrolling for hours and having nothing to show for it.",
-      personaBefore: "I used to scroll for hours with nothing to show for it.",
-      incitingIncident: "One night while scrolling, I realised my screen time was higher than my income.",
-      keyAction: "I turned my scroll into a research tool instead of an escape.",
-      experiment: "I started documenting what actually worked, then built a simple offer around it.",
-      outcome: "Now I barely scroll—and the time I do spend online compounds into income.",
-      ctaKeyword: "777",
-      ctaLine: "Comment 777 and I’ll send you the breakdown.",
-      cluster: "Identity-shift",
-      baseNeeds: ["Progress", "Competence", "Recognition", "Identity", "Belonging"]
-    };
+<!-- Slides injected here -->
+<div id="slides"></div>
 
-    // -----------------------------
-    // SLIDE GENERATION LOGIC
-    // -----------------------------
-    function buildSlides(config) {
-      return [
-        {
-          tag: "Hook",
-          heading: "How I turned my scroll into income",
-          sub: "Same apps. Same phone. Completely different identity.",
-          meta: `${config.overlay} · ${config.cluster}`
-        },
-        {
-          tag: "Pain",
-          heading: config.personaBefore,
-          sub: config.rootNode,
-          meta: "Root node: Pattern-fatigue · Shame"
-        },
-        {
-          tag: "Catalyst",
-          heading: config.incitingIncident,
-          sub: "There was a moment where “this is just how it is” stopped being acceptable.",
-          meta: "Trigger: Identity-shift"
-        },
-        {
-          tag: "Action",
-          heading: config.keyAction,
-          sub: "I stopped treating my feed like entertainment and started treating it like data.",
-          meta: "Base need: Competence · Autonomy"
-        },
-        {
-          tag: "Transformation",
-          heading: config.experiment,
-          sub: config.outcome,
-          meta: "Base need: Progress"
-        },
-        {
-          tag: "CTA",
-          heading: config.ctaLine,
-          sub: "If you see yourself in the “before” version, this is your signal to stop being average.",
-          meta: "Belonging · Identity",
-          isCTA: true,
-          ctaKeyword: config.ctaKeyword
-        }
-      ];
-    }
+<!-- Tap navigation -->
+<div class="tap-left" id="prev"></div>
+<div class="tap-right" id="next"></div>
 
-    // -----------------------------
-    // RENDER ENGINE
-    // -----------------------------
-    const slides = buildSlides(carouselConfig);
-    let currentIndex = 0;
+<!-- Bottom nav dots -->
+<div class="nav" id="navDots"></div>
 
-    function renderCarousel() {
-      const container = document.getElementById("carousel");
-      container.innerHTML = "";
+<script>
+/* ---------------------------------------------------------
+   CINEMATIC IDENTITY CAROUSEL ENGINE — v1.0
+   --------------------------------------------------------- */
 
-      // Slides
-      slides.forEach((slide, index) => {
-        const slideEl = document.createElement("div");
-        slideEl.className = "slide" + (index === currentIndex ? " active" : "");
+const data = [
+  {
+    main: "How I turned my scroll into something that actually builds my life instead of draining it.",
+    body: "Same apps. Same phone. Same hours in the day. The only thing that changed was the identity I was operating from."
+  },
+  {
+    main: "I used to scroll for hours with nothing to show for it.",
+    body: "It wasn’t laziness. It wasn’t lack of discipline. It was that I was living as a version of myself who didn’t believe my time meant anything."
+  },
+  {
+    main: "One night it hit me.",
+    body: "I wasn’t addicted to my phone — I was addicted to avoiding the version of me I knew I could become. That realisation broke something open."
+  },
+  {
+    main: "So I changed the way I used the exact same scroll.",
+    body: "I stopped consuming to escape. I started consuming to observe. Patterns. Offers. Behaviour. Identity. What works. What doesn’t. Everything became data."
+  },
+  {
+    main: "And slowly, the identity shifted.",
+    body: "I stopped being the person who wasted hours. I became the person who turns minutes into momentum. The scroll didn’t change — I did."
+  },
+  {
+    main: "If this hit you, comment 777.",
+    body: "Not for luck — but as a signal that you’re done operating from the version of you who keeps falling behind."
+  }
+];
 
-        slideEl.innerHTML = `
-          <div class="slide-tag">${slide.tag}</div>
-          <div class="slide-heading">${slide.heading}</div>
-          <div class="slide-sub">${slide.sub}</div>
-          <div class="slide-meta">${slide.meta}</div>
-          ${
-            slide.isCTA
-              ? `<div class="slide-cta">Type <span>${slide.ctaKeyword}</span> in the comments if this hit a nerve.</div>
-                 <div class="slide-badge">
-                   <span class="slide-badge-dot"></span>
-                   Identity mechanic: Belonging signal
-                 </div>`
-              : ""
-          }
-        `;
+/* ---------------------------------------------------------
+   RENDER ENGINE
+   --------------------------------------------------------- */
 
-        container.appendChild(slideEl);
-      });
+const slidesContainer = document.getElementById("slides");
+const navDots = document.getElementById("navDots");
 
-      // Footer
-      const footer = document.createElement("div");
-      footer.className = "carousel-footer";
+let index = 0;
 
-      const nav = document.createElement("div");
-      nav.className = "nav-buttons";
-      nav.innerHTML = `
-        <button class="nav-btn" id="prevBtn">&#8592;</button>
-        <button class="nav-btn" id="nextBtn">&#8594;</button>
-      `;
+function renderSlides(){
+  slidesContainer.innerHTML = "";
+  navDots.innerHTML = "";
 
-      const progress = document.createElement("div");
-      progress.className = "progress-dots";
-      slides.forEach((_, i) => {
-        const dot = document.createElement("div");
-        dot.className = "dot" + (i === currentIndex ? " active" : "");
-        progress.appendChild(dot);
-      });
+  data.forEach((s, i) => {
+    const slide = document.createElement("div");
+    slide.className = "slide" + (i === index ? " active" : "");
+    slide.innerHTML = `
+      <div class="main">${s.main}</div>
+      <div class="body">${s.body}</div>
+    `;
+    slidesContainer.appendChild(slide);
 
-      const meta = document.createElement("div");
-      meta.className = "footer-meta";
-      meta.innerHTML = `Slide ${currentIndex + 1}/${slides.length} · <span>${carouselConfig.overlay}</span> overlay`;
+    const dot = document.createElement("div");
+    dot.className = "dot" + (i === index ? " active" : "");
+    navDots.appendChild(dot);
+  });
+}
 
-      footer.appendChild(nav);
-      footer.appendChild(progress);
-      footer.appendChild(meta);
-      container.appendChild(footer);
+function next(){
+  index = (index + 1) % data.length;
+  renderSlides();
+}
 
-      document.getElementById("prevBtn").onclick = () => {
-        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-        renderCarousel();
-      };
-      document.getElementById("nextBtn").onclick = () => {
-        currentIndex = (currentIndex + 1) % slides.length;
-        renderCarousel();
-      };
-    }
+function prev(){
+  index = (index - 1 + data.length) % data.length;
+  renderSlides();
+}
 
-    renderCarousel();
-  </script>
+document.getElementById("next").onclick = next;
+document.getElementById("prev").onclick = prev;
+
+renderSlides();
+</script>
+
 </body>
 </html>
