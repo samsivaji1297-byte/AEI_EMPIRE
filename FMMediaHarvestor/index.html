@@ -22,6 +22,7 @@
             border-radius: 16px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.4);
             display: none;
+            max-width: 320px;
         }
 
         #togglePanel {
@@ -44,6 +45,17 @@
             background: #333;
             color: #fff;
         }
+
+        #outputPanel {
+            margin: 20px;
+            padding: 20px;
+            background: #181818;
+            border-radius: 16px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.5;
+            display: none;
+        }
     </style>
 </head>
 
@@ -52,6 +64,8 @@
     <div id="togglePanel">Open Engine</div>
 
     <div id="controlPanel"></div>
+
+    <div id="outputPanel"></div>
 
     <script type="module">
         import { generateIR } from "./RootNodeEngine/ContentEngine/IR/generateIR.js";
@@ -63,87 +77,84 @@
             panel.style.display = panel.style.display === "none" ? "block" : "none";
         };
 
-        // Load architecture map
-async function loadArchitecture() {
-    const res = await fetch("./RootNodeHarvestor/architectureMap.json");
-    return await res.json();
-}
+        async function loadArchitecture() {
+            const res = await fetch("./RootNodeHarvestor/architectureMap.json");
+            return await res.json();
+        }
 
-// Create dropdown
-function createDropdown(label, id, options) {
-    const container = document.createElement("div");
+        async function loadJSON(path) {
+            const res = await fetch(path);
+            return await res.json();
+        }
 
-    const select = document.createElement("select");
-    select.id = id;
+        function createDropdown(label, id, options) {
+            const container = document.createElement("div");
 
-    options.forEach(opt => {
-        const option = document.createElement("option");
-        option.value = opt;
-        option.textContent = opt;
-        select.appendChild(option);
-    });
+            const select = document.createElement("select");
+            select.id = id;
 
-    container.appendChild(select);
-    return container;
-}
+            options.forEach(opt => {
+                const option = document.createElement("option");
+                option.value = opt;
+                option.textContent = opt;
+                select.appendChild(option);
+            });
 
-// Inject UI
-async function loadJSON(path) {
-    const res = await fetch(path);
-    return await res.json();
-}
+            container.appendChild(select);
+            return container;
+        }
 
-async function initUI() {
-    const panel = document.getElementById("controlPanel");
-    const architecture = await loadArchitecture();
+        async function initUI() {
+            const panel = document.getElementById("controlPanel");
+            const architecture = await loadArchitecture();
 
-    const dataMap = {
-        baseNeeds: await loadJSON("./RootNodeHarvestor/baseNeeds/baseNeeds.json"),
-        rootNodes: await loadJSON("./RootNodeHarvestor/rootNodes/rootNodes.json"),
-        psychologicalClusters: await loadJSON("./RootNodeHarvestor/clusters/clusters.json"),
-        identityMechanics: await loadJSON("./RootNodeHarvestor/identityMechanics/identityMechanics.json"),
+            const dataMap = {
+                baseNeeds: await loadJSON("./RootNodeHarvestor/baseNeeds/baseNeeds.json"),
+                rootNodes: await loadJSON("./RootNodeHarvestor/rootNodes/rootNodes.json"),
+                psychologicalClusters: await loadJSON("./RootNodeHarvestor/clusters/clusters.json"),
+                identityMechanics: await loadJSON("./RootNodeHarvestor/identityMechanics/identityMechanics.json"),
 
-        surfaceOverlays: await loadJSON("./RootNodeEngine/overlays/overlays.json"),
-        wrappers: await loadJSON("./RootNodeEngine/wrappers/wrappers.json"),
-        formats: await loadJSON("./RootNodeEngine/formats/formats.json"),
-        distributionPhysics: await loadJSON("./RootNodeEngine/distributionPhysics/distributionPhysics.json")
-    };
+                surfaceOverlays: await loadJSON("./RootNodeEngine/overlays/overlays.json"),
+                wrappers: await loadJSON("./RootNodeEngine/wrappers/wrappers.json"),
+                formats: await loadJSON("./RootNodeEngine/formats/formats.json"),
+                distributionPhysics: await loadJSON("./RootNodeEngine/distributionPhysics/distributionPhysics.json")
+            };
 
-    architecture.order.forEach(layer => {
-        const dropdown = createDropdown(layer, layer, dataMap[layer]);
-        panel.appendChild(dropdown);
-    });
+            architecture.order.forEach(layer => {
+                const dropdown = createDropdown(layer, layer, dataMap[layer]);
+                panel.appendChild(dropdown);
+            });
 
-    const generateBtn = document.createElement("button");
-    generateBtn.textContent = "Generate IR";
-    generateBtn.onclick = () => {
-        const selections = {};
+            const generateBtn = document.createElement("button");
+            generateBtn.textContent = "Generate IR";
+            generateBtn.onclick = () => {
+                const selections = {};
 
-        architecture.order.forEach(layer => {
-            const el = document.getElementById(layer);
-            selections[layer] = el.value;
-        });
+                architecture.order.forEach(layer => {
+                    const el = document.getElementById(layer);
+                    selections[layer] = el.value;
+                });
 
-        const ir = generateIR({
-            baseNeed: selections.baseNeeds,
-            rootNode: selections.rootNodes,
-            psychologicalCluster: selections.psychologicalClusters,
-            surfaceOverlay: selections.surfaceOverlays,
-            wrapper: selections.wrappers,
-            format: { type: selections.formats },
-            identityMechanic: selections.identityMechanics,
-            distributionPhysics: { platform: selections.distributionPhysics }
-        });
+                const ir = generateIR({
+                    baseNeed: selections.baseNeeds,
+                    rootNode: selections.rootNodes,
+                    psychologicalCluster: selections.psychologicalClusters,
+                    surfaceOverlay: selections.surfaceOverlays,
+                    wrapper: selections.wrappers,
+                    format: { type: selections.formats },
+                    identityMechanic: selections.identityMechanics,
+                    distributionPhysics: { platform: selections.distributionPhysics }
+                });
 
-        console.log("IR Output:", ir);
-    };
+                const outputPanel = document.getElementById("outputPanel");
+                outputPanel.style.display = "block";
+                outputPanel.textContent = JSON.stringify(ir, null, 2);
+            };
 
-    panel.appendChild(generateBtn);
-}
+            panel.appendChild(generateBtn);
+        }
 
-initUI();
-
-
+        initUI();
     </script>
 
 </body>
