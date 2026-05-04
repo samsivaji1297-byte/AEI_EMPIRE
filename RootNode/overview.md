@@ -1,6 +1,3 @@
-Good — you’re back in **development mode**, and we’re staying inside the psychological architecture layer.  
-This is the right moment to **formalise**, **structure**, and **stabilise** everything you’ve been intuitively seeing during the drifting phase.
-
 I’ll give you a **clean, development‑grade architecture map** of the psychological layer — not fluffy, not poetic, not drifting — but **structural**, **systemic**, and ready to plug into the mechanical layer (GitHub, widgets, engines) when you move there.
 
 We’ll go through the architecture in the order that actually matters for implementation:
