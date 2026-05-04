@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Sovereign Overlay Engine</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,sans-serif;
+}
+
+body{
+  position:relative;
+}
+
+/* Apple-grade drifting background */
+.bg{
+  position:absolute;
+  inset:-30%;
+  filter:blur(70px);
+  opacity:0.75;
+  animation:drift 26s ease-in-out infinite alternate;
+}
+
+@keyframes drift{
+  from{transform:scale(1) translate(0,0);}
+  to{transform:scale(1.25) translate(-50px,-60px);}
+}
+
+.bgStyle{
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,.12), transparent 40%),
+    radial-gradient(circle at 70% 60%, rgba(255,255,255,.06), transparent 40%),
+    linear-gradient(180deg,#050505,#000);
+}
+
+/* Subtle glass + noise */
+.overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom,rgba(255,255,255,.03),transparent);
+  backdrop-filter:blur(18px);
+}
+
+.noise{
+  position:absolute;
+  inset:0;
+  opacity:.035;
+  background-image:radial-gradient(circle, white 1px, transparent 1px);
+  background-size:4px 4px;
+}
+
+/* Top bar */
+.top{
+  position:absolute;
+  top:4vh;
+  left:8vw;
+  right:8vw;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  z-index:30;
+  pointer-events:none;
+}
+
+.brand{
+  font-size:11px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  opacity:.55;
+}
+
+.mode-pill{
+  font-size:11px;
+  padding:6px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  backdrop-filter:blur(18px);
+  opacity:.75;
+  pointer-events:auto;
+  border:none;
+  color:#fff;
+}
+
+/* Slide container */
+.slide{
+  position:absolute;
+  inset:0;
+  padding:0 10vw;
+  padding-top:12vh;
+  padding-bottom:14vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  opacity:0;
+  transform:translateY(40px);
+  transition:opacity .8s ease, transform .8s ease;
+}
+
+.slide.active{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* Typography */
+.main{
+  font-size:clamp(40px,8vw,90px);
+  line-height:1.05;
+  font-weight:680;
+  letter-spacing:-1.5px;
+  max-width:92%;
+  text-wrap:balance;
+  margin-bottom:32px;
+}
+
+.body{
+  font-size:clamp(22px,4.6vw,36px);
+  line-height:1.32;
+  color:rgba(255,255,255,.78);
+  max-width:90%;
+  text-wrap:balance;
+}
+
+/* Navigation */
+.nav{
+  position:absolute;
+  bottom:5vh;
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  z-index:10;
+}
+
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  background:rgba(255,255,255,.25);
+  transition:all .25s ease;
+}
+
+.dot.active{
+  width:22px;
+  background:#fff;
+}
+
+/* Tap zones */
+.tap-left, .tap-right{
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:50%;
+  z-index:20;
+}
+
+.tap-left{ left:0; }
+.tap-right{ right:0; }
+
+/* Control panel */
+.controls{
+  position:absolute;
+  bottom:3vh;
+  left:8vw;
+  right:8vw;
+  z-index:40;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:space-between;
+  align-items:center;
+  pointer-events:auto;
+}
+
+.controls-inner{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+select,button{
+  appearance:none;
+  border:none;
+  color:#fff;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(18px);
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:11px;
+}
+
+label{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.16em;
+  opacity:.6;
+}
+</style>
+</head>
+<body>
+
+<div id="bg" class="bg bgStyle"></div>
+<div class="overlay"></div>
+<div class="noise"></div>
+
+<div class="top">
+  <div class="brand">SOVEREIGN OVERLAY ENGINE</div>
+  <button id="toggleControls" class="mode-pill">Simple</button>
+</div>
+
+<!-- Slides injected here -->
+<div id="slides"></div>
+
+<!-- Tap navigation -->
+<div class="tap-left" id="prev"></div>
+<div class="tap-right" id="next"></div>
+
+<!-- Bottom nav dots -->
+<div class="nav" id="navDots"></div>
+
+<!-- Controls -->
+<div class="controls" id="controls" style="display:none;">
+  <div class="controls-inner">
+    <div>
+      <label for="mode">Overlay Mode</label><br>
+      <select id="mode">
+        <option value="broad">Broad‑net (reach)</option>
+        <option value="deep">Deep‑net (identity)</option>
+        <option value="hybrid">Hybrid</option>
+      </select>
+    </div>
+    <div>
+      <label for="root">Root Node</label><br>
+      <select id="root"></select>
+    </div>
+  </div>
+  <button id="generate">Generate</button>
+</div>
+
+<script>
+/* ---------------------------------------------------------
+   ROOT NODE + OVERLAY DISTRIBUTION DATABASE
+   --------------------------------------------------------- */
+
+const ROOT_NODES = [
+  {
+    id: "behind",
+    label: "I feel behind.",
+    cluster: "Shame",
+    baseNeeds: ["Recognition","Progress"],
+    deepOverlay: "Identity",
+    broadOverlay: "Productivity"
+  },
+  {
+    id: "inconsistent",
+    label: "I can’t stay consistent.",
+    cluster: "Pattern‑Fatigue",
+    baseNeeds: ["Competence","Self‑trust"],
+    deepOverlay: "Self‑Trust",
+    broadOverlay: "Habits"
+  },
+  {
+    id: "cycles",
+    label: "I’m tired of repeating the same cycles.",
+    cluster: "Pattern‑Fatigue",
+    baseNeeds: ["Progress","Autonomy"],
+    deepOverlay: "Sovereign Identity",
+    broadOverlay: "Life Design"
+  },
+  {
+    id: "small",
+    label: "I know I’m playing smaller than I’m built for.",
+    cluster: "Identity‑Shift",
+    baseNeeds: ["Identity","Recognition"],
+    deepOverlay: "Inevitability",
+    broadOverlay: "Performance"
+  }
+];
+
+/* ---------------------------------------------------------
+   GENERATOR TEMPLATES
+   --------------------------------------------------------- */
+
+function generateSlides({ mode, rootNode }) {
+  const rn = rootNode;
+  let overlay, angle;
+
+  if (mode === "broad") {
+    overlay = rn.broadOverlay;
+    angle = "reach";
+  } else if (mode === "deep") {
+    overlay = rn.deepOverlay;
+    angle = "identity";
+  } else {
+    overlay = rn.broadOverlay + " × " + rn.deepOverlay;
+    angle = "hybrid";
+  }
+
+  const rnText = rn.label;
+
+  const slides = [];
+
+  // Slide 1 — Hook
+  slides.push({
+    main: `The moment you stop letting “${rnText.toLowerCase()}” run your system, everything changes.`,
+    body: `Your life doesn’t shift when you add more hacks. It shifts when you stop defaulting to the identity that keeps ${rnText.toLowerCase().replace("i ", "you ")}.`
+  });
+
+  // Slide 2 — Before
+  slides.push({
+    main: `I used to live inside that root node without realising it.`,
+    body: `Every decision, every delay, every half‑finished project was just that one sentence running in the background: “${rnText}” — and my behaviour kept proving it true.`
+  });
+
+  // Slide 3 — Overlay realisation
+  if (angle === "reach") {
+    slides.push({
+      main: `Then I noticed it was showing up in how I handled ${overlay.toLowerCase()}.`,
+      body: `I wasn’t bad at ${overlay.toLowerCase()}. I was loyal to the version of me who expected to stay behind. So I kept choosing the path that matched that identity.`
+    });
+  } else if (angle === "identity") {
+    slides.push({
+      main: `Then it hit me — this wasn’t a ${overlay.toLowerCase()} problem at all.`,
+      body: `It was an identity problem. I was still operating as the version of me who couldn’t hold what he wanted, so every upgrade collapsed back into the same cycle.`
+    });
+  } else {
+    slides.push({
+      main: `It showed up everywhere — in my ${overlay.toLowerCase()} and in who I believed I was.`,
+      body: `On the surface it looked like a ${rn.broadOverlay.toLowerCase()} issue. Underneath, it was pure identity. The system was built to keep me circling the same version of myself.`
+    });
+  }
+
+  // Slide 4 — Architecture shift
+  slides.push({
+    main: `So I stopped trying to fix the behaviour and rebuilt the architecture.`,
+    body: `Instead of asking “How do I stay consistent?” I started asking “Who is the version of me for whom consistency is non‑negotiable?” and began moving as if I were already them.`
+  });
+
+  // Slide 5 — Outcome
+  slides.push({
+    main: `That’s when the external started matching the internal.`,
+    body: `Momentum stopped leaking. Decisions got cleaner. ${overlay} stopped feeling like a fight and started feeling like a natural expression of who I had decided to be.`
+  });
+
+  // Slide 6 — CTA
+  slides.push({
+    main: `If this hit you, comment 777.`,
+    body: `Not as a trick for the algorithm — but as a line in the sand that you’re done letting “${rnText.toLowerCase()}” be the quiet script running your life.`
+  });
+
+  return slides;
+}
+
+/* ---------------------------------------------------------
+   RENDER ENGINE
+   --------------------------------------------------------- */
+
+const slidesContainer = document.getElementById("slides");
+const navDots = document.getElementById("navDots");
+let currentSlides = [];
+let index = 0;
+
+function renderSlides(){
+  slidesContainer.innerHTML = "";
+  navDots.innerHTML = "";
+
+  currentSlides.forEach((s, i) => {
+    const slide = document.createElement("div");
+    slide.className = "slide" + (i === index ? " active" : "");
+    slide.innerHTML = `
+      <div class="main">${s.main}</div>
+      <div class="body">${s.body}</div>
+    `;
+    slidesContainer.appendChild(slide);
+
+    const dot = document.createElement("div");
+    dot.className = "dot" + (i === index ? " active" : "");
+    navDots.appendChild(dot);
+  });
+}
+
+function next(){
+  if (!currentSlides.length) return;
+  index = (index + 1) % currentSlides.length;
+  renderSlides();
+}
+
+function prev(){
+  if (!currentSlides.length) return;
+  index = (index - 1 + currentSlides.length) % currentSlides.length;
+  renderSlides();
+}
+
+document.getElementById("next").onclick = next;
+document.getElementById("prev").onclick = prev;
+
+/* ---------------------------------------------------------
+   CONTROLS WIRED TO GENERATOR
+   --------------------------------------------------------- */
+
+const rootSelect = document.getElementById("root");
+const modeSelect = document.getElementById("mode");
+const generateBtn = document.getElementById("generate");
+const toggleControlsBtn = document.getElementById("toggleControls");
+const controls = document.getElementById("controls");
+
+let advanced = false;
+
+function populateRoots(){
+  rootSelect.innerHTML = ROOT_NODES
+    .map(r => `<option value="${r.id}">${r.label}</option>`)
+    .join("");
+}
+
+function getRootById(id){
+  return ROOT_NODES.find(r => r.id === id) || ROOT_NODES[0];
+}
+
+generateBtn.onclick = () => {
+  const mode = modeSelect.value;
+  const rootNode = getRootById(rootSelect.value);
+  currentSlides = generateSlides({ mode, rootNode });
+  index = 0;
+  renderSlides();
+};
+
+toggleControlsBtn.onclick = () => {
+  advanced = !advanced;
+  controls.style.display = advanced ? "flex" : "none";
+  toggleControlsBtn.textContent = advanced ? "Advanced" : "Simple";
+};
+
+/* Simple tap anywhere (when not advanced) to regenerate with random config */
+document.body.addEventListener("click",(e)=>{
+  if (e.target.closest(".controls") || e.target === toggleControlsBtn) return;
+  if (advanced) return;
+  const randomRoot = ROOT_NODES[Math.floor(Math.random()*ROOT_NODES.length)];
+  const modes = ["broad","deep","hybrid"];
+  const randomMode = modes[Math.floor(Math.random()*modes.length)];
+  modeSelect.value = randomMode;
+  rootSelect.value = randomRoot.id;
+  currentSlides = generateSlides({ mode: randomMode, rootNode: randomRoot });
+  index = 0;
+  renderSlides();
+});
+
+populateRoots();
+/* initial simple generation */
+currentSlides = generateSlides({ mode: "hybrid", rootNode: ROOT_NODES[0] });
+renderSlides();
+</script>
+
+</body>
+</html>
