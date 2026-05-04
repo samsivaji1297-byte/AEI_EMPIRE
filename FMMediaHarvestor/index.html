@@ -67,95 +67,108 @@
 
     <div id="outputPanel"></div>
 
+    
     <script type="module">
-        import { generateIR } from "./RootNodeEngine/ContentEngine/IR/generateIR.js";
+    import { generateIR } from "./RootNodeEngine/ContentEngine/IR/generateIR.js";
+    import { renderCarousel } from "./RootNodeEngine/Renderers/Carousel/carouselRenderer.js";
 
-        const toggle = document.getElementById("togglePanel");
+    const toggle = document.getElementById("togglePanel");
+    const panel = document.getElementById("controlPanel");
+
+    toggle.onclick = () => {
+        panel.style.display = panel.style.display === "none" ? "block" : "none";
+    };
+
+    async function loadArchitecture() {
+        const res = await fetch("./RootNodeHarvestor/architectureMap.json");
+        return await res.json();
+    }
+
+    async function loadJSON(path) {
+        const res = await fetch(path);
+        return await res.json();
+    }
+
+    function createDropdown(label, id, options) {
+        const container = document.createElement("div");
+
+        const select = document.createElement("select");
+        select.id = id;
+
+        options.forEach(opt => {
+            const option = document.createElement("option");
+            option.value = opt;
+            option.textContent = opt;
+            select.appendChild(option);
+        });
+
+        container.appendChild(select);
+        return container;
+    }
+
+    async function initUI() {
         const panel = document.getElementById("controlPanel");
+        const architecture = await loadArchitecture();
 
-        toggle.onclick = () => {
-            panel.style.display = panel.style.display === "none" ? "block" : "none";
+        const dataMap = {
+            baseNeeds: await loadJSON("./RootNodeHarvestor/baseNeeds/baseNeeds.json"),
+            rootNodes: await loadJSON("./RootNodeHarvestor/rootNodes/rootNodes.json"),
+            psychologicalClusters: await loadJSON("./RootNodeHarvestor/clusters/clusters.json"),
+            identityMechanics: await loadJSON("./RootNodeHarvestor/identityMechanics/identityMechanics.json"),
+
+            surfaceOverlays: await loadJSON("./RootNodeEngine/overlays/overlays.json"),
+            wrappers: await loadJSON("./RootNodeEngine/wrappers/wrappers.json"),
+            formats: await loadJSON("./RootNodeEngine/formats/formats.json"),
+            distributionPhysics: await loadJSON("./RootNodeEngine/distributionPhysics/distributionPhysics.json")
         };
 
-        async function loadArchitecture() {
-            const res = await fetch("./RootNodeHarvestor/architectureMap.json");
-            return await res.json();
-        }
+        architecture.order.forEach(layer => {
+            const dropdown = createDropdown(layer, layer, dataMap[layer]);
+            panel.appendChild(dropdown);
+        });
 
-        async function loadJSON(path) {
-            const res = await fetch(path);
-            return await res.json();
-        }
-
-        function createDropdown(label, id, options) {
-            const container = document.createElement("div");
-
-            const select = document.createElement("select");
-            select.id = id;
-
-            options.forEach(opt => {
-                const option = document.createElement("option");
-                option.value = opt;
-                option.textContent = opt;
-                select.appendChild(option);
-            });
-
-            container.appendChild(select);
-            return container;
-        }
-
-        async function initUI() {
-            const panel = document.getElementById("controlPanel");
-            const architecture = await loadArchitecture();
-
-            const dataMap = {
-                baseNeeds: await loadJSON("./RootNodeHarvestor/baseNeeds/baseNeeds.json"),
-                rootNodes: await loadJSON("./RootNodeHarvestor/rootNodes/rootNodes.json"),
-                psychologicalClusters: await loadJSON("./RootNodeHarvestor/clusters/clusters.json"),
-                identityMechanics: await loadJSON("./RootNodeHarvestor/identityMechanics/identityMechanics.json"),
-
-                surfaceOverlays: await loadJSON("./RootNodeEngine/overlays/overlays.json"),
-                wrappers: await loadJSON("./RootNodeEngine/wrappers/wrappers.json"),
-                formats: await loadJSON("./RootNodeEngine/formats/formats.json"),
-                distributionPhysics: await loadJSON("./RootNodeEngine/distributionPhysics/distributionPhysics.json")
-            };
+        const generateBtn = document.createElement("button");
+        generateBtn.textContent = "Generate Carousel";
+        generateBtn.onclick = () => {
+            const selections = {};
 
             architecture.order.forEach(layer => {
-                const dropdown = createDropdown(layer, layer, dataMap[layer]);
-                panel.appendChild(dropdown);
+                const el = document.getElementById(layer);
+                selections[layer] = el.value;
             });
 
-            const generateBtn = document.createElement("button");
-            generateBtn.textContent = "Generate IR";
-            generateBtn.onclick = () => {
-                const selections = {};
+            const ir = generateIR({
+                baseNeed: selections.baseNeeds,
+                rootNode: selections.rootNodes,
+                psychologicalCluster: selections.psychologicalClusters,
+                surfaceOverlay: selections.surfaceOverlays,
+                wrapper: selections.wrappers,
+                format: { type: selections.formats },
+                identityMechanic: selections.identityMechanics,
+                distributionPhysics: { platform: selections.distributionPhysics }
+            });
 
-                architecture.order.forEach(layer => {
-                    const el = document.getElementById(layer);
-                    selections[layer] = el.value;
-                });
+            const slides = renderCarousel(ir);
 
-                const ir = generateIR({
-                    baseNeed: selections.baseNeeds,
-                    rootNode: selections.rootNodes,
-                    psychologicalCluster: selections.psychologicalClusters,
-                    surfaceOverlay: selections.surfaceOverlays,
-                    wrapper: selections.wrappers,
-                    format: { type: selections.formats },
-                    identityMechanic: selections.identityMechanics,
-                    distributionPhysics: { platform: selections.distributionPhysics }
-                });
+            const outputPanel = document.getElementById("outputPanel");
+            outputPanel.style.display = "block";
 
-                const outputPanel = document.getElementById("outputPanel");
-                outputPanel.style.display = "block";
-                outputPanel.textContent = JSON.stringify(ir, null, 2);
-            };
+            outputPanel.innerHTML = slides
+                .map((slide, index) => {
+                    return `<div style="margin-bottom:16px;">
+<h3>Slide ${index + 1}: ${slide.title}</h3>
+<p>${slide.body}</p>
+</div>`;
+                })
+                .join("");
+        };
 
-            panel.appendChild(generateBtn);
-        }
+        panel.appendChild(generateBtn);
+    }
 
-        initUI();
-    </script>
+    initUI();
+</script>
+
 
 </body>
 </html>
