@@ -182,25 +182,3 @@ This is what will feed the GitHub engines.
 
 ---
 
-# **Where we go next (your choice)**  
-Now that you’re in development mode, we can move into any of these:
-
-### **A. Build the Root Node Library**  
-A structured list of 50–100 root nodes.
-
-### **B. Build the Overlay System**  
-Money, identity, discipline, habits, etc.
-
-### **C. Build the Wrapper Catalogue**  
-All narrative frames.
-
-### **D. Build the Format Engine**  
-All structural templates.
-
-### **E. Map Identity Mechanics**  
-For distribution and virality.
-
-### **F. Prepare the GitHub Specs**  
-So the mechanical engine can ingest this architecture.
-
-You tell me which direction you want to move in first.
