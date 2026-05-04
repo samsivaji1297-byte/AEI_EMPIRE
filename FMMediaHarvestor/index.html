@@ -88,12 +88,30 @@ function createDropdown(label, id, options) {
 }
 
 // Inject UI
+async function loadJSON(path) {
+    const res = await fetch(path);
+    return await res.json();
+}
+
 async function initUI() {
     const panel = document.getElementById("controlPanel");
     const architecture = await loadArchitecture();
 
+    const dataMap = {
+        baseNeeds: await loadJSON("./RootNodeHarvestor/baseNeeds/baseNeeds.json"),
+        rootNodes: await loadJSON("./RootNodeHarvestor/rootNodes/rootNodes.json"),
+        psychologicalClusters: await loadJSON("./RootNodeHarvestor/clusters/clusters.json"),
+        identityMechanics: await loadJSON("./RootNodeHarvestor/identityMechanics/identityMechanics.json"),
+
+        // temporary placeholders for mechanical layers
+        surfaceOverlays: ["Money", "Discipline", "Identity", "Habits", "Fitness", "Career"],
+        wrappers: ["Nobody talks about this", "Here’s the real reason", "Stop doing this", "3 things nobody told you"],
+        formats: ["Listicle", "3-Step", "X→Y", "Mini-Framework"],
+        distributionPhysics: ["Instagram", "TikTok", "YouTube Shorts"]
+    };
+
     architecture.order.forEach(layer => {
-        const dropdown = createDropdown(layer, layer, []);
+        const dropdown = createDropdown(layer, layer, dataMap[layer]);
         panel.appendChild(dropdown);
     });
 
@@ -125,6 +143,7 @@ async function initUI() {
 }
 
 initUI();
+
 
     </script>
 
