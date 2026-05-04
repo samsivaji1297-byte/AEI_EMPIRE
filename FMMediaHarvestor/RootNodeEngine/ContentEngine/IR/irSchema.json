@@ -1,0 +1,88 @@
+{
+  "baseNeed": {
+    "type": "string",
+    "description": "The deep human driver selected from the baseNeeds dataset."
+  },
+
+  "rootNode": {
+    "type": "string",
+    "description": "The emotional engine or core truth selected from rootNodes."
+  },
+
+  "psychologicalCluster": {
+    "type": "string",
+    "description": "The emotional universe the root node belongs to."
+  },
+
+  "surfaceOverlay": {
+    "type": "string",
+    "description": "The domain translator applied to the emotional truth."
+  },
+
+  "wrapper": {
+    "type": "string",
+    "description": "The narrative frame used to deliver the insight."
+  },
+
+  "format": {
+    "type": "object",
+    "properties": {
+      "type": { "type": "string" },
+      "itemCount": { "type": "number" },
+      "density": { "type": "string" },
+      "pacing": { "type": "string" }
+    },
+    "description": "The structural shape of the content (listicle, X→Y, 3-step, etc)."
+  },
+
+  "identityMechanic": {
+    "type": "string",
+    "description": "The identity-level transformation or trigger."
+  },
+
+  "distributionPhysics": {
+    "type": "object",
+    "properties": {
+      "platform": { "type": "string" },
+      "optimalSlides": { "type": "number" },
+      "optimalScenes": { "type": "number" },
+      "densityLimit": { "type": "string" }
+    },
+    "description": "Platform-level mechanics that influence pacing and structure."
+  },
+
+  "narrativeSequence": {
+    "type": "object",
+    "properties": {
+      "pain": { "type": "string" },
+      "catalyst": { "type": "string" },
+      "action": { "type": "string" },
+      "transformation": { "type": "string" },
+      "cta": { "type": "string" }
+    },
+    "description": "The 5-part narrative arc generated from the psychological layers."
+  },
+
+  "psychologicalBreakdown": {
+    "type": "object",
+    "properties": {
+      "emotionalTruth": { "type": "string" },
+      "identityShift": { "type": "string" },
+      "competenceSignal": { "type": "string" },
+      "progressSignal": { "type": "string" },
+      "belongingTrigger": { "type": "string" }
+    },
+    "description": "The deeper psychological interpretation of the content."
+  },
+
+  "rendererMapping": {
+    "type": "object",
+    "properties": {
+      "singlePage": { "type": "object" },
+      "carousel": { "type": "object" },
+      "reel": { "type": "object" },
+      "edit": { "type": "object" }
+    },
+    "description": "The format-specific output instructions for each renderer."
+  }
+}
