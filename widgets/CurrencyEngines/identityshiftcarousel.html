@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport"
       content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Cinematic Identity Carousel Engine</title>
+<title>Sovereign Identity Carousel Engine</title>
 
 <style>
 *{
@@ -27,24 +27,24 @@ body{
   position:relative;
 }
 
-/* Cinematic drifting background */
+/* Apple-grade drifting background */
 .bg{
   position:absolute;
-  inset:-25%;
-  filter:blur(60px);
-  opacity:0.85;
-  animation:drift 22s ease-in-out infinite alternate;
+  inset:-30%;
+  filter:blur(70px);
+  opacity:0.75;
+  animation:drift 26s ease-in-out infinite alternate;
 }
 
 @keyframes drift{
   from{transform:scale(1) translate(0,0);}
-  to{transform:scale(1.22) translate(-40px,-50px);}
+  to{transform:scale(1.25) translate(-50px,-60px);}
 }
 
 .bgStyle{
   background:
-    radial-gradient(circle at 20% 20%, rgba(255,255,255,.10), transparent 30%),
-    radial-gradient(circle at 80% 40%, rgba(255,255,255,.06), transparent 30%),
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,.12), transparent 40%),
+    radial-gradient(circle at 70% 60%, rgba(255,255,255,.06), transparent 40%),
     linear-gradient(180deg,#050505,#000);
 }
 
@@ -52,14 +52,14 @@ body{
 .overlay{
   position:absolute;
   inset:0;
-  background:linear-gradient(to bottom,rgba(255,255,255,.04),transparent);
+  background:linear-gradient(to bottom,rgba(255,255,255,.03),transparent);
   backdrop-filter:blur(18px);
 }
 
 .noise{
   position:absolute;
   inset:0;
-  opacity:.04;
+  opacity:.035;
   background-image:radial-gradient(circle, white 1px, transparent 1px);
   background-size:4px 4px;
 }
@@ -68,7 +68,9 @@ body{
 .slide{
   position:absolute;
   inset:0;
-  padding:0 8vw;
+  padding:0 10vw;
+  padding-top:12vh; /* iPhone safe zone */
+  padding-bottom:12vh;
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -84,17 +86,17 @@ body{
 
 /* Typography */
 .main{
-  font-size:clamp(38px,8vw,86px);
+  font-size:clamp(40px,8vw,90px);
   line-height:1.05;
   font-weight:680;
   letter-spacing:-1.5px;
   max-width:92%;
   text-wrap:balance;
-  margin-bottom:28px;
+  margin-bottom:32px;
 }
 
 .body{
-  font-size:clamp(20px,4.4vw,34px);
+  font-size:clamp(22px,4.6vw,36px);
   line-height:1.32;
   color:rgba(255,255,255,.78);
   max-width:90%;
@@ -103,7 +105,7 @@ body{
 
 /* CTA slide */
 .cta{
-  font-size:clamp(22px,5vw,40px);
+  font-size:clamp(26px,6vw,42px);
   line-height:1.25;
   font-weight:600;
   color:#fff;
@@ -113,7 +115,7 @@ body{
 /* Navigation */
 .nav{
   position:absolute;
-  bottom:6vh;
+  bottom:5vh;
   left:0;
   right:0;
   display:flex;
@@ -166,33 +168,34 @@ body{
 
 <script>
 /* ---------------------------------------------------------
-   CINEMATIC IDENTITY CAROUSEL ENGINE — v1.0
+   SOVEREIGN IDENTITY CAROUSEL ENGINE — v2
+   Tailored to your digital product + doctrine
    --------------------------------------------------------- */
 
 const data = [
   {
-    main: "How I turned my scroll into something that actually builds my life instead of draining it.",
-    body: "Same apps. Same phone. Same hours in the day. The only thing that changed was the identity I was operating from."
+    main: "The moment you stop negotiating with the weaker version of you, everything accelerates.",
+    body: "Your life doesn’t change when you learn more. It changes when you stop returning to the identity that keeps collapsing your momentum."
   },
   {
-    main: "I used to scroll for hours with nothing to show for it.",
-    body: "It wasn’t laziness. It wasn’t lack of discipline. It was that I was living as a version of myself who didn’t believe my time meant anything."
+    main: "I used to operate from the version of me who couldn’t hold what he wanted.",
+    body: "Not because I lacked discipline — but because my identity was still built around survival, not sovereignty. Every upgrade collapsed under the weight of who I used to be."
   },
   {
-    main: "One night it hit me.",
-    body: "I wasn’t addicted to my phone — I was addicted to avoiding the version of me I knew I could become. That realisation broke something open."
+    main: "Then it clicked.",
+    body: "The problem wasn’t my habits. It wasn’t my routines. It wasn’t my environment. It was the identity I kept defaulting back to — the one that couldn’t hold expansion."
   },
   {
-    main: "So I changed the way I used the exact same scroll.",
-    body: "I stopped consuming to escape. I started consuming to observe. Patterns. Offers. Behaviour. Identity. What works. What doesn’t. Everything became data."
+    main: "So I rebuilt the internal architecture.",
+    body: "I stopped trying to ‘fix’ myself and started operating from the version of me who already moves with inevitability. The one who doesn’t break self‑trust. The one who doesn’t shrink."
   },
   {
-    main: "And slowly, the identity shifted.",
-    body: "I stopped being the person who wasted hours. I became the person who turns minutes into momentum. The scroll didn’t change — I did."
+    main: "And everything shifted.",
+    body: "Momentum stopped leaking. Decisions became clean. Output became automatic. Life started responding to the identity I was finally willing to hold."
   },
   {
     main: "If this hit you, comment 777.",
-    body: "Not for luck — but as a signal that you’re done operating from the version of you who keeps falling behind."
+    body: "Not for luck — but as a declaration that you’re done operating from the version of you who keeps falling back into the old cycle."
   }
 ];
 
