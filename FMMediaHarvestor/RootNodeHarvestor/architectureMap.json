@@ -1,0 +1,23 @@
+{
+  "order": [
+    "baseNeeds",
+    "rootNodes",
+    "psychologicalClusters",
+    "surfaceOverlays",
+    "wrappers",
+    "formats",
+    "identityMechanics",
+    "distributionPhysics"
+  ],
+
+  "descriptions": {
+    "baseNeeds": "Deep human drivers such as safety, belonging, competence, recognition, autonomy, progress, clarity, identity.",
+    "rootNodes": "Emotional engines that express the user's internal truth, e.g., 'I feel behind', 'I can't stay consistent'.",
+    "psychologicalClusters": "Emotional universes that root nodes belong to: shame, confusion, pattern-fatigue, identity-shift.",
+    "surfaceOverlays": "Domain translators like money, discipline, identity, habits, fitness, career.",
+    "wrappers": "Narrative frames such as 'Nobody talks about this', 'Here’s the real reason', 'Stop doing this'.",
+    "formats": "Output shapes such as listicle, X→Y, 3-step, mini-framework, linear transmission.",
+    "identityMechanics": "Identity-level transformations such as identity shift, identity elevation, competence signal, belonging trigger.",
+    "distributionPhysics": "Platform-level mechanics such as IG carousel retention, reel pacing, CTA physics, shareability triggers."
+  }
+}
