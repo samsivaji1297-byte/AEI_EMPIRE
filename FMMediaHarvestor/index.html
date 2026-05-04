@@ -63,7 +63,69 @@
             panel.style.display = panel.style.display === "none" ? "block" : "none";
         };
 
-        // UI injection will happen here in Step 6
+        // Load architecture map
+async function loadArchitecture() {
+    const res = await fetch("./RootNodeHarvestor/architectureMap.json");
+    return await res.json();
+}
+
+// Create dropdown
+function createDropdown(label, id, options) {
+    const container = document.createElement("div");
+
+    const select = document.createElement("select");
+    select.id = id;
+
+    options.forEach(opt => {
+        const option = document.createElement("option");
+        option.value = opt;
+        option.textContent = opt;
+        select.appendChild(option);
+    });
+
+    container.appendChild(select);
+    return container;
+}
+
+// Inject UI
+async function initUI() {
+    const panel = document.getElementById("controlPanel");
+    const architecture = await loadArchitecture();
+
+    architecture.order.forEach(layer => {
+        const dropdown = createDropdown(layer, layer, []);
+        panel.appendChild(dropdown);
+    });
+
+    const generateBtn = document.createElement("button");
+    generateBtn.textContent = "Generate IR";
+    generateBtn.onclick = () => {
+        const selections = {};
+
+        architecture.order.forEach(layer => {
+            const el = document.getElementById(layer);
+            selections[layer] = el.value;
+        });
+
+        const ir = generateIR({
+            baseNeed: selections.baseNeeds,
+            rootNode: selections.rootNodes,
+            psychologicalCluster: selections.psychologicalClusters,
+            surfaceOverlay: selections.surfaceOverlays,
+            wrapper: selections.wrappers,
+            format: { type: selections.formats },
+            identityMechanic: selections.identityMechanics,
+            distributionPhysics: { platform: selections.distributionPhysics }
+        });
+
+        console.log("IR Output:", ir);
+    };
+
+    panel.appendChild(generateBtn);
+}
+
+initUI();
+
     </script>
 
 </body>
