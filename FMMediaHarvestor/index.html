@@ -103,11 +103,10 @@ async function initUI() {
         psychologicalClusters: await loadJSON("./RootNodeHarvestor/clusters/clusters.json"),
         identityMechanics: await loadJSON("./RootNodeHarvestor/identityMechanics/identityMechanics.json"),
 
-        // temporary placeholders for mechanical layers
-        surfaceOverlays: ["Money", "Discipline", "Identity", "Habits", "Fitness", "Career"],
-        wrappers: ["Nobody talks about this", "Here’s the real reason", "Stop doing this", "3 things nobody told you"],
-        formats: ["Listicle", "3-Step", "X→Y", "Mini-Framework"],
-        distributionPhysics: ["Instagram", "TikTok", "YouTube Shorts"]
+        surfaceOverlays: await loadJSON("./RootNodeEngine/overlays/overlays.json"),
+        wrappers: await loadJSON("./RootNodeEngine/wrappers/wrappers.json"),
+        formats: await loadJSON("./RootNodeEngine/formats/formats.json"),
+        distributionPhysics: await loadJSON("./RootNodeEngine/distributionPhysics/distributionPhysics.json")
     };
 
     architecture.order.forEach(layer => {
