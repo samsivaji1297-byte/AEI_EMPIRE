@@ -1,174 +1,415 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>FMMedia Harvestor</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #111;
-            color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <title>Root Node Engine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --muted: #888;
+      --accent: #fff;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "SF Pro Display", "Segoe UI", sans-serif;
+    }
 
-        #controlPanel {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(20, 20, 20, 0.85);
-            backdrop-filter: blur(12px);
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-            display: none;
-            max-width: 320px;
-        }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        #togglePanel {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: #222;
-            padding: 12px 18px;
-            border-radius: 12px;
-            cursor: pointer;
-            user-select: none;
-        }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-main);
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
 
-        select, button {
-            margin-top: 10px;
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: none;
-            background: #333;
-            color: #fff;
-        }
+    /* Ambient + slide viewer */
 
-        #outputPanel {
-            margin: 20px;
-            padding: 20px;
-            background: #181818;
-            border-radius: 16px;
-            white-space: pre-wrap;
-            font-size: 14px;
-            line-height: 1.5;
-            display: none;
-        }
-    </style>
+    .ambient {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 30%, rgba(255,255,255,0.06), transparent 70%);
+      animation: pulse 7s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.18; transform: scale(1); }
+      100% { opacity: 0.32; transform: scale(1.08); }
+    }
+
+    #slide-viewer {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      overflow: hidden;
+    }
+
+    .frame {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6vh 6vw;
+      cursor: pointer;
+      z-index: 1;
+    }
+
+    .inner {
+      max-width: 720px;
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 4vh;
+    }
+
+    .title {
+      font-size: min(6vw, 26px);
+      font-weight: 500;
+      line-height: 1.3;
+      color: var(--accent);
+      min-height: 10vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.4vh;
+      min-height: 18vh;
+      justify-content: center;
+    }
+
+    .item {
+      font-size: min(4.5vw, 18px);
+      color: var(--fg);
+      line-height: 1.35;
+    }
+
+    .cta {
+      margin-top: 2vh;
+      font-size: min(4.8vw, 20px);
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .bio-center {
+      margin-top: 2vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .bio-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4em;
+      padding: 0.4em 1em;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.04);
+      font-size: min(3.4vw, 13px);
+      color: var(--fg);
+    }
+
+    .bio-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #fff;
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 3vh;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .slide-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+    }
+
+    .slide-container.enter-from-bottom {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+
+    .slide-container.active {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .slide-container.exit-up {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+
+    /* Engine UI */
+
+    #open-engine {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      background: rgba(20,20,20,0.9);
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+      z-index: 30;
+    }
+
+    #engine-panel {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(10,10,10,0.96);
+      backdrop-filter: blur(18px);
+      border-radius: 18px 18px 0 0;
+      padding: 16px 16px 24px;
+      transform: translateY(100%);
+      transition: transform 0.25s ease-out;
+      z-index: 25;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    #engine-panel.visible {
+      transform: translateY(0);
+    }
+
+    .field {
+      margin-bottom: 10px;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #222;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    #generate-btn {
+      margin-top: 8px;
+      background: #fff;
+      color: #000;
+      font-weight: 500;
+    }
+  </style>
 </head>
-
 <body>
 
-    <div id="togglePanel">Open Engine</div>
+  <div id="open-engine">Open Engine</div>
 
-    <div id="controlPanel"></div>
+  <div id="engine-panel"></div>
 
-    <div id="outputPanel"></div>
+  <div id="slide-viewer">
+    <div class="ambient"></div>
+    <div class="frame" id="slide-tap-area">
+      <div class="slide-container active" id="slide-container">
+        <div class="inner">
+          <div class="title" id="slide-title"></div>
+          <div class="list" id="slide-list"></div>
+          <div class="cta" id="slide-cta"></div>
+          <div class="bio-center" id="slide-bio" style="display:none;">
+            <span class="bio-pill">
+              <span class="bio-dot"></span>
+              <span>Bio is the only link that matters.</span>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="hint" id="slide-hint">Tap to advance · Two fingers to exit</div>
+    </div>
+  </div>
 
-    
-    <script type="module">
+  <script type="module">
     import { generateIR } from "./RootNodeEngine/ContentEngine/IR/generateIR.js";
     import { renderCarousel } from "./RootNodeEngine/Renderers/Carousel/carouselRenderer.js";
 
-    const toggle = document.getElementById("togglePanel");
-    const panel = document.getElementById("controlPanel");
+    const openEngineBtn = document.getElementById("open-engine");
+    const enginePanel = document.getElementById("engine-panel");
 
-    toggle.onclick = () => {
-        panel.style.display = panel.style.display === "none" ? "block" : "none";
+    const slideViewer = document.getElementById("slide-viewer");
+    const slideTapArea = document.getElementById("slide-tap-area");
+    const slideTitle = document.getElementById("slide-title");
+    const slideList = document.getElementById("slide-list");
+    const slideCta = document.getElementById("slide-cta");
+    const slideBio = document.getElementById("slide-bio");
+    const slideContainer = document.getElementById("slide-container");
+
+    let slides = [];
+    let currentSlideIndex = 0;
+
+    openEngineBtn.onclick = () => {
+      enginePanel.classList.toggle("visible");
     };
 
     async function loadArchitecture() {
-        const res = await fetch("./RootNodeHarvestor/architectureMap.json");
-        return await res.json();
+      const res = await fetch("./RootNodeHarvestor/architectureMap.json");
+      return await res.json();
     }
 
     async function loadJSON(path) {
-        const res = await fetch(path);
-        return await res.json();
+      const res = await fetch(path);
+      return await res.json();
     }
 
-    function createDropdown(label, id, options) {
-        const container = document.createElement("div");
+    function createDropdown(id, options) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "field";
 
-        const select = document.createElement("select");
-        select.id = id;
+      const select = document.createElement("select");
+      select.id = id;
 
-        options.forEach(opt => {
-            const option = document.createElement("option");
-            option.value = opt;
-            option.textContent = opt;
-            select.appendChild(option);
-        });
+      options.forEach(opt => {
+        const option = document.createElement("option");
+        option.value = opt;
+        option.textContent = opt;
+        select.appendChild(option);
+      });
 
-        container.appendChild(select);
-        return container;
+      wrapper.appendChild(select);
+      return wrapper;
     }
 
     async function initUI() {
-        const panel = document.getElementById("controlPanel");
-        const architecture = await loadArchitecture();
+      const architecture = await loadArchitecture();
 
-        const dataMap = {
-            baseNeeds: await loadJSON("./RootNodeHarvestor/baseNeeds/baseNeeds.json"),
-            rootNodes: await loadJSON("./RootNodeHarvestor/rootNodes/rootNodes.json"),
-            psychologicalClusters: await loadJSON("./RootNodeHarvestor/clusters/clusters.json"),
-            identityMechanics: await loadJSON("./RootNodeHarvestor/identityMechanics/identityMechanics.json"),
+      const dataMap = {
+        baseNeeds: await loadJSON("./RootNodeHarvestor/baseNeeds/baseNeeds.json"),
+        rootNodes: await loadJSON("./RootNodeHarvestor/rootNodes/rootNodes.json"),
+        psychologicalClusters: await loadJSON("./RootNodeHarvestor/clusters/clusters.json"),
+        identityMechanics: await loadJSON("./RootNodeHarvestor/identityMechanics/identityMechanics.json"),
+        surfaceOverlays: await loadJSON("./RootNodeEngine/overlays/overlays.json"),
+        wrappers: await loadJSON("./RootNodeEngine/wrappers/wrappers.json"),
+        formats: await loadJSON("./RootNodeEngine/formats/formats.json"),
+        distributionPhysics: await loadJSON("./RootNodeEngine/distributionPhysics/distributionPhysics.json")
+      };
 
-            surfaceOverlays: await loadJSON("./RootNodeEngine/overlays/overlays.json"),
-            wrappers: await loadJSON("./RootNodeEngine/wrappers/wrappers.json"),
-            formats: await loadJSON("./RootNodeEngine/formats/formats.json"),
-            distributionPhysics: await loadJSON("./RootNodeEngine/distributionPhysics/distributionPhysics.json")
-        };
+      architecture.order.forEach(layer => {
+        const dropdown = createDropdown(layer, dataMap[layer]);
+        enginePanel.appendChild(dropdown);
+      });
 
+      const generateBtn = document.createElement("button");
+      generateBtn.id = "generate-btn";
+      generateBtn.textContent = "Generate Carousel";
+      generateBtn.onclick = () => {
+        const selections = {};
         architecture.order.forEach(layer => {
-            const dropdown = createDropdown(layer, layer, dataMap[layer]);
-            panel.appendChild(dropdown);
+          const el = document.getElementById(layer);
+          selections[layer] = el.value;
         });
 
-        const generateBtn = document.createElement("button");
-        generateBtn.textContent = "Generate Carousel";
-        generateBtn.onclick = () => {
-            const selections = {};
+        const ir = generateIR({
+          baseNeed: selections.baseNeeds,
+          rootNode: selections.rootNodes,
+          psychologicalCluster: selections.psychologicalClusters,
+          surfaceOverlay: selections.surfaceOverlays,
+          wrapper: selections.wrappers,
+          format: { type: selections.formats },
+          identityMechanic: selections.identityMechanics,
+          distributionPhysics: { platform: selections.distributionPhysics }
+        });
 
-            architecture.order.forEach(layer => {
-                const el = document.getElementById(layer);
-                selections[layer] = el.value;
-            });
+        slides = renderCarousel(ir);
+        currentSlideIndex = 0;
+        enginePanel.classList.remove("visible");
+        openEngineBtn.style.display = "none";
+        showSlideViewer();
+      };
 
-            const ir = generateIR({
-                baseNeed: selections.baseNeeds,
-                rootNode: selections.rootNodes,
-                psychologicalCluster: selections.psychologicalClusters,
-                surfaceOverlay: selections.surfaceOverlays,
-                wrapper: selections.wrappers,
-                format: { type: selections.formats },
-                identityMechanic: selections.identityMechanics,
-                distributionPhysics: { platform: selections.distributionPhysics }
-            });
-
-            const slides = renderCarousel(ir);
-
-            const outputPanel = document.getElementById("outputPanel");
-            outputPanel.style.display = "block";
-
-            outputPanel.innerHTML = slides
-                .map((slide, index) => {
-                    return `<div style="margin-bottom:16px;">
-<h3>Slide ${index + 1}: ${slide.title}</h3>
-<p>${slide.body}</p>
-</div>`;
-                })
-                .join("");
-        };
-
-        panel.appendChild(generateBtn);
+      enginePanel.appendChild(generateBtn);
     }
 
-    initUI();
-</script>
+    function renderSlide(index) {
+      const slide = slides[index];
+      slideTitle.textContent = slide.title || "";
+      slideList.innerHTML = "";
+      (slide.items || []).forEach(item => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.textContent = item;
+        slideList.appendChild(div);
+      });
+      slideCta.textContent = slide.cta || "";
+      const isLast = index === slides.length - 1;
+      slideBio.style.display = isLast ? "flex" : "none";
+    }
 
+    function showSlideViewer() {
+      slideViewer.style.display = "flex";
+      slideContainer.classList.remove("enter-from-bottom", "exit-up");
+      slideContainer.classList.add("active");
+      renderSlide(currentSlideIndex);
+    }
+
+    function nextSlide() {
+      if (currentSlideIndex >= slides.length - 1) return;
+      slideContainer.classList.remove("active");
+      slideContainer.classList.add("exit-up");
+      setTimeout(() => {
+        currentSlideIndex += 1;
+        renderSlide(currentSlideIndex);
+        slideContainer.classList.remove("exit-up");
+        slideContainer.classList.add("enter-from-bottom");
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            slideContainer.classList.remove("enter-from-bottom");
+            slideContainer.classList.add("active");
+          });
+        });
+      }, 200);
+    }
+
+    function exitViewer() {
+      slideViewer.style.display = "none";
+      openEngineBtn.style.display = "block";
+    }
+
+    slideTapArea.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "touch" && e.isPrimary === false) {
+        // second finger
+        exitViewer();
+        return;
+      }
+    });
+
+    slideTapArea.addEventListener("click", (e) => {
+      // single-finger tap → next slide
+      nextSlide();
+    });
+
+    initUI();
+  </script>
 
 </body>
 </html>
