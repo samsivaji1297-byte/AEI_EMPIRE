@@ -106,16 +106,21 @@ body{
   color:#fff;
 }
 
-/* Slide container */
 .slide{
   position:absolute;
   inset:0;
   padding:0 10vw;
-  padding-top:12vh;
-  padding-bottom:14vh;
+  
+  /* NEW: true vertical centering */
   display:flex;
   flex-direction:column;
   justify-content:center;
+  align-items:flex-start;
+
+  /* NEW: balanced top/bottom breathing room */
+  padding-top:6vh;
+  padding-bottom:8vh;
+
   opacity:0;
   transform:translateY(40px);
   transition:opacity .7s ease, transform .7s ease;
