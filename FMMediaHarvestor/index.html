@@ -226,190 +226,203 @@
 </head>
 <body>
 
-  <div id="open-engine">Open Engine</div>
+    <!-- Ambient background -->
+  <div class="ambient"></div>
 
-  <div id="engine-panel"></div>
-
+  <!-- Slide Viewer -->
   <div id="slide-viewer">
-    <div class="ambient"></div>
-    <div class="frame" id="slide-tap-area">
-      <div class="slide-container active" id="slide-container">
+    <div id="slide-container" class="slide-container active">
+      <div class="frame">
         <div class="inner">
-          <div class="title" id="slide-title"></div>
-          <div class="list" id="slide-list"></div>
-          <div class="cta" id="slide-cta"></div>
-          <div class="bio-center" id="slide-bio" style="display:none;">
-            <span class="bio-pill">
-              <span class="bio-dot"></span>
-              <span>Bio is the only link that matters.</span>
-            </span>
+          <div id="slide-title" class="title"></div>
+          <div id="slide-list" class="list"></div>
+          <div id="slide-cta" class="cta"></div>
+
+          <div class="bio-center">
+            <div id="slide-bio" class="bio-pill">
+              <div class="bio-dot"></div>
+              <span id="slide-bio-text"></span>
+            </div>
           </div>
         </div>
+        <div class="hint">TAP TO ADVANCE · TWO FINGERS TO EXIT</div>
       </div>
-      <div class="hint" id="slide-hint">Tap to advance · Two fingers to exit</div>
     </div>
+  </div>
+
+  <!-- Engine Panel Trigger -->
+  <div id="open-engine">Open Engine</div>
+
+  <!-- Engine Panel -->
+  <div id="engine-panel">
+    <div class="field">
+      <label>Wrapper</label>
+      <textarea id="wrapper-input" rows="2" style="width:100%;padding:10px;border-radius:8px;background:#111;color:#fff;border:1px solid #333;"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Format</label>
+      <select id="format-select">
+        <option value="auto">Auto (wrapper decides)</option>
+        <option value="listicle">Force Listicle</option>
+        <option value="carousel">Force Carousel</option>
+      </select>
+    </div>
+
+    <button id="generate-btn">Generate</button>
   </div>
 
   <script type="module">
     import { generateIR } from "./RootNodeEngine/ContentEngine/IR/generateIR.js";
-    import { renderCarousel } from "./RootNodeEngine/Renderers/Carousel/carouselRenderer.js";
+    import { renderContent } from "./RootNodeEngine/Renderers/rendererPipeline.js";
 
-    const openEngineBtn = document.getElementById("open-engine");
-    const enginePanel = document.getElementById("engine-panel");
-
-    const slideViewer = document.getElementById("slide-viewer");
-    const slideTapArea = document.getElementById("slide-tap-area");
-    const slideTitle = document.getElementById("slide-title");
-    const slideList = document.getElementById("slide-list");
-    const slideCta = document.getElementById("slide-cta");
-    const slideBio = document.getElementById("slide-bio");
+    const viewer = document.getElementById("slide-viewer");
     const slideContainer = document.getElementById("slide-container");
 
+    const titleEl = document.getElementById("slide-title");
+    const listEl = document.getElementById("slide-list");
+    const ctaEl = document.getElementById("slide-cta");
+    const bioEl = document.getElementById("slide-bio");
+    const bioTextEl = document.getElementById("slide-bio-text");
+
+    const wrapperInput = document.getElementById("wrapper-input");
+    const formatSelect = document.getElementById("format-select");
+    const generateBtn = document.getElementById("generate-btn");
+
+    const openEngine = document.getElementById("open-engine");
+    const enginePanel = document.getElementById("engine-panel");
+
     let slides = [];
-    let currentSlideIndex = 0;
+    let index = 0;
 
-    openEngineBtn.onclick = () => {
+    /* ---------------------------
+       ENGINE PANEL OPEN/CLOSE
+    ----------------------------*/
+    openEngine.addEventListener("click", () => {
       enginePanel.classList.toggle("visible");
-    };
+    });
 
-    async function loadArchitecture() {
-      const res = await fetch("./RootNodeHarvestor/architectureMap.json");
-      return await res.json();
-    }
+    /* ---------------------------
+       VIEWER CONTROL
+    ----------------------------*/
+    function openViewer(data) {
+      slides = data;
+      index = 0;
+      renderSlide(slides[index]);
 
-    async function loadJSON(path) {
-      const res = await fetch(path);
-      return await res.json();
-    }
-
-    function createDropdown(id, options) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "field";
-
-      const select = document.createElement("select");
-      select.id = id;
-
-      options.forEach(opt => {
-        const option = document.createElement("option");
-        option.value = opt;
-        option.textContent = opt;
-        select.appendChild(option);
-      });
-
-      wrapper.appendChild(select);
-      return wrapper;
-    }
-
-    async function initUI() {
-      const architecture = await loadArchitecture();
-
-      const dataMap = {
-        baseNeeds: await loadJSON("./RootNodeHarvestor/baseNeeds/baseNeeds.json"),
-        rootNodes: await loadJSON("./RootNodeHarvestor/rootNodes/rootNodes.json"),
-        psychologicalClusters: await loadJSON("./RootNodeHarvestor/clusters/clusters.json"),
-        identityMechanics: await loadJSON("./RootNodeHarvestor/identityMechanics/identityMechanics.json"),
-        surfaceOverlays: await loadJSON("./RootNodeEngine/overlays/overlays.json"),
-        wrappers: await loadJSON("./RootNodeEngine/wrappers/wrappers.json"),
-        formats: await loadJSON("./RootNodeEngine/formats/formats.json"),
-        distributionPhysics: await loadJSON("./RootNodeEngine/distributionPhysics/distributionPhysics.json")
-      };
-
-      architecture.order.forEach(layer => {
-        const dropdown = createDropdown(layer, dataMap[layer]);
-        enginePanel.appendChild(dropdown);
-      });
-
-      const generateBtn = document.createElement("button");
-      generateBtn.id = "generate-btn";
-      generateBtn.textContent = "Generate Carousel";
-      generateBtn.onclick = () => {
-        const selections = {};
-        architecture.order.forEach(layer => {
-          const el = document.getElementById(layer);
-          selections[layer] = el.value;
-        });
-
-        const ir = generateIR({
-          baseNeed: selections.baseNeeds,
-          rootNode: selections.rootNodes,
-          psychologicalCluster: selections.psychologicalClusters,
-          surfaceOverlay: selections.surfaceOverlays,
-          wrapper: selections.wrappers,
-          format: { type: selections.formats },
-          identityMechanic: selections.identityMechanics,
-          distributionPhysics: { platform: selections.distributionPhysics }
-        });
-
-        slides = renderCarousel(ir);
-        currentSlideIndex = 0;
-        enginePanel.classList.remove("visible");
-        openEngineBtn.style.display = "none";
-        showSlideViewer();
-      };
-
-      enginePanel.appendChild(generateBtn);
-    }
-
-    function renderSlide(index) {
-      const slide = slides[index];
-      slideTitle.textContent = slide.title || "";
-      slideList.innerHTML = "";
-      (slide.items || []).forEach(item => {
-        const div = document.createElement("div");
-        div.className = "item";
-        div.textContent = item;
-        slideList.appendChild(div);
-      });
-      slideCta.textContent = slide.cta || "";
-      const isLast = index === slides.length - 1;
-      slideBio.style.display = isLast ? "flex" : "none";
-    }
-
-    function showSlideViewer() {
-      slideViewer.style.display = "flex";
-      slideContainer.classList.remove("enter-from-bottom", "exit-up");
+      viewer.style.display = "flex";
       slideContainer.classList.add("active");
-      renderSlide(currentSlideIndex);
+    }
+
+    function closeViewer() {
+      slideContainer.classList.remove("active");
+      setTimeout(() => {
+        viewer.style.display = "none";
+      }, 250);
+    }
+
+    function renderSlide(slide) {
+      titleEl.textContent = slide.title || "";
+
+      listEl.innerHTML = "";
+      if (slide.items && Array.isArray(slide.items)) {
+        slide.items.forEach(item => {
+          const div = document.createElement("div");
+          div.className = "item";
+          div.textContent = "• " + item;
+          listEl.appendChild(div);
+        });
+      }
+
+      ctaEl.textContent = slide.cta || "";
+      bioTextEl.textContent = slide.bio || "";
+      bioEl.style.display = slide.bio ? "inline-flex" : "none";
     }
 
     function nextSlide() {
-      if (currentSlideIndex >= slides.length - 1) return;
+      if (index < slides.length - 1) {
+        index++;
+        animateSlideChange(slides[index]);
+      } else {
+        closeViewer();
+      }
+    }
+
+    function animateSlideChange(slide) {
       slideContainer.classList.remove("active");
       slideContainer.classList.add("exit-up");
+
       setTimeout(() => {
-        currentSlideIndex += 1;
-        renderSlide(currentSlideIndex);
         slideContainer.classList.remove("exit-up");
+        renderSlide(slide);
         slideContainer.classList.add("enter-from-bottom");
+
         requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            slideContainer.classList.remove("enter-from-bottom");
-            slideContainer.classList.add("active");
-          });
+          slideContainer.classList.remove("enter-from-bottom");
+          slideContainer.classList.add("active");
         });
-      }, 200);
+      }, 250);
     }
 
-    function exitViewer() {
-      slideViewer.style.display = "none";
-      openEngineBtn.style.display = "block";
-    }
+    /* ---------------------------
+       TAP HANDLING
+    ----------------------------*/
+    let touches = new Set();
 
-    slideTapArea.addEventListener("pointerdown", (e) => {
-      if (e.pointerType === "touch" && e.isPrimary === false) {
-        // second finger
-        exitViewer();
-        return;
+    viewer.addEventListener("touchstart", (e) => {
+      for (const t of e.touches) touches.add(t.identifier);
+      if (touches.size >= 2) {
+        touches.clear();
+        closeViewer();
       }
     });
 
-    slideTapArea.addEventListener("click", (e) => {
-      // single-finger tap → next slide
+    viewer.addEventListener("touchend", (e) => {
+      for (const t of e.changedTouches) touches.delete(t.identifier);
+    });
+
+    viewer.addEventListener("click", () => {
       nextSlide();
     });
 
-    initUI();
-  </script>
+    /* ---------------------------
+       GENERATE BUTTON
+    ----------------------------*/
+    generateBtn.addEventListener("click", async () => {
+      const wrapper = wrapperInput.value.trim();
+      if (!wrapper) return;
 
+      const ir = generateIR();
+      let output = renderContent({ wrapper, ir });
+
+      const forced = formatSelect.value;
+
+      if (forced === "listicle" && output.type !== "listicle") {
+        const { interpretWrapper } = await import("./RootNodeEngine/Renderers/Listicle/wrapperInterpreter.js");
+        const { generateListicleItems } = await import("./RootNodeEngine/Renderers/Listicle/listicleGenerator.js");
+        const { renderListicle } = await import("./RootNodeEngine/Renderers/Listicle/listicleRenderer.js");
+
+        const interp = interpretWrapper(wrapper);
+        const count = interp.count || 5;
+        const title = interp.title || wrapper;
+        const items = generateListicleItems(ir, count, title);
+
+        output = renderListicle({
+          title,
+          items,
+          cta: "Follow for daily identity upgrades",
+          bio: "@yourhandle"
+        });
+      }
+
+      if (forced === "carousel" && output.type !== "carousel") {
+        const { renderCarousel } = await import("./RootNodeEngine/Renderers/Carousel/carouselRenderer.js");
+        output = renderCarousel(ir);
+      }
+
+      openViewer(output.slides);
+    });
+  </script>
 </body>
 </html>
+
