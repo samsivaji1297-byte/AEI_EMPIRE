@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport"
       content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Money Overlay Sovereign Engine V3</title>
+<title>Money Overlay Sovereign Engine V3.1</title>
 
 <style>
 *{
@@ -40,6 +40,7 @@ body{
   opacity:0.9;
   animation:drift 32s ease-in-out infinite alternate;
   transform-origin:center;
+  z-index:1;
 }
 
 .bg-vignette{
@@ -50,6 +51,7 @@ body{
     radial-gradient(circle at 50% 120%, rgba(0,0,0,.9), transparent 60%);
   mix-blend-mode:screen;
   opacity:.45;
+  z-index:2;
 }
 
 @keyframes drift{
@@ -69,7 +71,7 @@ body{
   filter:blur(60px);
   opacity:.35;
   pointer-events:none;
-  z-index:5;
+  z-index:3;
 }
 
 /* Noise layer */
@@ -80,6 +82,7 @@ body{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='noStitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
   mix-blend-mode:soft-light;
   pointer-events:none;
+  z-index:4;
 }
 
 /* Top bar */
@@ -91,7 +94,7 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  z-index:30;
+  z-index:100;
   pointer-events:none;
 }
 
@@ -128,12 +131,12 @@ body{
   align-items:flex-start;
 
   opacity:0;
-  transition:opacity .8s ease, transform .8s ease;
+  z-index:50;
+  transition:opacity .8s ease;
 }
 
 .slide.active{
   opacity:1;
-  transform:translateY(-42%) translateY(0);
 }
 
 /* Typography */
@@ -180,7 +183,7 @@ body{
   display:flex;
   justify-content:center;
   gap:8px;
-  z-index:10;
+  z-index:60;
 }
 
 .dot{
@@ -202,7 +205,7 @@ body{
   top:0;
   bottom:0;
   width:50%;
-  z-index:20;
+  z-index:70;
 }
 
 .tap-left{ left:0; }
@@ -214,7 +217,7 @@ body{
   bottom:3vh;
   left:8vw;
   right:8vw;
-  z-index:40;
+  z-index:100;
   display:flex;
   flex-wrap:wrap;
   gap:10px;
@@ -250,8 +253,8 @@ label{
 /* Parallax wrapper */
 #slides{
   position:relative;
-  z-index:25;
-  will-change:transform;
+  z-index:50;
+  will-change:margin;
 }
 </style>
 </head>
@@ -559,7 +562,7 @@ document.body.addEventListener("click",(e)=>{
 });
 
 /* ---------------------------------------------------------
-   PARALLAX
+   PARALLAX (margin-based, safe)
    --------------------------------------------------------- */
 
 const slidesWrapper = document.getElementById("slides");
@@ -568,9 +571,24 @@ const bgBase = document.getElementById("bgBase");
 window.addEventListener("mousemove", (e)=>{
   const x = (e.clientX / window.innerWidth) - 0.5;
   const y = (e.clientY / window.innerHeight) - 0.5;
+
   const fgX = x * 10;
   const fgY = y * 10;
+
   const bgX = x * -12;
   const bgY = y * -16;
-  slidesWrapper.style.transform = `translate3d(${fgX}px, ${fgY}px, 0)`;
-  bgBase.style.transform = `scale(1
+
+  slidesWrapper.style.marginLeft = fgX + "px";
+  slidesWrapper.style.marginTop = fgY + "px";
+
+  bgBase.style.transform = `scale(1.2) translate(${bgX}px, ${bgY}
+  bgBase.style.transform = `scale(1.2) translate(${bgX}px, ${bgY}px)`;
+});
+
+/* Initial load */
+currentSlides = generateSlides("selftrust","auto");
+renderSlides();
+</script>
+
+</body>
+</html>
