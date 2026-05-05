@@ -97,6 +97,22 @@
       font-size: min(4.5vw, 18px);
       color: var(--fg);
       line-height: 1.35;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .item-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #fff;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .item-text {
+      flex: 1;
     }
 
     .cta {
@@ -167,66 +183,10 @@
       transform: translateY(-100%);
       opacity: 0;
     }
-
-    /* Engine UI */
-
-    #open-engine {
-      position: fixed;
-      bottom: 16px;
-      left: 16px;
-      background: rgba(20,20,20,0.9);
-      padding: 10px 16px;
-      border-radius: 999px;
-      font-size: 13px;
-      cursor: pointer;
-      z-index: 30;
-    }
-
-    #engine-panel {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(10,10,10,0.96);
-      backdrop-filter: blur(18px);
-      border-radius: 18px 18px 0 0;
-      padding: 16px 16px 24px;
-      transform: translateY(100%);
-      transition: transform 0.25s ease-out;
-      z-index: 25;
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-
-    #engine-panel.visible {
-      transform: translateY(0);
-    }
-
-    .field {
-      margin-bottom: 10px;
-    }
-
-    select, button {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      background: #222;
-      color: #fff;
-      font-size: 14px;
-    }
-
-    #generate-btn {
-      margin-top: 8px;
-      background: #fff;
-      color: #000;
-      font-weight: 500;
-    }
   </style>
 </head>
 <body>
 
-    <!-- Ambient background -->
   <div class="ambient"></div>
 
   <!-- Slide Viewer -->
@@ -250,28 +210,6 @@
     </div>
   </div>
 
-  <!-- Engine Panel Trigger -->
-  <div id="open-engine">Open Engine</div>
-
-  <!-- Engine Panel -->
-  <div id="engine-panel">
-    <div class="field">
-      <label>Wrapper</label>
-      <textarea id="wrapper-input" rows="2" style="width:100%;padding:10px;border-radius:8px;background:#111;color:#fff;border:1px solid #333;"></textarea>
-    </div>
-
-    <div class="field">
-      <label>Format</label>
-      <select id="format-select">
-        <option value="auto">Auto (wrapper decides)</option>
-        <option value="listicle">Force Listicle</option>
-        <option value="carousel">Force Carousel</option>
-      </select>
-    </div>
-
-    <button id="generate-btn">Generate</button>
-  </div>
-
   <script type="module">
     import { generateIR } from "./RootNodeEngine/ContentEngine/IR/generateIR.js";
     import { renderContent } from "./RootNodeEngine/Renderers/rendererPipeline.js";
@@ -285,26 +223,9 @@
     const bioEl = document.getElementById("slide-bio");
     const bioTextEl = document.getElementById("slide-bio-text");
 
-    const wrapperInput = document.getElementById("wrapper-input");
-    const formatSelect = document.getElementById("format-select");
-    const generateBtn = document.getElementById("generate-btn");
-
-    const openEngine = document.getElementById("open-engine");
-    const enginePanel = document.getElementById("engine-panel");
-
     let slides = [];
     let index = 0;
 
-    /* ---------------------------
-       ENGINE PANEL OPEN/CLOSE
-    ----------------------------*/
-    openEngine.addEventListener("click", () => {
-      enginePanel.classList.toggle("visible");
-    });
-
-    /* ---------------------------
-       VIEWER CONTROL
-    ----------------------------*/
     function openViewer(data) {
       slides = data;
       index = 0;
@@ -329,7 +250,16 @@
         slide.items.forEach(item => {
           const div = document.createElement("div");
           div.className = "item";
-          div.textContent = "• " + item;
+
+          const dot = document.createElement("div");
+          dot.className = "item-dot";
+
+          const text = document.createElement("div");
+          text.className = "item-text";
+          text.textContent = item;
+
+          div.appendChild(dot);
+          div.appendChild(text);
           listEl.appendChild(div);
         });
       }
@@ -364,9 +294,6 @@
       }, 250);
     }
 
-    /* ---------------------------
-       TAP HANDLING
-    ----------------------------*/
     let touches = new Set();
 
     viewer.addEventListener("touchstart", (e) => {
@@ -386,43 +313,18 @@
     });
 
     /* ---------------------------
-       GENERATE BUTTON
+       AUTO-GENERATE ON LOAD
     ----------------------------*/
-    generateBtn.addEventListener("click", async () => {
-      const wrapper = wrapperInput.value.trim();
-      if (!wrapper) return;
-
+    window.addEventListener("load", () => {
       const ir = generateIR();
-      let output = renderContent({ wrapper, ir });
 
-      const forced = formatSelect.value;
+      // Default wrapper for auto mode
+      const wrapper = "5 signs your identity is outdated";
 
-      if (forced === "listicle" && output.type !== "listicle") {
-        const { interpretWrapper } = await import("./RootNodeEngine/Renderers/Listicle/wrapperInterpreter.js");
-        const { generateListicleItems } = await import("./RootNodeEngine/Renderers/Listicle/listicleGenerator.js");
-        const { renderListicle } = await import("./RootNodeEngine/Renderers/Listicle/listicleRenderer.js");
-
-        const interp = interpretWrapper(wrapper);
-        const count = interp.count || 5;
-        const title = interp.title || wrapper;
-        const items = generateListicleItems(ir, count, title);
-
-        output = renderListicle({
-          title,
-          items,
-          cta: "Follow for daily identity upgrades",
-          bio: "@yourhandle"
-        });
-      }
-
-      if (forced === "carousel" && output.type !== "carousel") {
-        const { renderCarousel } = await import("./RootNodeEngine/Renderers/Carousel/carouselRenderer.js");
-        output = renderCarousel(ir);
-      }
+      const output = renderContent({ wrapper, ir });
 
       openViewer(output.slides);
     });
   </script>
 </body>
 </html>
-
