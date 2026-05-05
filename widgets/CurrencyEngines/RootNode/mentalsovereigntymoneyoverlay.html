@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport"
       content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Money Overlay Engine — V4 Stable</title>
+<title>FinalMindset — V4.1 Stable Engine</title>
 
 <style>
 *{
@@ -23,7 +23,7 @@ html,body{
   color:#fff;
 }
 
-/* Soft gradient black background (Option B) */
+/* Soft gradient black background */
 body{
   background:linear-gradient(180deg, #000 0%, #0d0d0d 100%);
 }
@@ -41,10 +41,10 @@ body{
 }
 
 .brand{
-  font-size:11px;
-  letter-spacing:0.22em;
+  font-size:12px;
+  letter-spacing:0.18em;
   text-transform:uppercase;
-  opacity:.6;
+  opacity:.75;
 }
 
 .mode-pill{
@@ -176,8 +176,8 @@ label{
 <body>
 
 <div class="top">
-  <div class="brand">MONEY OVERLAY · MENTAL SOVEREIGNTY</div>
-  <button id="toggleControls" class="mode-pill">Simple</button>
+  <div class="brand">FinalMindset</div>
+  <button id="toggleControls" class="mode-pill">FM</button>
 </div>
 
 <div id="slides"></div>
@@ -214,7 +214,7 @@ label{
 
 <script>
 /* ---------------------------------------------------------
-   CONTENT LIBRARY (stable)
+   CONTENT LIBRARY
    --------------------------------------------------------- */
 
 const THEMES = {
@@ -380,7 +380,7 @@ document.getElementById("next").onclick = next;
 document.getElementById("prev").onclick = prev;
 
 /* ---------------------------------------------------------
-   CONTROLS + SIMPLE MODE
+   CONTROLS + FM / FME MODE
    --------------------------------------------------------- */
 
 const themeSelect = document.getElementById("theme");
@@ -401,10 +401,10 @@ function regenerate(){
 
 generateBtn.onclick = regenerate;
 
-toggleControlsBtn.onclick = ()=>{
+toggleControlsBtn.onclick = () => {
   advanced = !advanced;
   controls.style.display = advanced ? "flex" : "none";
-  toggleControlsBtn.textContent = advanced ? "Advanced" : "Simple";
+  toggleControlsBtn.textContent = advanced ? "FME" : "FM";
 };
 
 /* Simple mode: tap anywhere to regenerate */
