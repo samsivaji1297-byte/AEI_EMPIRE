@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport"
       content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Money Overlay Sovereign Engine V3.1</title>
+<title>Money Overlay Engine — V4 Stable</title>
 
 <style>
 *{
@@ -18,71 +18,14 @@ html,body{
   width:100%;
   height:100%;
   overflow:hidden;
-  background:#020204;
-  color:#fff;
+  background:#000;
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,sans-serif;
+  color:#fff;
 }
 
+/* Soft gradient black background (Option B) */
 body{
-  position:relative;
-}
-
-/* Hybrid Apple × Cyber‑Noir Background */
-.bg-base{
-  position:absolute;
-  inset:-25%;
-  background:
-    radial-gradient(circle at 15% 10%, rgba(255,255,255,.12), transparent 45%),
-    radial-gradient(circle at 80% 70%, rgba(255,255,255,.06), transparent 45%),
-    radial-gradient(circle at 50% 120%, rgba(255,255,255,.08), transparent 55%),
-    linear-gradient(180deg,#020204,#000);
-  filter:blur(70px);
-  opacity:0.9;
-  animation:drift 32s ease-in-out infinite alternate;
-  transform-origin:center;
-  z-index:1;
-}
-
-.bg-vignette{
-  position:absolute;
-  inset:0;
-  background:
-    radial-gradient(circle at 50% 10%, rgba(255,255,255,.12), transparent 55%),
-    radial-gradient(circle at 50% 120%, rgba(0,0,0,.9), transparent 60%);
-  mix-blend-mode:screen;
-  opacity:.45;
-  z-index:2;
-}
-
-@keyframes drift{
-  from{transform:scale(1.05) translate(0,0);}
-  to{transform:scale(1.25) translate(-40px,-60px);}
-}
-
-/* Spotlight behind text */
-.spotlight{
-  position:absolute;
-  top:50%;
-  left:50%;
-  width:120vw;
-  height:120vh;
-  transform:translate(-50%, -50%);
-  background:radial-gradient(circle, rgba(255,255,255,.12) 0%, rgba(255,255,255,0) 60%);
-  filter:blur(60px);
-  opacity:.35;
-  pointer-events:none;
-  z-index:3;
-}
-
-/* Noise layer */
-.noise{
-  position:absolute;
-  inset:-20%;
-  opacity:.06;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='noStitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
-  mix-blend-mode:soft-light;
-  pointer-events:none;
-  z-index:4;
+  background:linear-gradient(180deg, #000 0%, #0d0d0d 100%);
 }
 
 /* Top bar */
@@ -94,8 +37,7 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  z-index:100;
-  pointer-events:none;
+  z-index:20;
 }
 
 .brand{
@@ -110,69 +52,67 @@ body{
   padding:6px 12px;
   border-radius:999px;
   background:rgba(255,255,255,.08);
-  backdrop-filter:blur(18px);
-  opacity:.85;
-  pointer-events:auto;
   border:none;
   color:#fff;
+  pointer-events:auto;
 }
 
-/* Slide container — FIXED VERTICAL ANCHOR */
-.slide{
+/* Slide container */
+#slides{
   position:absolute;
+  top:50%;
   left:0;
   right:0;
-  top:50%;
-  transform:translateY(-42%);
+  transform:translateY(-45%);
   padding:0 10vw;
+  z-index:10;
+}
 
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-
-  opacity:0;
-  z-index:50;
-  transition:opacity .8s ease;
+/* Individual slide */
+.slide{
+  display:none;
 }
 
 .slide.active{
-  opacity:1;
+  display:block;
 }
 
 /* Typography */
 .main{
   font-size:clamp(40px,8vw,90px);
-  line-height:1.05;
   font-weight:680;
+  line-height:1.05;
   letter-spacing:-1.4px;
-  max-width:92%;
-  text-wrap:balance;
-  margin-bottom:40px;
+  margin-bottom:32px;
   opacity:0;
+  animation:fadeIn .6s ease forwards;
 }
 
 .body{
   font-size:clamp(22px,4.6vw,36px);
   line-height:1.32;
-  color:rgba(255,255,255,.8);
-  max-width:90%;
-  text-wrap:balance;
+  color:rgba(255,255,255,.85);
   opacity:0;
+  animation:fadeIn .9s ease forwards;
 }
 
-/* Fade-in stagger */
-@keyframes fadeUp {
-  0% { opacity:0; transform:translateY(20px); }
-  100% { opacity:1; transform:translateY(0); }
+/* Safe fade-in animation */
+@keyframes fadeIn {
+  from { opacity:0; }
+  to { opacity:1; }
 }
 
-.slide.active .main{
-  animation:fadeUp .7s ease forwards;
+/* Tap zones */
+.tap-left, .tap-right{
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:50%;
+  z-index:30;
 }
 
-.slide.active .body{
-  animation:fadeUp .9s ease forwards;
-}
+.tap-left{ left:0; }
+.tap-right{ right:0; }
 
 /* Navigation dots */
 .nav{
@@ -183,7 +123,7 @@ body{
   display:flex;
   justify-content:center;
   gap:8px;
-  z-index:60;
+  z-index:20;
 }
 
 .dot{
@@ -191,7 +131,6 @@ body{
   height:7px;
   border-radius:999px;
   background:rgba(255,255,255,.25);
-  transition:all .25s ease;
 }
 
 .dot.active{
@@ -199,36 +138,20 @@ body{
   background:#fff;
 }
 
-/* Tap zones */
-.tap-left, .tap-right{
-  position:absolute;
-  top:0;
-  bottom:0;
-  width:50%;
-  z-index:70;
-}
-
-.tap-left{ left:0; }
-.tap-right{ right:0; }
-
 /* Controls */
 .controls{
   position:absolute;
   bottom:3vh;
   left:8vw;
   right:8vw;
-  z-index:100;
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
+  display:none;
   justify-content:space-between;
   align-items:center;
-  pointer-events:auto;
+  z-index:40;
 }
 
 .controls-inner{
   display:flex;
-  flex-wrap:wrap;
   gap:10px;
 }
 
@@ -237,7 +160,6 @@ select,button{
   border:none;
   color:#fff;
   background:rgba(255,255,255,.09);
-  backdrop-filter:blur(18px);
   padding:8px 12px;
   border-radius:999px;
   font-size:11px;
@@ -249,21 +171,9 @@ label{
   letter-spacing:0.16em;
   opacity:.6;
 }
-
-/* Parallax wrapper */
-#slides{
-  position:relative;
-  z-index:50;
-  will-change:margin;
-}
 </style>
 </head>
 <body>
-
-<div class="bg-base" id="bgBase"></div>
-<div class="bg-vignette"></div>
-<div class="spotlight"></div>
-<div class="noise"></div>
 
 <div class="top">
   <div class="brand">MONEY OVERLAY · MENTAL SOVEREIGNTY</div>
@@ -277,7 +187,7 @@ label{
 
 <div class="nav" id="navDots"></div>
 
-<div class="controls" id="controls" style="display:none;">
+<div class="controls" id="controls">
   <div class="controls-inner">
     <div>
       <label for="theme">Theme</label><br>
@@ -291,11 +201,11 @@ label{
     <div>
       <label for="mechanic">Overlay Style</label><br>
       <select id="mechanic">
-        <option value="auto">Auto (recommended)</option>
-        <option value="changed">“What changed everything”</option>
-        <option value="nobody">“Nobody talks about this”</option>
-        <option value="stop">“If you want X, stop doing Y”</option>
-        <option value="stuck">“This is why you’re stuck”</option>
+        <option value="auto">Auto</option>
+        <option value="changed">What changed everything</option>
+        <option value="nobody">Nobody talks about this</option>
+        <option value="stop">If you want X, stop doing Y</option>
+        <option value="stuck">This is why you're stuck</option>
       </select>
     </div>
   </div>
@@ -304,81 +214,35 @@ label{
 
 <script>
 /* ---------------------------------------------------------
-   EXPANDED CONTENT LIBRARY
+   CONTENT LIBRARY (stable)
    --------------------------------------------------------- */
 
 const THEMES = {
   selftrust: {
-    x: [
-      "consistent results",
-      "momentum that doesn’t collapse",
-      "execution that actually sticks",
-      "a life that compounds"
-    ],
-    y: [
-      "second‑guessing every move",
-      "breaking your own word",
-      "starting over every month",
-      "treating progress like a fluke"
-    ],
+    x: ["consistent results","momentum that doesn’t collapse","execution that sticks"],
+    y: ["second‑guessing every move","breaking your own word","starting over every month"],
     product: "Mental Sovereignty Framework"
   },
   identity: {
-    x: [
-      "a life that matches your standards",
-      "results that feel aligned",
-      "decisions that don’t drain you",
-      "a direction that actually fits"
-    ],
-    y: [
-      "building things you secretly don’t want",
-      "chasing goals that aren’t yours",
-      "collapsing every time things get good",
-      "living from an outdated identity"
-    ],
+    x: ["a life that matches your standards","aligned results","decisions that don’t drain you"],
+    y: ["building things you don’t want","chasing goals that aren’t yours","identity collapse"],
     product: "Mental Sovereignty Framework"
   },
   inevitability: {
-    x: [
-      "results that feel inevitable",
-      "wins that don’t feel accidental",
-      "momentum that compounds",
-      "clarity that doesn’t fade"
-    ],
-    y: [
-      "treating every win like a fluke",
-      "waiting for things to fall apart",
-      "hoping momentum stays",
-      "operating from doubt"
-    ],
+    x: ["results that feel inevitable","wins that don’t feel accidental","momentum that compounds"],
+    y: ["treating wins like flukes","waiting for collapse","operating from doubt"],
     product: "Mental Sovereignty Framework"
   },
   pattern: {
-    x: [
-      "clean forward momentum",
-      "a life that actually moves",
-      "patterns that finally break",
-      "progress that sticks"
-    ],
-    y: [
-      "circling the same outcomes",
-      "repeating the same cycles",
-      "getting stuck at the same level",
-      "defaulting to old behaviours"
-    ],
+    x: ["clean forward momentum","patterns that break","progress that sticks"],
+    y: ["circling the same outcomes","repeating cycles","defaulting to old behaviours"],
     product: "Mental Sovereignty Framework"
   }
 };
 
 const MECHANICS = ["changed","nobody","stop","stuck"];
 
-/* ---------------------------------------------------------
-   GENERATOR
-   --------------------------------------------------------- */
-
-function pick(arr){
-  return arr[Math.floor(Math.random()*arr.length)];
-}
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
 function pickMechanic(themeKey, mechanicChoice){
   if (mechanicChoice !== "auto") return mechanicChoice;
@@ -406,75 +270,68 @@ function generateSlides(themeKey, mechanicChoice){
   const y = pick(theme.y);
   const product = theme.product;
 
-  /* Slide 1 — hook */
   if (mechanic === "changed"){
     slides.push({
-      main: `Here’s what actually changed everything for me.`,
-      body: `Not a new strategy. Not a new niche. Not a new offer. It was fixing the way my mind was wired around execution and self‑trust.`
+      main:`Here’s what actually changed everything for me.`,
+      body:`Not a new strategy. Not a new niche. Not a new offer. It was fixing the way my mind was wired around execution and self‑trust.`
     });
   } else if (mechanic === "nobody"){
     slides.push({
-      main: `Nobody talks about this part.`,
-      body: `Everyone shows the numbers. Almost nobody shows the mental architecture required to hold results without collapsing.`
+      main:`Nobody talks about this part.`,
+      body:`Everyone shows the numbers. Almost nobody shows the mental architecture required to hold results without collapsing.`
     });
   } else if (mechanic === "stop"){
     slides.push({
-      main: `If you want ${x}, stop doing this.`,
-      body: `Stop treating your mind like a background process and then wondering why your results feel random.`
-    });
-  } else if (mechanic === "stuck"){
-    slides.push({
-      main: `This is why you’re stuck — and it’s not what you think.`,
-      body: `It’s not your offer. It’s not the algorithm. It’s the version of you that keeps running the show.`
-    });
-  }
-
-  /* Slide 2 */
-  slides.push({
-    main: ``,
-    body: `The real bottleneck was never tactics. It was the identity I was operating from — the one that expected ${y} as normal.`
-  });
-
-  /* Slide 3 */
-  slides.push({
-    main: ``,
-    body: `Once I started treating my mental architecture as the primary system — not an afterthought — everything downstream shifted.`
-  });
-
-  /* Slide 4 */
-  if (slideCount >= 4){
-    slides.push({
-      main: ``,
-      body: `The more I cleaned up my internal defaults, the less “luck” I needed. Results stopped feeling fragile. Momentum stopped leaking.`
-    });
-  }
-
-  /* Slide 5 */
-  if (slideCount >= 5){
-    slides.push({
-      main: ``,
-      body: `At some point you have to decide: are you going to keep building from the version of you that expects ${y}, or from the version of you for whom ${x} is standard?`
-    });
-  }
-
-  /* Slide 6 */
-  if (slideCount >= 6){
-    slides.push({
-      main: ``,
-      body: `That’s why I built ${product} — to give you the mental operating system I wish I had when I was still trying to out‑work a misaligned identity.`
-    });
-  }
-
-  /* Slide 7 */
-  if (slideCount >= 7){
-    slides.push({
-      main: ``,
-      body: `If you’re done pretending it’s “just strategy”, comment 777 and I’ll send you the link to ${product}.`
+      main:`If you want ${x}, stop doing this.`,
+      body:`Stop treating your mind like a background process and then wondering why your results feel random.`
     });
   } else {
     slides.push({
-      main: ``,
-      body: `If this landed, comment 777 and I’ll send you the link to ${product}.`
+      main:`This is why you're stuck — and it's not what you think.`,
+      body:`It’s not your offer. It’s not the algorithm. It’s the version of you that keeps running the show.`
+    });
+  }
+
+  slides.push({
+    main:``,
+    body:`The real bottleneck was never tactics. It was the identity I was operating from — the one that expected ${y} as normal.`
+  });
+
+  slides.push({
+    main:``,
+    body:`Once I started treating my mental architecture as the primary system — not an afterthought — everything downstream shifted.`
+  });
+
+  if (slideCount >= 4){
+    slides.push({
+      main:``,
+      body:`The more I cleaned up my internal defaults, the less “luck” I needed. Results stopped feeling fragile. Momentum stopped leaking.`
+    });
+  }
+
+  if (slideCount >= 5){
+    slides.push({
+      main:``,
+      body:`At some point you have to decide: build from the version of you that expects ${y}, or from the version of you for whom ${x} is standard.`
+    });
+  }
+
+  if (slideCount >= 6){
+    slides.push({
+      main:``,
+      body:`That’s why I built ${product} — to give you the mental operating system I wish I had when I was still trying to out‑work a misaligned identity.`
+    });
+  }
+
+  if (slideCount >= 7){
+    slides.push({
+      main:``,
+      body:`If you're done pretending it’s “just strategy”, comment 777 and I’ll send you the link to ${product}.`
+    });
+  } else {
+    slides.push({
+      main:``,
+      body:`If this landed, comment 777 and I’ll send you the link to ${product}.`
     });
   }
 
@@ -494,9 +351,9 @@ function renderSlides(){
   slidesContainer.innerHTML = "";
   navDots.innerHTML = "";
 
-  currentSlides.forEach((s, i) => {
+  currentSlides.forEach((s,i)=>{
     const slide = document.createElement("div");
-    slide.className = "slide" + (i === index ? " active" : "");
+    slide.className = "slide" + (i===index ? " active" : "");
     slide.innerHTML = `
       <div class="main">${s.main}</div>
       <div class="body">${s.body}</div>
@@ -504,7 +361,7 @@ function renderSlides(){
     slidesContainer.appendChild(slide);
 
     const dot = document.createElement("div");
-    dot.className = "dot" + (i === index ? " active" : "");
+    dot.className = "dot" + (i===index ? " active" : "");
     navDots.appendChild(dot);
   });
 }
@@ -544,7 +401,7 @@ function regenerate(){
 
 generateBtn.onclick = regenerate;
 
-toggleControlsBtn.onclick = () => {
+toggleControlsBtn.onclick = ()=>{
   advanced = !advanced;
   controls.style.display = advanced ? "flex" : "none";
   toggleControlsBtn.textContent = advanced ? "Advanced" : "Simple";
@@ -552,39 +409,18 @@ toggleControlsBtn.onclick = () => {
 
 /* Simple mode: tap anywhere to regenerate */
 document.body.addEventListener("click",(e)=>{
-  if (e.target.closest(".controls") || e.target === toggleControlsBtn) return;
+  if (e.target.closest(".controls") || e.target===toggleControlsBtn) return;
   if (advanced) return;
-  const themeKeys = Object.keys(THEMES);
-  const randomTheme = themeKeys[Math.floor(Math.random()*themeKeys.length)];
-  themeSelect.value = randomTheme;
+  const keys = Object.keys(THEMES);
+  themeSelect.value = pick(keys);
   mechanicSelect.value = "auto";
   regenerate();
 });
 
 /* ---------------------------------------------------------
-   PARALLAX (margin-based, safe)
+   INITIAL LOAD
    --------------------------------------------------------- */
 
-const slidesWrapper = document.getElementById("slides");
-const bgBase = document.getElementById("bgBase");
-
-window.addEventListener("mousemove", (e)=>{
-  const x = (e.clientX / window.innerWidth) - 0.5;
-  const y = (e.clientY / window.innerHeight) - 0.5;
-
-  const fgX = x * 10;
-  const fgY = y * 10;
-
-  const bgX = x * -12;
-  const bgY = y * -16;
-
-  slidesWrapper.style.marginLeft = fgX + "px";
-  slidesWrapper.style.marginTop = fgY + "px";
-
-bgBase.style.transform = `scale(1.2) translate(${bgX}px, ${bgY}px)`;
-});
-
-/* Initial load */
 currentSlides = generateSlides("selftrust","auto");
 renderSlides();
 </script>
