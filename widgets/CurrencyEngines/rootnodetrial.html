@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Root Node Framework – Slide Engine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <style>
+    :root {
+      --bg: #050507;
+      --bg-soft: #0b0b10;
+      --fg: #f5f5f7;
+      --muted: #8b8b93;
+      --accent: #ffffff;
+      --accent-soft: #1f1f2a;
+      --border-subtle: #1a1a22;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-main);
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+    }
+
+    .frame {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background: radial-gradient(circle at top, #151520 0, #050507 55%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    /* 9:16 safe zone */
+    .safe {
+      position: relative;
+      width: min(100%, 540px);
+      height: min(100%, 960px);
+      margin: 0 auto;
+      border-radius: 32px;
+      background: linear-gradient(145deg, var(--bg-soft), #050509);
+      border: 1px solid var(--border-subtle);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.02),
+        0 40px 120px rgba(0,0,0,0.85);
+      padding: 24px 22px 28px 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .safe::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(255,255,255,0.06), transparent 55%);
+      mix-blend-mode: screen;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .chrome {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .chrome-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ffffff, #8888ff);
+      box-shadow: 0 0 12px rgba(255,255,255,0.6);
+    }
+
+    .chrome-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(10,10,18,0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .body {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 18px;
+      padding: 8px 2px;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .title {
+      font-size: 26px;
+      line-height: 1.18;
+      letter-spacing: -0.02em;
+      font-weight: 600;
+    }
+
+    .title span.accent {
+      color: var(--accent);
+      text-shadow: 0 0 18px rgba(255,255,255,0.35);
+    }
+
+    .subtitle {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--muted);
+      max-width: 90%;
+    }
+
+    .grid {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .item {
+      border-radius: 14px;
+      padding: 10px 11px;
+      background: radial-gradient(circle at top left, rgba(255,255,255,0.06), transparent 55%);
+      border: 1px solid rgba(255,255,255,0.06);
+      font-size: 12px;
+      line-height: 1.45;
+      color: #e5e5ea;
+    }
+
+    .item-label {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .item-main {
+      font-size: 12px;
+    }
+
+    .footer {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .progress {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .bar {
+      width: 14px;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ffffff, #8f8fff);
+      transition: width 220ms ease-out;
+    }
+
+    .bar.active .bar-fill {
+      width: 100%;
+    }
+
+    .hint {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .hint span {
+      color: var(--fg);
+    }
+
+    @media (min-width: 700px) {
+      .title {
+        font-size: 30px;
+      }
+      .subtitle {
+        font-size: 14px;
+      }
+      .item {
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame" id="frame">
+    <div class="safe">
+      <div class="chrome">
+        <div class="chrome-left">
+          <div class="dot"></div>
+          <div>ROOT NODE FRAMEWORK</div>
+        </div>
+        <div class="chrome-right">
+          <div class="pill" id="pill-label">ARCHITECTURE</div>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="eyebrow" id="eyebrow"></div>
+        <div class="title" id="title"></div>
+        <div class="subtitle" id="subtitle"></div>
+        <div class="grid" id="grid"></div>
+      </div>
+
+      <div class="footer">
+        <div class="progress" id="progress"></div>
+        <div class="hint"><span>TAP</span> OR PRESS →</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ─────────────────────────────────────────────
+    // SLIDE DATA – EDIT THIS ONLY
+    // ─────────────────────────────────────────────
+    const SLIDES = [
+      {
+        eyebrow: "SYSTEM OVERVIEW",
+        pill: "INTRO",
+        title: "The 8‑Layer Root Node Content Engine",
+        subtitle: "This is the architecture your entire content system sits on. One engine, infinite surface‑layer outputs.",
+        items: [
+          {
+            label: "Principle",
+            text: "We don’t create random posts. We route everything through a stable 8‑layer system."
+          },
+          {
+            label: "Outcome",
+            text: "Once this is built, you never rebuild the foundation again—you only swap overlays and wrappers."
+          }
+        ]
+      },
+      {
+        eyebrow: "LAYER 1",
+        pill: "BASE NEEDS",
+        title: "Base Needs – Human Universals",
+        subtitle: "The primal drivers beneath all behaviour. Not content. The substrate everything else emerges from.",
+        items: [
+          {
+            label: "Examples",
+            text: "Safety, belonging, competence, certainty, progress, identity stability."
+          },
+          {
+            label: "Role",
+            text: "You never post “about” base needs—but every piece of content ultimately sits on top of them."
+          }
+        ]
+      },
+      {
+        eyebrow: "LAYER 2",
+        pill: "ROOT NODES",
+        title: "Root Nodes – Emotional Universals",
+        subtitle: "Core emotional truths that show up across every domain. Domain‑agnostic. This is the emotional engine.",
+        items: [
+          {
+            label: "Examples",
+            text: "“I feel behind.” “I can’t stay consistent.” “I don’t know what I’m doing wrong.”"
+          },
+          {
+            label: "Key Rule",
+            text: "Money is not a root node. It’s a domain, not an emotional universal."
+          }
+        ]
+      },
+      {
+        eyebrow: "LAYER 3",
+        pill: "BEHAVIOUR",
+        title: "Psychological Clusters – Behaviour Patterns",
+        subtitle: "How root nodes show up as predictable patterns people recognise in themselves.",
+        items: [
+          {
+            label: "Examples",
+            text: "Overthinking, procrastination, perfectionism, inconsistency, avoidance, self‑doubt, burnout cycles."
+          },
+          {
+            label: "Function",
+            text: "These clusters shape how people behave, consume content, and self‑diagnose their own stuckness."
+          }
+        ]
+      },
+      {
+        eyebrow: "LAYER 4",
+        pill: "OVERLAYS",
+        title: "Overlay Distribution Framework – Surface‑Layer Lenses",
+        subtitle: "Overlays change the behaviour of content, not its meaning. This is where money lives.",
+        items: [
+          {
+            label: "Examples",
+            text: "Money, identity, discipline, aesthetics, tools, productivity, lifestyle, creativity."
+          },
+          {
+            label: "Insight",
+            text: "Overlays are not emotional. They are distribution mechanics that determine how content is interpreted."
+          }
+        ]
+      },
+      {
+        eyebrow: "LAYER 4 – MONEY",
+        pill: "MONEY OVERLAY",
+        title: "Why the Money Overlay Is So Powerful",
+        subtitle: "You don’t use money to talk about money. You use it to borrow its distribution physics.",
+        items: [
+          {
+            label: "Behaviour",
+            text: "Instantly interpretable, identity‑neutral, high‑velocity, broad‑net, algorithm‑friendly."
+          },
+          {
+            label: "Use",
+            text: "You route product content through money mechanics so it spreads, even if your product isn’t “about” money."
+          }
+        ]
+      },
+      {
+        eyebrow: "LAYER 5",
+        pill: "WRAPPERS",
+        title: "Wrappers – Narrative Frames",
+        subtitle: "The story‑shapes that make content clickable. Same idea, different wrapper, different reach.",
+        items: [
+          {
+            label: "Examples",
+            text: "“I used to think X, then I realised Y.” “3 reasons you’re stuck.” “The truth nobody tells you.”"
+          },
+          {
+            label: "Role",
+            text: "Wrappers are how the brain recognises the post as relevant in 0.3 seconds."
+          }
+        ]
+      },
+      {
+        eyebrow: "LAYER 6",
+        pill: "FORMATS",
+        title: "Formats – The Actual IG Output",
+        subtitle: "The physical container the idea travels in. The engine stays the same; the format can change daily.",
+        items: [
+          {
+            label: "Examples",
+            text: "Carousels, reels, talking‑head, text‑on‑screen, b‑roll + captions, screenshots, quotes, diagrams."
+          },
+          {
+            label: "Note",
+            text: "Format is the least important layer strategically—but it’s the most visible one."
+          }
+        ]
+      },
+      {
+        eyebrow: "LAYER 7",
+        pill: "PHYSICS",
+        title: "Distribution Physics – How Content Spreads",
+        subtitle: "The behaviour layer. How the post moves once it hits the feed.",
+        items: [
+          {
+            label: "Variables",
+            text: "Velocity, shareability, save‑worthiness, comment triggers, identity neutrality, emotional safety."
+          },
+          {
+            label: "Money Link",
+            text: "Money overlay is powerful because it optimises almost all of these variables by default."
+          }
+        ]
+      },
+      {
+        eyebrow: "LAYER 8",
+        pill: "PRODUCT BRIDGE",
+        title: "Product Bridge – Conversion Layer",
+        subtitle: "Where your digital product plugs into the content engine without feeling forced or salesy.",
+        items: [
+          {
+            label: "Questions",
+            text: "“How does this content naturally lead to my product?” “What problem does my product solve here?”"
+          },
+          {
+            label: "System",
+            text: "The content hints at a system. The product is the system. The bridge connects the two."
+          }
+        ]
+      },
+      {
+        eyebrow: "IMPLEMENTATION",
+        pill: "ONE ENGINE",
+        title: "One Engine. Infinite Surface‑Layer Content.",
+        subtitle: "Once this 8‑layer architecture is locked, you only change overlays, wrappers, and formats—not the foundation.",
+        items: [
+          {
+            label: "Next Move",
+            text: "Turn each root node into multiple overlays, wrap them in different narratives, and ship daily."
+          },
+          {
+            label: "Leverage",
+            text: "This file is your base template. Duplicate it, swap the SLIDES config, and you have a new asset."
+          }
+        ]
+      }
+    ];
+
+    // ─────────────────────────────────────────────
+    // RUNTIME
+    // ─────────────────────────────────────────────
+    const eyebrowEl = document.getElementById("eyebrow");
+    const titleEl = document.getElementById("title");
+    const subtitleEl = document.getElementById("subtitle");
+    const gridEl = document.getElementById("grid");
+    const progressEl = document.getElementById("progress");
+    const pillEl = document.getElementById("pill-label");
+    const frameEl = document.getElementById("frame");
+
+    let index = 0;
+
+    function renderProgress() {
+      progressEl.innerHTML = "";
+      SLIDES.forEach((_, i) => {
+        const bar = document.createElement("div");
+        bar.className = "bar" + (i === index ? " active" : "");
+        const fill = document.createElement("div");
+        fill.className = "bar-fill";
+        bar.appendChild(fill);
+        progressEl.appendChild(bar);
+      });
+    }
+
+    function renderSlide() {
+      const slide = SLIDES[index];
+      eyebrowEl.textContent = slide.eyebrow || "";
+      pillEl.textContent = slide.pill || "";
+      titleEl.innerHTML = (slide.title || "").replace(
+        /\*(.+?)\*/g,
+        "<span class=\"accent\">$1</span>"
+      );
+      subtitleEl.textContent = slide.subtitle || "";
+
+      gridEl.innerHTML = "";
+      (slide.items || []).forEach(item => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <div class="item-label">${item.label || ""}</div>
+          <div class="item-main">${item.text || ""}</div>
+        `;
+        gridEl.appendChild(div);
+      });
+
+      renderProgress();
+    }
+
+    function nextSlide() {
+      if (index < SLIDES.length - 1) {
+        index++;
+        renderSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (index > 0) {
+        index--;
+        renderSlide();
+      }
+    }
+
+    frameEl.addEventListener("click", () => {
+      nextSlide();
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " ") {
+        nextSlide();
+      } else if (e.key === "ArrowLeft") {
+        prevSlide();
+      }
+    });
+
+    renderSlide();
+  </script>
+</body>
+</html>
