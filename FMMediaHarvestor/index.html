@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Root Node Engine</title>
+  <title>Root Node Engine — Minimal Sovereign Viewer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
@@ -26,8 +26,6 @@
       overflow: hidden;
     }
 
-    /* Ambient + slide viewer */
-
     .ambient {
       position: absolute;
       inset: 0;
@@ -46,7 +44,7 @@
       position: fixed;
       inset: 0;
       background: #000;
-      display: none;
+      display: flex;
       align-items: center;
       justify-content: center;
       z-index: 20;
@@ -159,172 +157,103 @@
       opacity: 0.6;
       pointer-events: none;
     }
-
-    .slide-container {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.25s ease-out, opacity 0.25s ease-out;
-    }
-
-    .slide-container.enter-from-bottom {
-      transform: translateY(100%);
-      opacity: 0;
-    }
-
-    .slide-container.active {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    .slide-container.exit-up {
-      transform: translateY(-100%);
-      opacity: 0;
-    }
   </style>
 </head>
 <body>
-
   <div class="ambient"></div>
 
-  <!-- Slide Viewer -->
   <div id="slide-viewer">
-    <div id="slide-container" class="slide-container active">
-      <div class="frame">
-        <div class="inner">
-          <div id="slide-title" class="title"></div>
-          <div id="slide-list" class="list"></div>
-          <div id="slide-cta" class="cta"></div>
+    <div class="frame">
+      <div class="inner">
+        <div id="slide-title" class="title"></div>
+        <div id="slide-list" class="list"></div>
+        <div id="slide-cta" class="cta"></div>
 
-          <div class="bio-center">
-            <div id="slide-bio" class="bio-pill">
-              <div class="bio-dot"></div>
-              <span id="slide-bio-text"></span>
-            </div>
+        <div class="bio-center">
+          <div id="slide-bio" class="bio-pill">
+            <div class="bio-dot"></div>
+            <span id="slide-bio-text"></span>
           </div>
         </div>
-        <div class="hint">TAP TO ADVANCE · TWO FINGERS TO EXIT</div>
       </div>
+      <div class="hint">TAP ANYWHERE TO EXIT</div>
     </div>
   </div>
 
-  <script type="module">
-    import { generateIR } from "./RootNodeEngine/ContentEngine/IR/generateIR.js";
-    import { renderContent } from "./RootNodeEngine/Renderers/rendererPipeline.js";
-
-    const viewer = document.getElementById("slide-viewer");
-    const slideContainer = document.getElementById("slide-container");
-
+  <script>
     const titleEl = document.getElementById("slide-title");
     const listEl = document.getElementById("slide-list");
     const ctaEl = document.getElementById("slide-cta");
     const bioEl = document.getElementById("slide-bio");
     const bioTextEl = document.getElementById("slide-bio-text");
+    const viewer = document.getElementById("slide-viewer");
 
-    let slides = [];
-    let index = 0;
-
-    function openViewer(data) {
-      slides = data;
-      index = 0;
-      renderSlide(slides[index]);
-
-      viewer.style.display = "flex";
-      slideContainer.classList.add("active");
+    function generateMockIR() {
+      return {
+        identityMechanics: [
+          "You still define yourself by old failures instead of current capabilities.",
+          "You delay decisions because you’re afraid of invalidating a past version of you.",
+          "You keep repeating behaviours that no longer match the rooms you want to be in.",
+          "You optimise for being understood by your past circle instead of your future one.",
+          "You treat your current constraints as permanent instead of negotiable."
+        ]
+      };
     }
 
-    function closeViewer() {
-      slideContainer.classList.remove("active");
-      setTimeout(() => {
-        viewer.style.display = "none";
-      }, 250);
+    function generateListicleFromIR(ir, count, title) {
+      const pool = (ir.identityMechanics || []).slice(0, count);
+      if (!pool.length) {
+        return Array.from({ length: count }, (_, i) => `Signal ${i + 1} that your identity is outdated.`);
+      }
+      return pool;
     }
 
-    function renderSlide(slide) {
-      titleEl.textContent = slide.title || "";
+    function renderSlide({ title, items, cta, bio }) {
+      titleEl.textContent = title;
 
       listEl.innerHTML = "";
-      if (slide.items && Array.isArray(slide.items)) {
-        slide.items.forEach(item => {
-          const div = document.createElement("div");
-          div.className = "item";
+      items.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "item";
 
-          const dot = document.createElement("div");
-          dot.className = "item-dot";
+        const dot = document.createElement("div");
+        dot.className = "item-dot";
 
-          const text = document.createElement("div");
-          text.className = "item-text";
-          text.textContent = item;
+        const text = document.createElement("div");
+        text.className = "item-text";
+        text.textContent = item;
 
-          div.appendChild(dot);
-          div.appendChild(text);
-          listEl.appendChild(div);
-        });
-      }
+        row.appendChild(dot);
+        row.appendChild(text);
+        listEl.appendChild(row);
+      });
 
-      ctaEl.textContent = slide.cta || "";
-      bioTextEl.textContent = slide.bio || "";
-      bioEl.style.display = slide.bio ? "inline-flex" : "none";
+      ctaEl.textContent = cta || "";
+      bioTextEl.textContent = bio || "";
+      bioEl.style.display = bio ? "inline-flex" : "none";
     }
 
-    function nextSlide() {
-      if (index < slides.length - 1) {
-        index++;
-        animateSlideChange(slides[index]);
-      } else {
-        closeViewer();
-      }
+    function bootstrap() {
+      const ir = generateMockIR();
+      const wrapperTitle = "5 signs your identity is outdated";
+      const count = 5;
+
+      const items = generateListicleFromIR(ir, count, wrapperTitle);
+      const slide = {
+        title: wrapperTitle,
+        items,
+        cta: "Follow for daily identity upgrades",
+        bio: "@yourhandle"
+      };
+
+      renderSlide(slide);
     }
-
-    function animateSlideChange(slide) {
-      slideContainer.classList.remove("active");
-      slideContainer.classList.add("exit-up");
-
-      setTimeout(() => {
-        slideContainer.classList.remove("exit-up");
-        renderSlide(slide);
-        slideContainer.classList.add("enter-from-bottom");
-
-        requestAnimationFrame(() => {
-          slideContainer.classList.remove("enter-from-bottom");
-          slideContainer.classList.add("active");
-        });
-      }, 250);
-    }
-
-    let touches = new Set();
-
-    viewer.addEventListener("touchstart", (e) => {
-      for (const t of e.touches) touches.add(t.identifier);
-      if (touches.size >= 2) {
-        touches.clear();
-        closeViewer();
-      }
-    });
-
-    viewer.addEventListener("touchend", (e) => {
-      for (const t of e.changedTouches) touches.delete(t.identifier);
-    });
 
     viewer.addEventListener("click", () => {
-      nextSlide();
+      viewer.style.display = "none";
     });
 
-    /* ---------------------------
-       AUTO-GENERATE ON LOAD
-    ----------------------------*/
-    window.addEventListener("load", () => {
-      const ir = generateIR();
-
-      // Default wrapper for auto mode
-      const wrapper = "5 signs your identity is outdated";
-
-      const output = renderContent({ wrapper, ir });
-
-      openViewer(output.slides);
-    });
+    window.addEventListener("load", bootstrap);
   </script>
 </body>
 </html>
