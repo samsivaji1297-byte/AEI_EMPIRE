@@ -3,692 +3,279 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Money-Adjacent Transmission Engine</title>
+<title>FM · Money‑Adjacent Transmission Engine</title>
 <style>
-    :root {
-        --bg: #050505;
-        --panel: #0c0c0c;
-        --panel-soft: #101010;
-        --border: #222;
-        --border-soft: #333;
-        --accent: #f5f5f5;
-        --muted: #777;
-        --text: #e5e5e5;
-        --danger: #ff4b4b;
-    }
-    * {
-        box-sizing: border-box;
-    }
     body {
         margin: 0;
-        padding: 16px;
-        background: radial-gradient(circle at top, #151515 0, #050505 55%);
-        color: var(--text);
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+        padding: 20px;
+        background: #050505;
+        color: #e5e5e5;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
     }
     .shell {
         max-width: 980px;
         margin: 0 auto;
-        background: linear-gradient(145deg, #050505, #080808);
-        border: 1px solid #181818;
-        border-radius: 14px;
-        padding: 16px;
-        box-shadow: 0 18px 60px rgba(0,0,0,0.8);
+        background: #0a0a0a;
+        border: 1px solid #1a1a1a;
+        border-radius: 12px;
+        padding: 20px;
     }
     .header {
         display: flex;
         justify-content: space-between;
-        align-items: baseline;
-        gap: 8px;
-        margin-bottom: 14px;
+        margin-bottom: 20px;
     }
     .title {
         font-size: 18px;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: var(--accent);
     }
     .subtitle {
         font-size: 11px;
-        color: var(--muted);
-        text-transform: uppercase;
+        color: #777;
         letter-spacing: 0.16em;
+        text-transform: uppercase;
     }
-    .grid {
+    .tiles {
         display: grid;
-        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
-        gap: 14px;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+        margin-bottom: 20px;
     }
-    @media (max-width: 780px) {
-        .grid {
-            grid-template-columns: minmax(0, 1fr);
-        }
-    }
-    .panel {
-        background: var(--panel);
-        border-radius: 10px;
-        border: 1px solid var(--border);
+    .tile {
         padding: 12px;
-    }
-    .panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-    .panel-title {
+        background: #0f0f0f;
+        border: 1px solid #222;
+        border-radius: 8px;
+        text-align: center;
         font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.16em;
-        color: var(--muted);
-    }
-    .chip-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-    }
-    .chip {
-        padding: 6px 9px;
-        border-radius: 999px;
-        border: 1px solid var(--border-soft);
-        font-size: 11px;
-        text-transform: uppercase;
         letter-spacing: 0.12em;
-        color: var(--muted);
+        text-transform: uppercase;
         cursor: pointer;
-        background: #090909;
+        color: #777;
     }
-    .chip.active {
-        border-color: var(--accent);
-        color: var(--accent);
+    .tile.active {
+        border-color: #f5f5f5;
+        color: #f5f5f5;
         background: #151515;
     }
-    .fields {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        margin-top: 8px;
-    }
-    .field-label {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: var(--muted);
-        margin-bottom: 3px;
-    }
-    .field-input {
-        width: 100%;
-        padding: 8px 9px;
-        border-radius: 7px;
-        border: 1px solid var(--border-soft);
-        background: var(--panel-soft);
-        color: var(--text);
-        font-size: 13px;
-        resize: vertical;
-        min-height: 32px;
-    }
-    .field-input::placeholder {
-        color: #555;
-    }
-    .slides-grid {
+    .slide-grid {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 6px;
-        margin-top: 6px;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
     }
     @media (max-width: 780px) {
-        .slides-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+        .slide-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
     }
     .slide-card {
-        background: #090909;
+        background: #0f0f0f;
+        border: 1px solid #222;
         border-radius: 8px;
-        border: 1px solid #202020;
-        padding: 6px;
+        padding: 10px;
     }
     .slide-label {
         font-size: 10px;
-        text-transform: uppercase;
+        color: #777;
         letter-spacing: 0.16em;
-        color: var(--muted);
-        margin-bottom: 4px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
     }
-    .slide-input {
+    textarea {
         width: 100%;
+        min-height: 60px;
+        background: #0a0a0a;
+        border: 1px solid #333;
         border-radius: 6px;
-        border: 1px solid #262626;
-        background: #0f0f0f;
-        color: var(--text);
-        font-size: 12px;
-        padding: 6px 7px;
-        min-height: 40px;
+        color: #e5e5e5;
+        padding: 8px;
+        font-size: 13px;
         resize: vertical;
     }
-    .slide-input::placeholder {
-        color: #555;
-    }
-    .controls-row {
+    .controls {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-top: 10px;
-        gap: 8px;
+        margin-bottom: 20px;
     }
     .btn {
+        padding: 10px 16px;
         border-radius: 999px;
-        border: 1px solid var(--border-soft);
-        background: #101010;
-        color: var(--accent);
+        border: 1px solid #333;
+        background: #111;
+        color: #e5e5e5;
         font-size: 11px;
-        text-transform: uppercase;
         letter-spacing: 0.16em;
-        padding: 8px 14px;
+        text-transform: uppercase;
         cursor: pointer;
     }
     .btn-primary {
-        border-color: var(--accent);
         background: #f5f5f5;
         color: #050505;
+        border-color: #f5f5f5;
     }
-    .btn:active {
-        transform: translateY(1px);
-    }
-    .output-block {
-        background: #050505;
+    .output {
+        background: #0a0a0a;
+        border: 1px solid #222;
         border-radius: 8px;
-        border: 1px solid #202020;
-        padding: 10px;
-        font-size: 12px;
+        padding: 16px;
         white-space: pre-wrap;
+        font-size: 13px;
         line-height: 1.5;
-    }
-    .output-label {
-        font-size: 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.16em;
-        color: var(--muted);
-        margin-bottom: 4px;
-    }
-    .output-section {
-        margin-bottom: 10px;
-    }
-    .output-section:last-child {
-        margin-bottom: 0;
-    }
-    .muted {
-        color: var(--muted);
-        font-size: 11px;
     }
 </style>
 </head>
 <body>
 
 <div class="shell">
+
     <div class="header">
         <div>
             <div class="title">Money‑Adjacent Transmission Engine</div>
-            <div class="subtitle">Root‑Node Aligned · Identity‑Coded · IG‑Ready</div>
+            <div class="subtitle">FM Media Enterprises · Internal</div>
         </div>
-        <div class="subtitle">FM / INTERNAL</div>
+        <div class="subtitle">Sovereign Node</div>
     </div>
 
-    <div class="grid">
-        <!-- LEFT: MODE + INPUTS -->
-        <div class="panel">
-            <div class="panel-header">
-                <div class="panel-title">Archetype</div>
-                <div class="muted">Tap → Inputs morph</div>
-            </div>
-            <div class="chip-row" id="modeRow">
-                <div class="chip" data-mode="hiddenCost">Hidden Cost</div>
-                <div class="chip" data-mode="identityFlex">Identity Flex</div>
-                <div class="chip" data-mode="systemReveal">System</div>
-                <div class="chip" data-mode="behaviourReframe">Behaviour</div>
-                <div class="chip" data-mode="momentumTrigger">Momentum</div>
-                <div class="chip" data-mode="silentFlex">Silent Flex</div>
-                <div class="chip" data-mode="patternInterrupt">Pattern</div>
-                <div class="chip" data-mode="realityUpgrade">Reality</div>
-                <div class="chip" data-mode="sovereignChecklist">Checklist</div>
-                <div class="chip" data-mode="rootNode">Root Node</div>
-            </div>
+    <div class="tiles" id="modeTiles"></div>
 
-            <div class="fields" id="dynamicFields" style="margin-top:10px;"></div>
-        </div>
+    <div class="slide-grid" id="slides"></div>
 
-        <!-- RIGHT: SLIDES + OUTPUT -->
-        <div class="panel">
-            <div class="panel-header">
-                <div class="panel-title">Slides · Transmission</div>
-                <div class="muted">5‑Slide Stack · Reel · Caption</div>
-            </div>
-
-            <div class="slides-grid" id="slidesGrid">
-                <!-- Slide cards injected by JS -->
-            </div>
-
-            <div class="controls-row">
-                <button class="btn" id="btnDefaults">Auto‑Fill Defaults</button>
-                <button class="btn btn-primary" id="btnGenerate">Generate Transmission</button>
-            </div>
-        </div>
+    <div class="controls">
+        <button class="btn" id="defaultsBtn">Auto‑Fill Defaults</button>
+        <button class="btn btn-primary" id="generateBtn">Generate</button>
     </div>
 
-    <!-- OUTPUT -->
-    <div class="panel" style="margin-top:14px;">
-        <div class="panel-header">
-            <div class="panel-title">Output · Copy‑Ready</div>
-            <div class="muted">For Carousels · Reels · Captions</div>
-        </div>
-        <div class="output-block" id="outputBlock">
-            <span class="muted">Select an archetype, fill or auto‑fill, then generate.</span>
-        </div>
-    </div>
+    <div class="output" id="output">Select an archetype to begin.</div>
+
 </div>
 
 <script>
 const modes = {
-    hiddenCost: {
-        name: "Hidden Cost Audit",
-        inputs: [
-            { key: "leak1", label: "Leak 1", placeholder: "Energy leak that feels invisible" },
-            { key: "leak2", label: "Leak 2", placeholder: "Subtle behaviour that drains momentum" },
-            { key: "leak3", label: "Leak 3", placeholder: "Pattern that looks harmless but compounds" },
-            { key: "rootFix", label: "Root Fix", placeholder: "Single root‑level shift that closes the leaks" },
-            { key: "punchline", label: "Punchline", placeholder: "Identity‑coded conclusion (sovereign tone)" }
-        ],
-        defaults: {
-            leak1: "Micro‑hesitation every time you feel a pull to move",
-            leak2: "Saying yes to low‑leverage noise to avoid the real work",
-            leak3: "Letting your environment decide your focus for you",
-            rootFix: "Decide your non‑negotiables once and let them run on autopilot",
-            punchline: "You’re not behind — you’re just leaking power in places you stopped noticing."
-        },
-        buildSlides(values) {
-            return [
-                "You’re leaking energy in ways you don’t even notice.",
-                values.leak1,
-                values.leak2,
-                values.leak3,
-                values.punchline
-            ];
-        }
-    },
-    identityFlex: {
-        name: "Identity Flex",
-        inputs: [
-            { key: "trait1", label: "Trait 1", placeholder: "Core sovereign trait" },
-            { key: "trait2", label: "Trait 2", placeholder: "Behaviour that encodes the trait" },
-            { key: "trait3", label: "Trait 3", placeholder: "Boundary or standard" },
-            { key: "trait4", label: "Trait 4", placeholder: "How they move differently" },
-            { key: "anchor", label: "Anchor Line", placeholder: "Identity anchor (I operate like this…)" }
-        ],
-        defaults: {
-            trait1: "They remove noise faster than they remove apps.",
-            trait2: "They decide once, then let the decision govern their day.",
-            trait3: "They don’t negotiate with their non‑negotiables.",
-            trait4: "They move like their future self is already watching.",
-            anchor: "Sovereign people don’t chase motivation — they build identity that makes action automatic."
-        },
-        buildSlides(values) {
-            return [
-                "People who rise fast don’t have more time — they have a different identity.",
-                values.trait1,
-                values.trait2,
-                values.trait3,
-                values.anchor
-            ];
-        }
-    },
-    systemReveal: {
-        name: "System Reveal",
-        inputs: [
-            { key: "root", label: "Root Node", placeholder: "The real root driver (identity / environment / structure)" },
-            { key: "loop1", label: "Loop 1", placeholder: "Loop that keeps them stuck" },
-            { key: "loop2", label: "Loop 2", placeholder: "Another loop (thought / behaviour / context)" },
-            { key: "friction", label: "Friction", placeholder: "Where the system slows them down" },
-            { key: "upgrade", label: "Upgrade Line", placeholder: "System‑level reframe" }
-        ],
-        defaults: {
-            root: "Your life is not random — it’s running on the identity you haven’t updated yet.",
-            loop1: "You feel stuck, so you scroll, which makes you feel more stuck.",
-            loop2: "You wait for clarity, but clarity only arrives after you move.",
-            friction: "Your environment is optimised for comfort, not for momentum.",
-            upgrade: "When you upgrade the root, the system has no choice but to obey."
-        },
-        buildSlides(values) {
-            return [
-                "Your life is a system — the problem is not effort, it’s architecture.",
-                values.root,
-                values.loop1,
-                values.loop2,
-                values.upgrade
-            ];
-        }
-    },
-    behaviourReframe: {
-        name: "Behaviour Reframe",
-        inputs: [
-            { key: "beh1", label: "Behaviour 1", placeholder: "Behaviour that looks normal but blocks clarity" },
-            { key: "beh2", label: "Behaviour 2", placeholder: "Behaviour that keeps them in loops" },
-            { key: "beh3", label: "Behaviour 3", placeholder: "Behaviour that dilutes identity" },
-            { key: "unlock", label: "Unlock Line", placeholder: "If you stop this, X unlocks" }
-        ],
-        defaults: {
-            beh1: "Consuming more perspectives instead of committing to one path.",
-            beh2: "Treating every day like a reaction instead of a design.",
-            beh3: "Letting your mood decide what gets done.",
-            unlock: "When you stop outsourcing your direction, your clarity stops feeling fragile."
-        },
-        buildSlides(values) {
-            return [
-                "If you feel stuck, it’s usually not fate — it’s behaviour.",
-                values.beh1,
-                values.beh2,
-                values.beh3,
-                values.unlock
-            ];
-        }
-    },
-    momentumTrigger: {
-        name: "Momentum Trigger",
-        inputs: [
-            { key: "mech1", label: "Mechanic 1", placeholder: "Mechanic that builds momentum" },
-            { key: "mech2", label: "Mechanic 2", placeholder: "Mechanic that removes friction" },
-            { key: "mech3", label: "Mechanic 3", placeholder: "Mechanic that compounds" },
-            { key: "formula", label: "Formula Line", placeholder: "Momentum = X × Y style line" }
-        ],
-        defaults: {
-            mech1: "Shorten the distance between decision and action.",
-            mech2: "Remove one source of friction instead of adding three hacks.",
-            mech3: "Repeat the same simple loop until it becomes identity.",
-            formula: "Momentum = clarity × repetition, protected by boundaries."
-        },
-        buildSlides(values) {
-            return [
-                "Momentum isn’t magic — it’s mechanics.",
-                values.mech1,
-                values.mech2,
-                values.mech3,
-                values.formula
-            ];
-        }
-    },
-    silentFlex: {
-        name: "Silent Flex",
-        inputs: [
-            { key: "flex1", label: "Flex 1", placeholder: "Internal flex (system / discipline / clarity)" },
-            { key: "flex2", label: "Flex 2", placeholder: "Another internal flex" },
-            { key: "flex3", label: "Flex 3", placeholder: "Another internal flex" },
-            { key: "punch", label: "Punchline", placeholder: "Sovereign flex line" }
-        ],
-        defaults: {
-            flex1: "I don’t chase motivation — my systems don’t care how I feel.",
-            flex2: "I don’t wait for the right time — I create conditions that make it inevitable.",
-            flex3: "I don’t need external pressure — my standards are loud enough.",
-            punch: "Sovereignty is the flex no one can screenshot."
-        },
-        buildSlides(values) {
-            return [
-                values.flex1,
-                values.flex2,
-                values.flex3,
-                values.punch,
-                "The loudest flex is a life that runs on your terms."
-            ];
-        }
-    },
-    patternInterrupt: {
-        name: "Pattern Interrupt",
-        inputs: [
-            { key: "loop1", label: "Loop 1", placeholder: "Loop that keeps them stuck" },
-            { key: "loop2", label: "Loop 2", placeholder: "Loop that keeps them small" },
-            { key: "loop3", label: "Loop 3", placeholder: "Loop that keeps them distracted" },
-            { key: "unlock", label: "Unlock Line", placeholder: "Break the loop → X" }
-        ],
-        defaults: {
-            loop1: "You feel behind, so you avoid starting, which makes you feel more behind.",
-            loop2: "You wait to feel ready, but readiness only shows up after you move.",
-            loop3: "You numb the discomfort instead of decoding the signal.",
-            unlock: "You’re not stuck — you’re just loyal to a loop that no longer fits your next chapter."
-        },
-        buildSlides(values) {
-            return [
-                "You’re not stuck — you’re looping.",
-                values.loop1,
-                values.loop2,
-                values.loop3,
-                values.unlock
-            ];
-        }
-    },
-    realityUpgrade: {
-        name: "Reality Upgrade",
-        inputs: [
-            { key: "ref1", label: "Reframe 1", placeholder: "Reframe about being behind / stuck" },
-            { key: "ref2", label: "Reframe 2", placeholder: "Reframe about discipline / alignment" },
-            { key: "ref3", label: "Reframe 3", placeholder: "Reframe about environment / goals" },
-            { key: "upgrade", label: "Identity Upgrade", placeholder: "Identity‑level conclusion" }
-        ],
-        defaults: {
-            ref1: "You’re not behind — you’re in incubation.",
-            ref2: "You don’t lack discipline — you lack a life that makes discipline feel sane.",
-            ref3: "Your environment is louder than your goals, and right now it’s winning.",
-            upgrade: "When your identity updates, your reality stops feeling like an argument."
-        },
-        buildSlides(values) {
-            return [
-                "Your reality isn’t random — it’s a mirror of your current identity.",
-                values.ref1,
-                values.ref2,
-                values.ref3,
-                values.upgrade
-            ];
-        }
-    },
-    sovereignChecklist: {
-        name: "Sovereign Checklist",
-        inputs: [
-            { key: "sign1", label: "Sign 1", placeholder: "Sign they’re entering a new chapter" },
-            { key: "sign2", label: "Sign 2", placeholder: "Another sign" },
-            { key: "sign3", label: "Sign 3", placeholder: "Another sign" },
-            { key: "shift", label: "Shift Line", placeholder: "You’re levelling up when…" }
-        ],
-        defaults: {
-            sign1: "You’re suddenly intolerant of the version of you that tolerated everything.",
-            sign2: "You feel restless in rooms that used to feel comfortable.",
-            sign3: "You crave structure more than you crave escape.",
-            shift: "If this is you, it’s not a crisis — it’s an identity upgrade loading."
-        },
-        buildSlides(values) {
-            return [
-                "If these describe you, you’re not lost — you’re levelling up.",
-                values.sign1,
-                values.sign2,
-                values.sign3,
-                values.shift
-            ];
-        }
-    },
-    rootNode: {
-        name: "Root Node Transmission",
-        inputs: [
-            { key: "comp1", label: "Component 1", placeholder: "Identity component" },
-            { key: "comp2", label: "Component 2", placeholder: "Environment component" },
-            { key: "comp3", label: "Component 3", placeholder: "Structure component" },
-            { key: "align", label: "Alignment Line", placeholder: "Upgrade the root → X" }
-        ],
-        defaults: {
-            comp1: "Identity: the story you run that decides what you think you’re allowed to do.",
-            comp2: "Environment: the default settings that either drag you back or pull you forward.",
-            comp3: "Structure: the loops you repeat without thinking.",
-            align: "When you upgrade the root node, your life stops arguing and starts aligning."
-        },
-        buildSlides(values) {
-            return [
-                "Your life has a root node — and it’s not your to‑do list.",
-                values.comp1,
-                values.comp2,
-                values.comp3,
-                values.align
-            ];
-        }
-    }
+    "Hidden Cost": [
+        "You’re leaking energy in ways you don’t notice.",
+        "Micro‑hesitation every time you feel a pull to move.",
+        "Saying yes to low‑leverage noise.",
+        "Letting your environment decide your focus.",
+        "You’re not behind — you’re leaking power in places you stopped noticing."
+    ],
+    "Identity Flex": [
+        "People who rise fast don’t have more time — they have a different identity.",
+        "They remove noise faster than they remove apps.",
+        "They decide once, then let the decision govern their day.",
+        "They don’t negotiate with their non‑negotiables.",
+        "Sovereign people build identity that makes action automatic."
+    ],
+    "System Reveal": [
+        "Your life is a system — the issue isn’t effort, it’s architecture.",
+        "Your identity is outdated.",
+        "You wait for clarity, but clarity follows movement.",
+        "Your environment is optimised for comfort, not momentum.",
+        "Upgrade the root → the system obeys."
+    ],
+    "Behaviour Reframe": [
+        "If you feel stuck, it’s not fate — it’s behaviour.",
+        "You consume instead of commit.",
+        "You react instead of design.",
+        "You let mood decide momentum.",
+        "When you stop outsourcing direction, clarity stops feeling fragile."
+    ],
+    "Momentum Trigger": [
+        "Momentum isn’t magic — it’s mechanics.",
+        "Shorten the distance between decision and action.",
+        "Remove friction instead of adding hacks.",
+        "Repeat the same loop until it becomes identity.",
+        "Momentum = clarity × repetition."
+    ],
+    "Silent Flex": [
+        "I don’t chase motivation — my systems don’t care how I feel.",
+        "I don’t wait for the right time — I create inevitability.",
+        "I don’t need pressure — my standards are loud enough.",
+        "Sovereignty is the flex no one can screenshot.",
+        "The loudest flex is a life that runs on your terms."
+    ],
+    "Pattern Interrupt": [
+        "You’re not stuck — you’re looping.",
+        "You feel behind → you avoid starting.",
+        "You wait to feel ready → readiness follows action.",
+        "You numb discomfort instead of decoding it.",
+        "Break the loop → the chapter unlocks."
+    ],
+    "Reality Upgrade": [
+        "Your reality mirrors your identity.",
+        "You’re not behind — you’re incubating.",
+        "You don’t lack discipline — you lack alignment.",
+        "Your environment is louder than your goals.",
+        "When identity updates, reality stops arguing."
+    ],
+    "Sovereign Checklist": [
+        "If these describe you, you’re levelling up.",
+        "You’re intolerant of your old self.",
+        "You feel restless in old rooms.",
+        "You crave structure over escape.",
+        "This isn’t a crisis — it’s an upgrade loading."
+    ],
+    "Root Node": [
+        "Your life has a root node — and it’s not your to‑do list.",
+        "Identity: the story you run.",
+        "Environment: the defaults that shape you.",
+        "Structure: the loops you repeat.",
+        "Upgrade the root → everything aligns."
+    ]
 };
 
 let currentMode = null;
-const modeRow = document.getElementById("modeRow");
-const dynamicFields = document.getElementById("dynamicFields");
-const slidesGrid = document.getElementById("slidesGrid");
-const outputBlock = document.getElementById("outputBlock");
-const btnDefaults = document.getElementById("btnDefaults");
-const btnGenerate = document.getElementById("btnGenerate");
 
-function renderMode(modeKey) {
-    currentMode = modeKey;
-    [...modeRow.querySelectorAll(".chip")].forEach(chip => {
-        chip.classList.toggle("active", chip.dataset.mode === modeKey);
-    });
+const tiles = document.getElementById("modeTiles");
+const slides = document.getElementById("slides");
+const output = document.getElementById("output");
 
-    const mode = modes[modeKey];
-    if (!mode) return;
+Object.keys(modes).forEach(name => {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.textContent = name;
+    tile.onclick = () => selectMode(name, tile);
+    tiles.appendChild(tile);
+});
 
-    // Dynamic inputs
-    dynamicFields.innerHTML = "";
-    mode.inputs.forEach(input => {
-        const wrap = document.createElement("div");
-        const label = document.createElement("div");
-        label.className = "field-label";
-        label.textContent = input.label;
-        const field = document.createElement("textarea");
-        field.className = "field-input";
-        field.placeholder = input.placeholder;
-        field.dataset.key = input.key;
-        wrap.appendChild(label);
-        wrap.appendChild(field);
-        dynamicFields.appendChild(wrap);
-    });
+function selectMode(name, tile) {
+    currentMode = name;
+    [...tiles.children].forEach(t => t.classList.remove("active"));
+    tile.classList.add("active");
 
-    // Slides
-    slidesGrid.innerHTML = "";
-    for (let i = 1; i <= 5; i++) {
+    slides.innerHTML = "";
+    for (let i = 0; i < 5; i++) {
         const card = document.createElement("div");
         card.className = "slide-card";
-        const label = document.createElement("div");
-        label.className = "slide-label";
-        label.textContent = `Slide ${i}`;
-        const input = document.createElement("textarea");
-        input.className = "slide-input";
-        input.placeholder = i === 1 ? "Hook / opening line" : `Slide ${i} content`;
-        input.dataset.slide = String(i);
-        card.appendChild(label);
-        card.appendChild(input);
-        slidesGrid.appendChild(card);
+        card.innerHTML = `
+            <div class="slide-label">Slide ${i + 1}</div>
+            <textarea data-slide="${i}"></textarea>
+        `;
+        slides.appendChild(card);
     }
 
-    outputBlock.innerHTML = `<span class="muted">Mode: ${mode.name}. Fill or auto‑fill, then generate.</span>`;
+    output.textContent = `Mode selected: ${name}`;
 }
 
-function getFieldValues() {
-    if (!currentMode) return {};
-    const mode = modes[currentMode];
-    const values = {};
-    mode.inputs.forEach(input => {
-        const el = dynamicFields.querySelector(`[data-key="${input.key}"]`);
-        values[input.key] = (el && el.value.trim()) || "";
-    });
-    return values;
-}
-
-function applyDefaults() {
+document.getElementById("defaultsBtn").onclick = () => {
     if (!currentMode) return;
-    const mode = modes[currentMode];
-    const values = getFieldValues();
-    const merged = { ...mode.defaults, ...values };
+    const defaults = modes[currentMode];
+    [...slides.querySelectorAll("textarea")].forEach((t, i) => t.value = defaults[i]);
+};
 
-    // Fill dynamic fields
-    mode.inputs.forEach(input => {
-        const el = dynamicFields.querySelector(`[data-key="${input.key}"]`);
-        if (el && !el.value.trim()) {
-            el.value = merged[input.key] || "";
-        }
-    });
-
-    // Build slides from merged values
-    const slides = mode.buildSlides(merged);
-    [...slidesGrid.querySelectorAll(".slide-input")].forEach((el, idx) => {
-        el.value = slides[idx] || "";
-    });
-}
-
-function generateTransmission() {
+document.getElementById("generateBtn").onclick = () => {
     if (!currentMode) return;
-    const mode = modes[currentMode];
 
-    // Collect slide content
-    const slides = [];
-    [...slidesGrid.querySelectorAll(".slide-input")].forEach((el, idx) => {
-        const val = el.value.trim();
-        slides[idx] = val || "";
-    });
+    const values = [...slides.querySelectorAll("textarea")].map(t => t.value.trim());
+    const reel = values.join(" ");
+    const caption = values[4] + " · You’re not behind — you’re under‑activated.";
 
-    // If slides mostly empty, auto‑fill from defaults
-    const nonEmpty = slides.filter(s => s && s.length > 0).length;
-    if (nonEmpty < 2) {
-        applyDefaults();
-        // Re‑collect after defaults
-        slides.length = 0;
-        [...slidesGrid.querySelectorAll(".slide-input")].forEach((el, idx) => {
-            slides[idx] = el.value.trim();
-        });
-    }
-
-    const cleanSlides = slides.map(s => s || "").slice(0, 5);
-
-    // Reel script: hook + 3 core lines + punchline
-    const hook = cleanSlides[0] || "";
-    const core = cleanSlides.slice(1, 4).filter(Boolean);
-    const punch = cleanSlides[4] || "";
-    const reelParts = [hook, ...core, punch].filter(Boolean);
-    const reelScript = reelParts.join(" ");
-
-    // Caption: short, sovereign, anchored on slide 4/5
-    const captionBase = punch || core[core.length - 1] || hook;
-    const caption = captionBase
-        ? `${captionBase}  ·  You’re not behind — you’re just one decision away from a different identity.` 
-        : "You’re not behind — you’re just one decision away from a different identity.";
-
-    // Build output text
-    let out = "";
-    out += "SLIDES\n";
-    cleanSlides.forEach((s, idx) => {
-        out += `Slide ${idx + 1}: ${s || "(empty)"}\n`;
-    });
-    out += "\nREEL SCRIPT\n";
-    out += reelScript || "(no content)\n";
-    out += "\nCAPTION\n";
-    out += caption;
-
-    outputBlock.textContent = out;
-}
-
-// Event wiring
-modeRow.addEventListener("click", (e) => {
-    const chip = e.target.closest(".chip");
-    if (!chip) return;
-    renderMode(chip.dataset.mode);
-});
-
-btnDefaults.addEventListener("click", () => {
-    applyDefaults();
-});
-
-btnGenerate.addEventListener("click", () => {
-    generateTransmission();
-});
-
-// Auto‑select first mode on load
-renderMode("hiddenCost");
+    output.textContent =
+        `SLIDES\n` +
+        values.map((v, i) => `Slide ${i + 1}: ${v}`).join("\n") +
+        `\n\nREEL SCRIPT\n${reel}\n\nCAPTION\n${caption}`;
+};
 </script>
 
 </body>
