@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Money Overlay Sovereign Engine</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#020204;
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,sans-serif;
+}
+
+body{
+  position:relative;
+}
+
+/* Layered background for hybrid Apple × cyber‑noir */
+.bg-base{
+  position:absolute;
+  inset:-25%;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255,255,255,.12), transparent 45%),
+    radial-gradient(circle at 80% 70%, rgba(255,255,255,.06), transparent 45%),
+    radial-gradient(circle at 50% 120%, rgba(255,255,255,.08), transparent 55%),
+    linear-gradient(180deg,#020204,#000);
+  filter:blur(70px);
+  opacity:0.9;
+  animation:drift 32s ease-in-out infinite alternate;
+  transform-origin:center;
+}
+
+.bg-vignette{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 50% 10%, rgba(255,255,255,.12), transparent 55%),
+    radial-gradient(circle at 50% 120%, rgba(0,0,0,.9), transparent 60%);
+  mix-blend-mode:screen;
+  opacity:.45;
+}
+
+@keyframes drift{
+  from{transform:scale(1.05) translate(0,0);}
+  to{transform:scale(1.25) translate(-40px,-60px);}
+}
+
+/* Glass + noise */
+.overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom,rgba(255,255,255,.04),rgba(0,0,0,.4));
+  backdrop-filter:blur(18px);
+}
+
+.noise{
+  position:absolute;
+  inset:-20%;
+  opacity:.06;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='noStitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  mix-blend-mode:soft-light;
+  pointer-events:none;
+}
+
+/* Top bar */
+.top{
+  position:absolute;
+  top:4vh;
+  left:8vw;
+  right:8vw;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  z-index:30;
+  pointer-events:none;
+}
+
+.brand{
+  font-size:11px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  opacity:.6;
+}
+
+.mode-pill{
+  font-size:11px;
+  padding:6px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(18px);
+  opacity:.85;
+  pointer-events:auto;
+  border:none;
+  color:#fff;
+}
+
+/* Slide container */
+.slide{
+  position:absolute;
+  inset:0;
+  padding:0 10vw;
+  padding-top:12vh;
+  padding-bottom:14vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  opacity:0;
+  transform:translateY(40px);
+  transition:opacity .7s ease, transform .7s ease;
+}
+
+.slide.active{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* Typography */
+.main{
+  font-size:clamp(40px,8vw,90px);
+  line-height:1.05;
+  font-weight:680;
+  letter-spacing:-1.4px;
+  max-width:92%;
+  text-wrap:balance;
+  margin-bottom:32px;
+}
+
+.body{
+  font-size:clamp(22px,4.6vw,36px);
+  line-height:1.32;
+  color:rgba(255,255,255,.8);
+  max-width:90%;
+  text-wrap:balance;
+}
+
+/* Navigation dots */
+.nav{
+  position:absolute;
+  bottom:5vh;
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  z-index:10;
+}
+
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  background:rgba(255,255,255,.25);
+  transition:all .25s ease;
+}
+
+.dot.active{
+  width:22px;
+  background:#fff;
+}
+
+/* Tap zones */
+.tap-left, .tap-right{
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:50%;
+  z-index:20;
+}
+
+.tap-left{ left:0; }
+.tap-right{ right:0; }
+
+/* Controls */
+.controls{
+  position:absolute;
+  bottom:3vh;
+  left:8vw;
+  right:8vw;
+  z-index:40;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:space-between;
+  align-items:center;
+  pointer-events:auto;
+}
+
+.controls-inner{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+select,button{
+  appearance:none;
+  border:none;
+  color:#fff;
+  background:rgba(255,255,255,.09);
+  backdrop-filter:blur(18px);
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:11px;
+}
+
+label{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.16em;
+  opacity:.6;
+}
+
+/* Parallax foreground wrapper */
+#slides{
+  position:relative;
+  z-index:25;
+  will-change:transform;
+}
+</style>
+</head>
+<body>
+
+<div class="bg-base" id="bgBase"></div>
+<div class="bg-vignette"></div>
+<div class="overlay"></div>
+<div class="noise"></div>
+
+<div class="top">
+  <div class="brand">MONEY OVERLAY · MENTAL SOVEREIGNTY</div>
+  <button id="toggleControls" class="mode-pill">Simple</button>
+</div>
+
+<div id="slides"></div>
+
+<div class="tap-left" id="prev"></div>
+<div class="tap-right" id="next"></div>
+
+<div class="nav" id="navDots"></div>
+
+<div class="controls" id="controls" style="display:none;">
+  <div class="controls-inner">
+    <div>
+      <label for="theme">Theme</label><br>
+      <select id="theme">
+        <option value="selftrust">Self‑Trust & Execution</option>
+        <option value="identity">Identity Collapse & Money</option>
+        <option value="inevitability">Inevitability & Results</option>
+        <option value="pattern">Pattern‑Fatigue & Stagnation</option>
+      </select>
+    </div>
+    <div>
+      <label for="mechanic">Overlay Style</label><br>
+      <select id="mechanic">
+        <option value="auto">Auto (recommended)</option>
+        <option value="changed">“What changed everything”</option>
+        <option value="nobody">“Nobody talks about this”</option>
+        <option value="stop">“If you want X, stop doing Y”</option>
+        <option value="stuck">“This is why you’re stuck”</option>
+      </select>
+    </div>
+  </div>
+  <button id="generate">Generate</button>
+</div>
+
+<script>
+/* ---------------------------------------------------------
+   MONEY OVERLAY × MENTAL SOVEREIGNTY DATA
+   --------------------------------------------------------- */
+
+const THEMES = {
+  selftrust: {
+    label: "Self‑Trust & Execution",
+    x: "consistent results",
+    y: "second‑guessing every move",
+    product: "Mental Sovereignty Framework"
+  },
+  identity: {
+    label: "Identity Collapse & Money",
+    x: "a life that actually matches your standards",
+    y: "building things you secretly don’t want",
+    product: "Mental Sovereignty Framework"
+  },
+  inevitability: {
+    label: "Inevitability & Results",
+    x: "results that feel inevitable",
+    y: "treating every win like a fluke",
+    product: "Mental Sovereignty Framework"
+  },
+  pattern: {
+    label: "Pattern‑Fatigue & Stagnation",
+    x: "clean forward momentum",
+    y: "circling the same outcomes",
+    product: "Mental Sovereignty Framework"
+  }
+};
+
+const MECHANICS = ["changed","nobody","stop","stuck"];
+
+/* ---------------------------------------------------------
+   GENERATOR
+   --------------------------------------------------------- */
+
+function pickMechanic(themeKey, mechanicChoice){
+  if (mechanicChoice !== "auto") return mechanicChoice;
+  // simple heuristic: pattern → stuck, selftrust → changed, identity → nobody, inevitability → stop
+  if (themeKey === "pattern") return "stuck";
+  if (themeKey === "selftrust") return "changed";
+  if (themeKey === "identity") return "nobody";
+  if (themeKey === "inevitability") return "stop";
+  return MECHANICS[Math.floor(Math.random()*MECHANICS.length)];
+}
+
+function pickSlideCount(mechanic){
+  if (mechanic === "changed") return 5;
+  if (mechanic === "stop") return 6;
+  if (mechanic === "nobody" || mechanic === "stuck") return 7;
+  return 6;
+}
+
+function generateSlides(themeKey, mechanicChoice){
+  const theme = THEMES[themeKey];
+  const mechanic = pickMechanic(themeKey, mechanicChoice);
+  const slideCount = pickSlideCount(mechanic);
+  const slides = [];
+
+  const x = theme.x;
+  const y = theme.y;
+  const product = theme.product;
+
+  // Slide 1 — hook (money overlay tone)
+  if (mechanic === "changed"){
+    slides.push({
+      main: `Here’s what actually changed everything for me.`,
+      body: `Not a new strategy. Not a new niche. Not a new offer. It was fixing the way my mind was wired around execution and self‑trust.`
+    });
+  } else if (mechanic === "nobody"){
+    slides.push({
+      main: `Nobody talks about this part.`,
+      body: `Everyone shows you the numbers, the screenshots, the “after”. Almost nobody shows you the mental architecture it takes to hold it without collapsing.`
+    });
+  } else if (mechanic === "stop"){
+    slides.push({
+      main: `If you want ${x}, stop doing this.`,
+      body: `Stop treating your mind like a background process and then wondering why your results feel random.`
+    });
+  } else if (mechanic === "stuck"){
+    slides.push({
+      main: `This is why you’re stuck — and it’s not what you think.`,
+      body: `It’s not your offer. It’s not the algorithm. It’s not “saturation”. It’s the version of you that keeps running the show.`
+    });
+  }
+
+  // Slide 2 — reveal it’s mental architecture
+  slides.push({
+    main: ``,
+    body: `The real bottleneck was never tactics. It was the identity I was operating from — the one that expected inconsistency, delay, and self‑sabotage as normal.`
+  });
+
+  // Slide 3 — connect to Mental Sovereignty
+  slides.push({
+    main: ``,
+    body: `Once I started treating my mental architecture as the primary system — not an afterthought — everything downstream shifted. Strategy finally had somewhere stable to land.`
+  });
+
+  // Slide 4 — money overlay framing
+  if (slideCount >= 4){
+    slides.push({
+      main: ``,
+      body: `The more I cleaned up my internal defaults, the less “luck” I needed. Opportunities stopped feeling rare. Results stopped feeling fragile. Momentum stopped leaking.`
+    });
+  }
+
+  // Slide 5 — identity decision
+  if (slideCount >= 5){
+    slides.push({
+      main: ``,
+      body: `At some point you have to decide: are you going to keep building from the version of you that expects ${y}, or from the version of you for whom ${x} is standard?`
+    });
+  }
+
+  // Slide 6 — product‑coded bridge
+  if (slideCount >= 6){
+    slides.push({
+      main: ``,
+      body: `That’s why I built ${product} — to give you the mental operating system I wish I had when I was still trying to out‑work a misaligned identity.`
+    });
+  }
+
+  // Slide 7 — CTA (clean, IG‑native)
+  if (slideCount >= 7){
+    slides.push({
+      main: ``,
+      body: `If you’re done pretending it’s “just strategy”, comment 777 and I’ll send you the link to ${product}.`
+    });
+  } else {
+    slides.push({
+      main: ``,
+      body: `If this landed, comment 777 and I’ll send you the link to ${product}.`
+    });
+  }
+
+  // Ensure first slide has main/body split nicely
+  slides[0] = {
+    main: slides[0].main,
+    body: slides[0].body
+  };
+
+  return slides;
+}
+
+/* ---------------------------------------------------------
+   RENDER ENGINE
+   --------------------------------------------------------- */
+
+const slidesContainer = document.getElementById("slides");
+const navDots = document.getElementById("navDots");
+let currentSlides = [];
+let index = 0;
+
+function renderSlides(){
+  slidesContainer.innerHTML = "";
+  navDots.innerHTML = "";
+
+  currentSlides.forEach((s, i) => {
+    const slide = document.createElement("div");
+    slide.className = "slide" + (i === index ? " active" : "");
+    slide.innerHTML = `
+      <div class="main">${s.main}</div>
+      <div class="body">${s.body}</div>
+    `;
+    slidesContainer.appendChild(slide);
+
+    const dot = document.createElement("div");
+    dot.className = "dot" + (i === index ? " active" : "");
+    navDots.appendChild(dot);
+  });
+}
+
+function next(){
+  if (!currentSlides.length) return;
+  index = (index + 1) % currentSlides.length;
+  renderSlides();
+}
+
+function prev(){
+  if (!currentSlides.length) return;
+  index = (index - 1 + currentSlides.length) % currentSlides.length;
+  renderSlides();
+}
+
+document.getElementById("next").onclick = next;
+document.getElementById("prev").onclick = prev;
+
+/* ---------------------------------------------------------
+   CONTROLS + SIMPLE MODE
+   --------------------------------------------------------- */
+
+const themeSelect = document.getElementById("theme");
+const mechanicSelect = document.getElementById("mechanic");
+const generateBtn = document.getElementById("generate");
+const toggleControlsBtn = document.getElementById("toggleControls");
+const controls = document.getElementById("controls");
+
+let advanced = false;
+
+function regenerate(){
+  const themeKey = themeSelect.value;
+  const mechanicChoice = mechanicSelect.value;
+  currentSlides = generateSlides(themeKey, mechanicChoice);
+  index = 0;
+  renderSlides();
+}
+
+generateBtn.onclick = regenerate;
+
+toggleControlsBtn.onclick = () => {
+  advanced = !advanced;
+  controls.style.display = advanced ? "flex" : "none";
+  toggleControlsBtn.textContent = advanced ? "Advanced" : "Simple";
+};
+
+/* Simple mode: tap anywhere (outside controls) to regenerate */
+document.body.addEventListener("click",(e)=>{
+  if (e.target.closest(".controls") || e.target === toggleControlsBtn) return;
+  if (advanced) return;
+  const themeKeys = Object.keys(THEMES);
+  const randomTheme = themeKeys[Math.floor(Math.random()*themeKeys.length)];
+  themeSelect.value = randomTheme;
+  mechanicSelect.value = "auto";
+  regenerate();
+});
+
+/* ---------------------------------------------------------
+   PARALLAX FEEL
+   --------------------------------------------------------- */
+
+const slidesWrapper = document.getElementById("slides");
+const bgBase = document.getElementById("bgBase");
+
+window.addEventListener("mousemove", (e)=>{
+  const x = (e.clientX / window.innerWidth) - 0.5;
+  const y = (e.clientY / window.innerHeight) - 0.5;
+  const fgX = x * 10;
+  const fgY = y * 10;
+  const bgX = x * -12;
+  const bgY = y * -16;
+  slidesWrapper.style.transform = `translate3d(${fgX}px, ${fgY}px, 0)`;
+  bgBase.style.transform = `scale(1.2) translate(${bgX}px, ${bgY}px)`;
+});
+
+/* Initial */
+currentSlides = generateSlides("selftrust","auto");
+renderSlides();
+</script>
+
+</body>
+</html>
