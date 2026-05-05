@@ -74,6 +74,22 @@ body{
   pointer-events:none;
 }
 
+<div class="spotlight"></div>
+.spotlight{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:120vw;
+  height:120vh;
+  transform:translate(-50%, -50%);
+  background:radial-gradient(circle, rgba(255,255,255,.12) 0%, rgba(255,255,255,0) 60%);
+  filter:blur(60px);
+  opacity:.35;
+  pointer-events:none;
+  z-index:5;
+}
+      
+      
 /* Top bar */
 .top{
   position:absolute;
@@ -108,27 +124,23 @@ body{
 
 .slide{
   position:absolute;
-  inset:0;
-  padding:0 10vw;
+  left:0;
+  right:0;
+  top:50%;                 /* anchor to vertical midpoint */
+  transform:translateY(-42%); /* optical centering sweet spot */
   
-  /* NEW: true vertical centering */
+  padding:0 10vw;
   display:flex;
   flex-direction:column;
-  justify-content:center;
   align-items:flex-start;
 
-  /* NEW: balanced top/bottom breathing room */
-  padding-top:6vh;
-  padding-bottom:8vh;
-
   opacity:0;
-  transform:translateY(40px);
-  transition:opacity .7s ease, transform .7s ease;
+  transition:opacity .8s ease, transform .8s ease;
 }
 
 .slide.active{
   opacity:1;
-  transform:translateY(0);
+  transform:translateY(-42%) translateY(0); /* keep anchor stable */
 }
 
 /* Typography */
