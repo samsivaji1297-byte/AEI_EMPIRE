@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Money-Adjacent Content Engine</title>
+<style>
+    body {
+        background: #0a0a0a;
+        color: #e5e5e5;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+        font-weight: 300;
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+    }
+    select, input, textarea, button {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        background: #111;
+        border: 1px solid #333;
+        color: #e5e5e5;
+        border-radius: 6px;
+        font-size: 15px;
+    }
+    button {
+        background: #1a1a1a;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    button:hover {
+        background: #222;
+    }
+    .output {
+        margin-top: 25px;
+        padding: 20px;
+        background: #0f0f0f;
+        border: 1px solid #222;
+        border-radius: 8px;
+        white-space: pre-wrap;
+    }
+</style>
+</head>
+<body>
+
+<h1>Money‑Adjacent Content Engine</h1>
+
+<select id="modeSelector">
+    <option value="">Select Mode</option>
+    <option value="hiddenCost">Hidden Cost Audit</option>
+    <option value="identityFlex">Identity Flex</option>
+    <option value="systemReveal">System Reveal</option>
+    <option value="behaviourReframe">Behaviour Reframe</option>
+    <option value="momentumTrigger">Momentum Trigger</option>
+    <option value="silentFlex">Silent Flex</option>
+    <option value="patternInterrupt">Pattern Interrupt</option>
+    <option value="realityUpgrade">Reality Upgrade</option>
+    <option value="sovereignChecklist">Sovereign Checklist</option>
+    <option value="rootNode">Root Node Transmission</option>
+</select>
+
+<div id="inputs"></div>
+
+<button onclick="generate()">Generate Output</button>
+
+<div class="output" id="output"></div>
+
+<script>
+const templates = {
+    hiddenCost: {
+        fields: ["Leak 1", "Leak 2", "Leak 3", "Root Fix", "Punchline"],
+        build: (v) => ({
+            carousel: [
+                "You’re leaking energy in ways you don’t notice",
+                v[0],
+                v[1],
+                v[2],
+                v[4]
+            ],
+            reel: `You're leaking energy without realising it. ${v[0]}. ${v[1]}. ${v[2]}. ${v[4]}.`,
+            caption: `Fix the root → ${v[3]}.`
+        })
+    },
+
+    identityFlex: {
+        fields: ["Trait 1", "Trait 2", "Trait 3", "Trait 4", "Sovereign Anchor"],
+        build: (v) => ({
+            carousel: [
+                "People who rise fast do this automatically",
+                v[0],
+                v[1],
+                v[2],
+                v[4]
+            ],
+            reel: `${v[0]}. ${v[1]}. ${v[2]}. ${v[4]}.`,
+            caption: v[4]
+        })
+    },
+
+    systemReveal: {
+        fields: ["Root Node", "Loop 1", "Loop 2", "Friction", "Upgrade Line"],
+        build: (v) => ({
+            carousel: [
+                "Your life is a system — here’s the part you’re ignoring",
+                v[0],
+                v[1],
+                v[2],
+                v[4]
+            ],
+            reel: `${v[0]}. ${v[1]}. ${v[2]}. ${v[4]}.`,
+            caption: v[4]
+        })
+    },
+
+    behaviourReframe: {
+        fields: ["Behaviour 1", "Behaviour 2", "Behaviour 3", "Unlock Line"],
+        build: (v) => ({
+            carousel: [
+                "If you feel stuck, it’s usually one of these",
+                v[0],
+                v[1],
+                v[2],
+                v[3]
+            ],
+            reel: `${v[0]}. ${v[1]}. ${v[2]}. ${v[3]}.`,
+            caption: v[3]
+        })
+    },
+
+    momentumTrigger: {
+        fields: ["Mechanic 1", "Mechanic 2", "Mechanic 3", "Formula"],
+        build: (v) => ({
+            carousel: [
+                "Momentum isn’t magic — it’s mechanics",
+                v[0],
+                v[1],
+                v[2],
+                v[3]
+            ],
+            reel: `${v[0]}. ${v[1]}. ${v[2]}. ${v[3]}.`,
+            caption: v[3]
+        })
+    },
+
+    silentFlex: {
+        fields: ["Flex 1", "Flex 2", "Flex 3", "Punchline"],
+        build: (v) => ({
+            carousel: [
+                v[0],
+                v[1],
+                v[2],
+                v[3],
+                "Sovereignty is the flex."
+            ],
+            reel: `${v[0]}. ${v[1]}. ${v[2]}. ${v[3]}.`,
+            caption: "Sovereignty is the flex."
+        })
+    },
+
+    patternInterrupt: {
+        fields: ["Loop 1", "Loop 2", "Loop 3", "Unlock Line"],
+        build: (v) => ({
+            carousel: [
+                "You’re not stuck — you’re looping",
+                v[0],
+                v[1],
+                v[2],
+                v[3]
+            ],
+            reel: `${v[0]}. ${v[1]}. ${v[2]}. ${v[3]}.`,
+            caption: v[3]
+        })
+    },
+
+    realityUpgrade: {
+        fields: ["Reframe 1", "Reframe 2", "Reframe 3", "Identity Upgrade"],
+        build: (v) => ({
+            carousel: [
+                "You’re not behind — you’re under‑activated",
+                v[0],
+                v[1],
+                v[2],
+                v[3]
+            ],
+            reel: `${v[0]}. ${v[1]}. ${v[2]}. ${v[3]}.`,
+            caption: v[3]
+        })
+    },
+
+    sovereignChecklist: {
+        fields: ["Sign 1", "Sign 2", "Sign 3", "Shift Line"],
+        build: (v) => ({
+            carousel: [
+                "If these describe you, you’re levelling up",
+                v[0],
+                v[1],
+                v[2],
+                v[3]
+            ],
+            reel: `${v[0]}. ${v[1]}. ${v[2]}. ${v[3]}.`,
+            caption: v[3]
+        })
+    },
+
+    rootNode: {
+        fields: ["Component 1", "Component 2", "Component 3", "Alignment Line"],
+        build: (v) => ({
+            carousel: [
+                "Your life has a root node",
+                v[0],
+                v[1],
+                v[2],
+                v[3]
+            ],
+            reel: `${v[0]}. ${v[1]}. ${v[2]}. ${v[3]}.`,
+            caption: v[3]
+        })
+    }
+};
+
+document.getElementById("modeSelector").addEventListener("change", function() {
+    const mode = this.value;
+    const container = document.getElementById("inputs");
+    container.innerHTML = "";
+
+    if (!mode) return;
+
+    templates[mode].fields.forEach(f => {
+        container.innerHTML += `<input placeholder="${f}">`;
+    });
+});
+
+function generate() {
+    const mode = document.getElementById("modeSelector").value;
+    if (!mode) return;
+
+    const inputs = [...document.querySelectorAll("#inputs input")].map(i => i.value.trim());
+    const result = templates[mode].build(inputs);
+
+    document.getElementById("output").innerText =
+        `CAROUSEL:\n${result.carousel.join("\n")}\n\nREEL:\n${result.reel}\n\nCAPTION:\n${result.caption}`;
+}
+</script>
+
+</body>
+</html>
