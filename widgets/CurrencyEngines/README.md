@@ -10,6 +10,40 @@ The important CoPilot Chats are:
 **CoPilot: Building a Root Node Framework for Viral Content** - THIS IS MAIN KEY / IN USE CHAT
 Link: https://copilot.microsoft.com/chats/T3mFhx8dfy7GGibc7BNfT
 
+
+---
+
+# 🧩 RootNode Widgets Hub
+
+
+**CoPilot Chat:**  
+RootNode Widgets Hub
+
+**CoPilot Chat Link:**  
+https://copilot.microsoft.com/chats/Hi8u8hrY7fqkkfz31HekC
+
+---
+
+## 📁 Widget Files
+
+- `identityshiftcarousel.html`  
+- `identitysovereign.html`  
+- `mentalsovereigntymoneyoverlay.html`  
+- `mentalsovereigntyone.html`
+
+
+---
+
+
+**CoPilot Chat:**  
+RootNode Widgets Hub +
+
+**CoPilot Chat Link:**  
+https://copilot.microsoft.com/chats/nXi6KipQDKLW5Xs9tsg1m
+
+---
+
+
 In terms of widget build etc: 
 https://github.com/samsivaji1297-byte/AEI_EMPIRE/blob/main/widgets/CurrencyEngines/RootNodeConsistency.html
 https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/CurrencyEngines/RootNodeConsistency.html
