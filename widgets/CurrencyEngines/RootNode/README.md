@@ -1,5 +1,8 @@
 # 🧩 RootNode Widgets Hub
 
+**CoPilot Chat:**  
+RootNode Widgets Hub
+
 **CoPilot Chat Link:**  
 https://copilot.microsoft.com/chats/Hi8u8hrY7fqkkfz31HekC
 
@@ -15,3 +18,8 @@ https://copilot.microsoft.com/chats/Hi8u8hrY7fqkkfz31HekC
 
 ---
 
+**CoPilot Chat:**  
+RootNode Widgets Hub +
+
+**CoPilot Chat Link:**  
+https://copilot.microsoft.com/chats/nXi6KipQDKLW5Xs9tsg1m
