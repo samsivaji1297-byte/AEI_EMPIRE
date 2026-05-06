@@ -43,6 +43,14 @@ https://copilot.microsoft.com/chats/nXi6KipQDKLW5Xs9tsg1m
 
 ---
 
+## 📁 Widget Files
+
+- `desiretospendone.html` 
+- `desiretospendtwo.html`
+
+---
+
+
 
 In terms of widget build etc: 
 https://github.com/samsivaji1297-byte/AEI_EMPIRE/blob/main/widgets/CurrencyEngines/RootNodeConsistency.html
@@ -54,6 +62,8 @@ https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/CurrencyEngines/RootNode
 
 | Source / Model | Chat Link | GH Folder | Widget Produced | File Location | URL Output | Category | Status (with Notes) |
 |----------------|-----------|-----------|-----------------|---------------|------------|----------|---------------------|
+| **CoPilot: RootNode Widgets Hub +** | https://copilot.microsoft.com/chats/nXi6KipQDKLW5Xs9tsg1m | widgets/CurrencyEngines/RootNode | `desiretospendone.html` | `widgets/CurrencyEngines/RootNode/desiretospendone.html` | https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/CurrencyEngines/RootNode/desiretospendone.html | FM Media Widgets - Currency Harvest Engine | Active and Developmental Base version, continue to build new versions etc |
+| **CoPilot: RootNode Widgets Hub +** | https://copilot.microsoft.com/chats/nXi6KipQDKLW5Xs9tsg1m | widgets/CurrencyEngines/RootNode | `desiretospendtwo.html` | `widgets/CurrencyEngines/RootNode/desiretospendtwo.html` | https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/CurrencyEngines/RootNode/desiretospendtwo.html | FM Media Widgets - Currency Harvest Engine | Active and Developmental Base version, continue to build new versions etc |
 | **CoPilot: RootNode Widgets Hub** | https://copilot.microsoft.com/chats/Hi8u8hrY7fqkkfz31HekC | widgets/CurrencyEngines/RootNode | `identityshiftcarousel.html` | `widgets/CurrencyEngines/RootNode/identityshiftcarousel.html` | https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/CurrencyEngines/RootNode/identityshiftcarousel.html | FM Media Widgets - Pure Harvest Engine | Active and Developmental Base version, continue to build new versions etc |
 | **CoPilot: RootNode Widgets Hub** | https://copilot.microsoft.com/chats/Hi8u8hrY7fqkkfz31HekC | widgets/CurrencyEngines/RootNode | `identitysovereign.html` | `widgets/CurrencyEngines/RootNode/identitysovereign.html` | https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/CurrencyEngines/RootNode/identitysovereign.html | FM Media Widgets - Pure Harvest Engine | Active and Developmental Base version, continue to build new versions etc |
 | **CoPilot: RootNode Widgets Hub** | https://copilot.microsoft.com/chats/Hi8u8hrY7fqkkfz31HekC | widgets/CurrencyEngines/RootNode | `mentalsovereigntyone.html` | `widgets/CurrencyEngines/RootNode/mentalsovereigntyone.html` | https://samsivaji1297-byte.github.io/AEI_EMPIRE/widgets/CurrencyEngines/RootNode/mentalsovereigntyone.html | FM Media Widgets - Pure Harvest Engine | Active and Developmental Base version, continue to build new versions etc |
