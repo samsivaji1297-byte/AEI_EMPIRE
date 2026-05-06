@@ -1,7 +1,13 @@
-CoPilot Chat: RootNode Widgets Hub
-CoPilot Link: https://copilot.microsoft.com/chats/Hi8u8hrY7fqkkfz31HekC
+# 🧩 CoPilot Chat: RootNode Widgets Hub
 
-identityshiftcarousel.html
-identitysovereign.html
-mentalsovereigntymoneyoverlay.html
-mentalsovereigntyone.html
+**CoPilot Chat Link:**  
+https://copilot.microsoft.com/chats/Hi8u8hrY7fqkkfz31HekC
+
+---
+
+## 📁 Widget Files
+
+- `identityshiftcarousel.html`  
+- `identitysovereign.html`  
+- `mentalsovereigntymoneyoverlay.html`  
+- `mentalsovereigntyone.html`
