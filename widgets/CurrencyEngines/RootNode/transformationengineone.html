@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport"
       content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Transformation Engine</title>
+<title>Transformation Engine V2</title>
 
 <style>
 *{
@@ -157,11 +157,11 @@ body{
 
 <script>
 /* ---------------------------------------------------------
-   TRANSFORMATION ENGINE
-   - Bank A + Bank B hooks
-   - Two-sentence hierarchy
-   - Colour themes
-   - Dynamic slide count
+   TRANSFORMATION ENGINE V2
+   - Slide 1: Primary "How I..." hooks
+   - Slides 2–(n-1): Secondary transformation lines
+   - Final slide: CTA
+   - Colour themes + dynamic slide count
    --------------------------------------------------------- */
 
 /* Colour themes */
@@ -174,8 +174,8 @@ const themes = [
   { bg:"radial-gradient(circle at 20% 0%,rgba(180,120,255,.20),transparent 55%),linear-gradient(180deg,#0f001a,#000)" }
 ];
 
-/* BANK A — Direct Transformation Hooks */
-const directHooks = [
+/* PRIMARY TRANSFORMATION HOOKS (Slide 1 only) */
+const primaryHooks = [
   "How I turned my scroll into something that actually moved my life forward.",
   "How I changed everything in 30 days without changing who I am.",
   "How I went from consuming all day to creating without even trying.",
@@ -188,18 +188,28 @@ const directHooks = [
   "How I stopped drifting and started building without even noticing."
 ];
 
-/* BANK B — Behavioural Transformation Hooks */
-const behaviouralHooks = [
-  "How I stopped consuming and started creating without forcing it.",
-  "How I turned my tiny habits into actual momentum.",
-  "How I shifted from thinking about change to living it.",
-  "How I stopped planning the perfect day and started doing the smallest thing.",
-  "How I turned my routines from punishment into power.",
-  "How I stopped waiting for motivation and moved anyway.",
-  "How I turned my patterns into progress.",
-  "How I stopped restarting and started repeating what worked.",
-  "How I shifted from “I’ll start tomorrow” to “I already started.”",
-  "How I turned my impulses into direction instead of distraction."
+/* SECONDARY TRANSFORMATION POOL (Slides 2–n-1) */
+const secondaryPool = [
+  "The moment everything quietly shifted without me realising it.",
+  "The tiny change that made the rest impossible to ignore.",
+  "The decision that didn’t feel big but changed everything anyway.",
+  "The habit that stopped controlling my entire day.",
+  "The shift that didn’t look dramatic but felt inevitable.",
+  "The pattern I didn’t notice until it finally broke.",
+  "The moment I realised I wasn’t stuck — I was unstructured.",
+  "The small adjustment that made the whole path obvious.",
+  "The behaviour that quietly rewired the way I move.",
+  "The moment where everything felt the same but wasn’t.",
+  "The shift that didn’t require motivation, just honesty.",
+  "The habit that stopped draining me once I understood it.",
+  "The moment I stopped trying to change and started choosing differently.",
+  "The small thing I did once that I never stopped doing.",
+  "The shift that didn’t feel like effort — just alignment.",
+  "The moment I realised the problem wasn’t me, it was my structure.",
+  "The decision that felt too small to matter but ended up mattering most.",
+  "The shift that didn’t fix everything — it just made everything easier.",
+  "The moment I stopped chasing breakthroughs and started building them.",
+  "The small internal pivot that changed the way I show up."
 ];
 
 /* BODY POOL */
@@ -255,9 +265,9 @@ function buildSlides(){
   const slideCount = Math.floor(Math.random()*3)+4; // 4–6
   const innerCount = slideCount - 2;
 
-  const hook = pick([...directHooks, ...behaviouralHooks]);
+  const hook = pick(primaryHooks);
   const bodies = pickDistinct(bodyPool, innerCount + 1);
-  const microHooks = pickDistinct([...directHooks, ...behaviouralHooks], innerCount);
+  const secondary = pickDistinct(secondaryPool, innerCount);
   const cta = pick(ctaPool);
 
   const slides = [];
@@ -267,7 +277,7 @@ function buildSlides(){
   for(let i=0;i<innerCount;i++){
     slides.push({
       type:"pair",
-      s1:microHooks[i],
+      s1:secondary[i],
       s2:bodies[i+1]
     });
   }
