@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Recognition Engine V2</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,sans-serif;
+}
+
+body{
+  position:relative;
+}
+
+/* Background container */
+.bg{
+  position:absolute;
+  inset:-30%;
+  filter:blur(80px);
+  opacity:0.75;
+  animation:drift 28s ease-in-out infinite alternate;
+}
+
+@keyframes drift{
+  from{transform:scale(1) translate(0,0);}
+  to{transform:scale(1.25) translate(-60px,-80px);}
+}
+
+/* Glass + noise */
+.overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom,rgba(255,255,255,.03),transparent);
+  backdrop-filter:blur(18px);
+}
+
+.noise{
+  position:absolute;
+  inset:0;
+  opacity:.035;
+  background-image:radial-gradient(circle, white 1px, transparent 1px);
+  background-size:4px 4px;
+}
+
+/* Slide container */
+.slide{
+  position:absolute;
+  inset:0;
+  padding:0 10vw;
+  padding-top:12vh;
+  padding-bottom:12vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  opacity:0;
+  transform:translateY(40px);
+  transition:opacity .8s ease, transform .8s ease;
+}
+
+.slide.active{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* Typography */
+.s1{
+  font-size:clamp(34px,7vw,80px);
+  line-height:1.05;
+  font-weight:700;
+  letter-spacing:-1.2px;
+  margin-bottom:22px;
+  text-wrap:balance;
+}
+
+.s2{
+  font-size:clamp(22px,4.6vw,36px);
+  line-height:1.32;
+  color:rgba(255,255,255,.78);
+  max-width:90%;
+  text-wrap:balance;
+}
+
+/* CTA */
+.cta{
+  font-size:clamp(26px,6vw,42px);
+  line-height:1.25;
+  font-weight:600;
+  color:#fff;
+  max-width:90%;
+}
+
+/* Navigation dots */
+.nav{
+  position:absolute;
+  bottom:5vh;
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  z-index:10;
+}
+
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  background:rgba(255,255,255,.25);
+  transition:all .25s ease;
+}
+
+.dot.active{
+  width:22px;
+  background:#fff;
+}
+
+/* Tap zones */
+.tap-left, .tap-right{
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:50%;
+  z-index:20;
+}
+
+.tap-left{ left:0; }
+.tap-right{ right:0; }
+</style>
+</head>
+<body>
+
+<div id="bg" class="bg"></div>
+<div class="overlay"></div>
+<div class="noise"></div>
+
+<div id="slides"></div>
+
+<div class="tap-left" id="prev"></div>
+<div class="tap-right" id="next"></div>
+
+<div class="nav" id="navDots"></div>
+
+<script>
+/* ---------------------------------------------------------
+   RECOGNITION ENGINE V2
+   Two-sentence slides, colour themes, dynamic count
+   --------------------------------------------------------- */
+
+/* Colour themes */
+const themes = [
+  {bg:"linear-gradient(180deg,#050505,#000)", glow:"rgba(255,255,255,.12)"},
+  {bg:"linear-gradient(180deg,#020617,#000)", glow:"rgba(120,150,255,.12)"},
+  {bg:"linear-gradient(180deg,#0a0a0a,#1a1a1a)", glow:"rgba(200,200,200,.10)"},
+  {bg:"linear-gradient(180deg,#1a0004,#000)", glow:"rgba(255,80,120,.10)"},
+  {bg:"linear-gradient(180deg,#00140a,#000)", glow:"rgba(80,255,150,.10)"},
+  {bg:"linear-gradient(180deg,#0f001a,#000)", glow:"rgba(180,120,255,.10)"}
+];
+
+/* HOOKS (sentence 1) */
+const hookPool = [
+  "How I stopped restarting my whole life every Sunday night.",
+  "How I stopped planning the perfect week I never actually lived.",
+  "How I stopped pretending tomorrow would be the day everything changed.",
+  "How I stopped doing full resets instead of real progress.",
+  "How I stopped trying to become a new person overnight.",
+  "How I stopped doing those dramatic life overhauls that never lasted.",
+  "How I stopped waiting for the “right moment” to finally start.",
+  "How I stopped convincing myself I needed a fresh start every week.",
+  "How I stopped doing the “new me” routine that never stuck.",
+  "How I stopped trying to fix everything at once."
+];
+
+/* BODIES (sentence 2) */
+const bodyPool = [
+  "You know that pattern where you promise yourself you’ll “start fresh” tomorrow… and then tomorrow feels exactly the same.",
+  "You ever notice how you plan the perfect week in your head, but never actually live it.",
+  "You know that thing where you wait for the right moment to change… even though it never comes.",
+  "You ever catch yourself doing a full life reset at 11pm for no reason.",
+  "You know that feeling where you’re convinced one big shift will fix everything.",
+  "You ever realise you’ve been trying to overhaul your entire life instead of just taking one step.",
+  "You know that loop where you restart every Monday like the last week didn’t happen.",
+  "You ever notice how you keep trying to become a new person overnight.",
+  "You know that moment where you swear “this time it’s different”… even though nothing actually changed.",
+  "You ever catch yourself planning a whole new routine instead of doing the smallest thing right now.",
+  "You know that habit where you convince yourself you need a full reset before you can begin.",
+  "You ever notice how you wait for the perfect conditions to finally start.",
+  "You know that pattern where you think one dramatic change will solve everything.",
+  "You ever realise you’ve been preparing to start more than you’ve actually started.",
+  "You know that feeling where you’re always “about to” become the person you want to be."
+];
+
+/* CTA POOL */
+const ctaPool = [
+  "If this hit you, comment MSF — then go to the link in my bio.",
+  "Comment MSF if you feel this — and check the link in my bio for the next step.",
+  "If this exposed you a little, drop MSF and head to the link in my bio.",
+  "Comment MSF to lock this in — then go to the link in my bio to align properly.",
+  "If this feels like your truth, comment MSF and go to the link in my bio.",
+  "Drop MSF if you’re done playing small — the link in my bio is where you go next.",
+  "Comment MSF to claim this identity — then hit the link in my bio.",
+  "If this is you, comment MSF. The link in my bio will make the rest obvious.",
+  "Comment MSF to step into this — then go to the link in my bio.",
+  "If this landed, drop MSF and check the link in my bio."
+];
+
+/* Utility */
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function pickDistinct(arr,count){
+  const copy=[...arr], out=[];
+  for(let i=0;i<count;i++){
+    const idx=Math.floor(Math.random()*copy.length);
+    out.push(copy[idx]);
+    copy.splice(idx,1);
+  }
+  return out;
+}
+
+/* Build slides */
+function buildSlides(){
+  const theme = pick(themes);
+  document.getElementById("bg").style.background = theme.bg;
+
+  const slideCount = Math.floor(Math.random()*3)+4; // 4–6 slides
+  const hook = pick(hookPool);
+  const bodies = pickDistinct(bodyPool, slideCount-2);
+  const cta = pick(ctaPool);
+
+  const slides = [];
+
+  slides.push({type:"pair", s1:hook, s2:pick(bodyPool)});
+  bodies.forEach(b=>{
+    slides.push({type:"pair", s1:pick(hookPool), s2:b});
+  });
+  slides.push({type:"cta", text:cta});
+
+  return slides;
+}
+
+/* Render */
+const slidesContainer=document.getElementById("slides");
+const navDots=document.getElementById("navDots");
+let index=0;
+let currentSlides=buildSlides();
+
+function render(){
+  slidesContainer.innerHTML="";
+  navDots.innerHTML="";
+
+  currentSlides.forEach((s,i)=>{
+    const el=document.createElement("div");
+    el.className="slide"+(i===index?" active":"");
+
+    if(s.type==="pair"){
+      el.innerHTML=`
+        <div class="s1">${s.s1}</div>
+        <div class="s2">${s.s2}</div>
+      `;
+    } else {
+      el.innerHTML=`<div class="cta">${s.text}</div>`;
+    }
+
+    slidesContainer.appendChild(el);
+
+    const dot=document.createElement("div");
+    dot.className="dot"+(i===index?" active":"");
+    navDots.appendChild(dot);
+  });
+}
+
+function next(){ index=(index+1)%currentSlides.length; render(); }
+function prev(){ index=(index-1+currentSlides.length)%currentSlides.length; render(); }
+
+document.getElementById("next").onclick=next;
+document.getElementById("prev").onclick=prev;
+
+render();
+</script>
+
+</body>
+</html>
