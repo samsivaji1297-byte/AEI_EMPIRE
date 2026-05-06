@@ -25,3 +25,10 @@ RootNode Widgets Hub +
 https://copilot.microsoft.com/chats/nXi6KipQDKLW5Xs9tsg1m
 
 ---
+
+## 📁 Widget Files
+
+- `desiretospendone.html` 
+- `desiretospendtwo.html`
+
+---
