@@ -39,7 +39,7 @@ h1{margin:18px 0 0;font-size:46px;line-height:.96;letter-spacing:-2px;max-width:
 <div class='footer'><div class='pill'></div><div class='tag' style='font-size:13px;color:var(--muted)'></div></div>
 </div>
 <div class='scan'></div>
-<div class='hint'>tap • next &nbsp;&nbsp; hold • autoplay</div>
+
 </div>
 <script>
 const bank=[
@@ -55,9 +55,24 @@ let i=Math.floor(Math.random()*bank.length), timer;
 function render(){const b=bank[i];document.querySelector('h1').innerHTML=b[0];document.querySelector('.sub').textContent=b[1];document.querySelector('.quote').textContent=b[2];document.querySelector('.pill').innerHTML='<span class="dot"></span>'+b[3];document.querySelector('.tag').textContent=b[4];document.querySelectorAll('h1,.sub,.quote,.footer').forEach(el=>{el.classList.remove('fade');void el.offsetWidth;el.classList.add('fade');});}
 function next(){i=(i+1)%bank.length;render();}
 render();
-window.addEventListener('click',next);
-let press;window.addEventListener('touchstart',()=>{press=setTimeout(()=>{timer=setInterval(next,3500)},500)});
-window.addEventListener('touchend',()=>{clearTimeout(press);clearInterval(timer)});
+function bindInteractions(){
+  let touchStartX=0;
+  document.body.addEventListener('touchstart',(e)=>{
+    touchStartX=e.touches[0].clientX;
+    press=setTimeout(()=>{ timer=setInterval(next,3500); },500);
+  }, {passive:true});
+
+  document.body.addEventListener('touchend',(e)=>{
+    clearTimeout(press);
+    clearInterval(timer);
+    const dx=Math.abs((e.changedTouches[0]?.clientX||0)-touchStartX);
+    if(dx < 12) next();
+  }, {passive:true});
+
+  document.body.addEventListener('click', next);
+}
+bindInteractions();
+
 window.addEventListener('deviceorientation',e=>{const x=(e.gamma||0)/8,y=(e.beta||0)/20;document.getElementById('stage').style.transform=`rotateY(${x}deg) rotateX(${-y}deg)`;});
 </script>
 </body>
