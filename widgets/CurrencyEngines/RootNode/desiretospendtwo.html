@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport"
       content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Recognition Engine V2</title>
+<title>Recognition Engine V3</title>
 
 <style>
 *{
@@ -27,12 +27,12 @@ body{
   position:relative;
 }
 
-/* Background container */
+/* Background */
 .bg{
   position:absolute;
   inset:-30%;
   filter:blur(80px);
-  opacity:0.75;
+  opacity:0.85;
   animation:drift 28s ease-in-out infinite alternate;
 }
 
@@ -45,7 +45,7 @@ body{
 .overlay{
   position:absolute;
   inset:0;
-  background:linear-gradient(to bottom,rgba(255,255,255,.03),transparent);
+  background:linear-gradient(to bottom,rgba(255,255,255,.04),transparent);
   backdrop-filter:blur(18px);
 }
 
@@ -90,7 +90,7 @@ body{
 .s2{
   font-size:clamp(22px,4.6vw,36px);
   line-height:1.32;
-  color:rgba(255,255,255,.78);
+  color:rgba(255,255,255,.80);
   max-width:90%;
   text-wrap:balance;
 }
@@ -157,21 +157,25 @@ body{
 
 <script>
 /* ---------------------------------------------------------
-   RECOGNITION ENGINE V2
-   Two-sentence slides, colour themes, dynamic count
+   RECOGNITION ENGINE V3
+   - Two-sentence slides (bold + light)
+   - Hook only on slide 1
+   - Micro-hooks on body slides
+   - Colour themes per refresh
+   - Dynamic slide count (4–6)
    --------------------------------------------------------- */
 
 /* Colour themes */
 const themes = [
-  {bg:"linear-gradient(180deg,#050505,#000)", glow:"rgba(255,255,255,.12)"},
-  {bg:"linear-gradient(180deg,#020617,#000)", glow:"rgba(120,150,255,.12)"},
-  {bg:"linear-gradient(180deg,#0a0a0a,#1a1a1a)", glow:"rgba(200,200,200,.10)"},
-  {bg:"linear-gradient(180deg,#1a0004,#000)", glow:"rgba(255,80,120,.10)"},
-  {bg:"linear-gradient(180deg,#00140a,#000)", glow:"rgba(80,255,150,.10)"},
-  {bg:"linear-gradient(180deg,#0f001a,#000)", glow:"rgba(180,120,255,.10)"}
+  { bg:"radial-gradient(circle at 20% 0%,rgba(255,255,255,.10),transparent 55%),linear-gradient(180deg,#050505,#000)" }, // Obsidian
+  { bg:"radial-gradient(circle at 10% 10%,rgba(120,150,255,.18),transparent 55%),linear-gradient(180deg,#020617,#000)" }, // Midnight Navy
+  { bg:"radial-gradient(circle at 80% 0%,rgba(200,200,200,.16),transparent 55%),linear-gradient(180deg,#0a0a0a,#1a1a1a)" }, // Slate Grey
+  { bg:"radial-gradient(circle at 15% 0%,rgba(255,80,120,.20),transparent 55%),linear-gradient(180deg,#1a0004,#000)" }, // Burgundy Smoke
+  { bg:"radial-gradient(circle at 80% 10%,rgba(80,255,150,.18),transparent 55%),linear-gradient(180deg,#00140a,#000)" }, // Forest Obsidian
+  { bg:"radial-gradient(circle at 20% 0%,rgba(180,120,255,.20),transparent 55%),linear-gradient(180deg,#0f001a,#000)" }  // Royal Violet
 ];
 
-/* HOOKS (sentence 1) */
+/* HOOKS (slide 1 bold) */
 const hookPool = [
   "How I stopped restarting my whole life every Sunday night.",
   "How I stopped planning the perfect week I never actually lived.",
@@ -185,7 +189,26 @@ const hookPool = [
   "How I stopped trying to fix everything at once."
 ];
 
-/* BODIES (sentence 2) */
+/* MICRO-HOOKS (bold for body slides) */
+const microHookPool = [
+  "That moment where you swear you’ll change everything tomorrow.",
+  "That habit of restarting your whole life on a random Tuesday night.",
+  "That feeling where you’re always one decision away from becoming someone else.",
+  "That loop where you plan the new version of yourself more than you live it.",
+  "That thing where you convince yourself you need a perfect day to begin.",
+  "That pattern where you rewrite your whole routine instead of taking one step.",
+  "That moment where you promise yourself “this time it’s different.”",
+  "That habit of waiting for the right mood to finally start.",
+  "That feeling where you’re constantly preparing for the life you want.",
+  "That loop where you keep resetting instead of moving.",
+  "That thing where you build the whole new you in your head before doing anything.",
+  "That moment where you feel like you’re on the edge of a breakthrough you never start.",
+  "That habit of trying to fix everything at once.",
+  "That feeling where you’re always “about to” become the person you want to be.",
+  "That loop where you wait for the perfect moment that never arrives."
+];
+
+/* BODIES (light sentence 2) */
 const bodyPool = [
   "You know that pattern where you promise yourself you’ll “start fresh” tomorrow… and then tomorrow feels exactly the same.",
   "You ever notice how you plan the perfect week in your head, but never actually live it.",
@@ -218,11 +241,11 @@ const ctaPool = [
   "If this landed, drop MSF and check the link in my bio."
 ];
 
-/* Utility */
+/* Utils */
 function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 function pickDistinct(arr,count){
   const copy=[...arr], out=[];
-  for(let i=0;i<count;i++){
+  for(let i=0;i<count && copy.length>0;i++){
     const idx=Math.floor(Math.random()*copy.length);
     out.push(copy[idx]);
     copy.splice(idx,1);
@@ -230,28 +253,47 @@ function pickDistinct(arr,count){
   return out;
 }
 
-/* Build slides */
+/* Build one carousel */
 function buildSlides(){
   const theme = pick(themes);
   document.getElementById("bg").style.background = theme.bg;
 
-  const slideCount = Math.floor(Math.random()*3)+4; // 4–6 slides
+  const slideCount = Math.floor(Math.random()*3)+4; // 4–6
+  const innerCount = slideCount - 2; // body slides
+
   const hook = pick(hookPool);
-  const bodies = pickDistinct(bodyPool, slideCount-2);
+  const bodies = pickDistinct(bodyPool, innerCount + 1); // +1 for hook slide body
+  const microHooks = pickDistinct(microHookPool, innerCount);
   const cta = pick(ctaPool);
 
   const slides = [];
 
-  slides.push({type:"pair", s1:hook, s2:pick(bodyPool)});
-  bodies.forEach(b=>{
-    slides.push({type:"pair", s1:pick(hookPool), s2:b});
+  // Slide 1: main hook
+  slides.push({
+    type:"pair",
+    s1:hook,
+    s2:bodies[0]
   });
-  slides.push({type:"cta", text:cta});
+
+  // Body slides
+  for(let i=0;i<innerCount;i++){
+    slides.push({
+      type:"pair",
+      s1:microHooks[i],
+      s2:bodies[i+1]
+    });
+  }
+
+  // CTA slide
+  slides.push({
+    type:"cta",
+    text:cta
+  });
 
   return slides;
 }
 
-/* Render */
+/* Render engine */
 const slidesContainer=document.getElementById("slides");
 const navDots=document.getElementById("navDots");
 let index=0;
