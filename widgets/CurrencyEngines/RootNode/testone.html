@@ -3,26 +3,31 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Sovereign Money-Overlay Engine</title>
+<title>Identity Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --fg:#f5f5f7;--muted:#a1a1aa;--line:rgba(255,255,255,.12);
-  --glass:rgba(255,255,255,.06);--bg1:#111;--bg2:#050505;--bg3:#000;--accent:#d4af37
+  --glass:rgba(255,255,255,.06);--bg1:#050509;--bg2:#020308;--bg3:#000000;--accent:#38bdf8
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
-html,body{margin:0;height:100%;overflow:hidden;background:#000;color:var(--fg);
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",sans-serif}
+html,body{
+  margin:0;height:100%;overflow:hidden;background:#000;color:var(--fg);
+  font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;
+}
 body{
   background:radial-gradient(circle at top,var(--bg1) 0%,var(--bg2) 42%,var(--bg3) 100%);
-  transition:background 1.2s ease,color 1.2s ease
+  transition:background 1.2s ease,color 1.2s ease;
 }
 .wrap{position:relative;height:100%;overflow:hidden}
+
+/* Atmosphere */
 .bg,.bg2,.bg3,.beam,.gridGlow{position:absolute;border-radius:50%;pointer-events:none}
 .bg,.bg2,.bg3{filter:blur(90px);opacity:.32;animation:float 10s ease-in-out infinite alternate}
-.bg{width:300px;height:300px;background:#ffffff22;top:6%;left:-15%}
-.bg2{width:260px;height:260px;background:color-mix(in srgb, var(--accent) 22%, transparent);
-  right:-10%;bottom:8%;animation-duration:14s}
-.bg3{width:180px;height:180px;background:#5c7cff22;left:30%;bottom:20%;animation-duration:11s}
+.bg{width:320px;height:320px;background:#ffffff18;top:4%;left:-18%}
+.bg2{width:260px;height:260px;background:color-mix(in srgb, var(--accent) 26%, transparent);
+  right:-12%;bottom:10%;animation-duration:14s}
+.bg3{width:200px;height:200px;background:#38bdf822;left:32%;bottom:22%;animation-duration:11s}
 .particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .particle{position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.8);
   opacity:.25;animation:drift linear infinite}
@@ -44,66 +49,102 @@ body{
 .gridGlow{
   inset:-20%;
   background:
-    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
   background-size:40px 40px;
   mask-image:radial-gradient(circle at center, black 35%, transparent 80%);
   animation:gridShift 16s linear infinite;
-  opacity:.25;
+  opacity:.22;
 }
 @keyframes float{to{transform:translateY(45px) translateX(20px)}}
 @keyframes beamMove{from{transform:translateX(-40%) rotate(-12deg)}to{transform:translateX(40%) rotate(-12deg)}}
 @keyframes gridShift{from{transform:translateY(0)}to{transform:translateY(40px)}}
+
+/* Stage */
 .viewport{position:absolute;inset:0;overflow:hidden}
 .feed{position:absolute;inset:0;transition:transform .75s cubic-bezier(.22,1,.36,1)}
 .stage{
-  position:absolute;inset:18px;border:1px solid var(--line);border-radius:36px;padding:24px 24px 26px;
+  position:absolute;inset:18px;border-radius:32px;border:1px solid var(--line);
+  padding:26px 26px 24px;
   display:flex;flex-direction:column;justify-content:space-between;
-  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
-  backdrop-filter:blur(28px);
-  box-shadow:0 25px 100px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08);
-  transform-style:preserve-3d;transition:transform .2s ease
+  background:linear-gradient(180deg,rgba(15,23,42,.9),rgba(15,23,42,.4));
+  backdrop-filter:blur(26px);
+  box-shadow:0 26px 90px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.06);
+  transform-style:preserve-3d;transition:transform .2s ease;
 }
 .headerRow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.kicker{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
-.moneyTag{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:2px}
-.moneyTag span{opacity:.7}
-h1{margin:14px 0 0;font-size:34px;line-height:1.02;letter-spacing:-1.4px;max-width:92%}
-.sub{margin-top:12px;font-size:16px;line-height:1.45;color:#d7d7dc;max-width:92%}
-.overlayMeta{margin-top:10px;font-size:12px;color:var(--muted);max-width:92%}
-.slideIndex{font-size:11px;color:var(--muted);margin-top:6px}
-.quote{font-size:22px;line-height:1.2;letter-spacing:-.6px;max-width:92%;margin-top:10px}
-.footer{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:18px}
-.pill{padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--glass);font-size:12px}
-.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#fff;
-  box-shadow:0 0 18px #fff;margin-right:8px;animation:pulse 2s infinite}
+.brand{
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--muted);opacity:.9;
+}
+.slideIndex{
+  font-size:11px;color:var(--muted);opacity:.8;
+}
+h1{
+  margin:18px 0 0;
+  font-size:34px;line-height:1.05;letter-spacing:-1.2px;
+  max-width:92%;font-weight:600;
+}
+.sub{
+  margin-top:12px;font-size:16px;line-height:1.5;color:#d7d7dc;max-width:92%;
+}
+.quote{
+  margin-top:18px;font-size:20px;line-height:1.35;letter-spacing:-.3px;
+  max-width:92%;color:#e5e5f0;
+}
+.footer{
+  display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:22px;
+}
+.pill{
+  padding:9px 16px;border-radius:999px;
+  border:1px solid var(--line);background:var(--glass);
+  font-size:12px;color:#e5e7eb;display:inline-flex;align-items:center;gap:8px;
+}
+.dot{
+  width:7px;height:7px;border-radius:50%;background:#38bdf8;
+  box-shadow:0 0 16px #38bdf8;animation:pulse 2s infinite;
+}
 @keyframes pulse{50%{opacity:.45;transform:scale(.8)}}
-.scan{position:absolute;inset:0;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.03),transparent);
-  animation:scan 5s linear infinite;pointer-events:none;mix-blend-mode:screen}
+.tag{
+  font-size:12px;color:var(--muted);text-align:right;max-width:40%;
+}
+
+/* Scan + ring */
+.scan{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,transparent,rgba(148,163,184,.12),transparent);
+  animation:scan 5s linear infinite;pointer-events:none;mix-blend-mode:screen;
+}
 .pulseRing{
-  position:absolute;width:240px;height:240px;border-radius:50%;
-  border:1px solid rgba(255,255,255,.08);
+  position:absolute;width:220px;height:220px;border-radius:50%;
+  border:1px solid rgba(148,163,184,.35);
   left:50%;top:50%;transform:translate(-50%,-50%);
-  animation:ring 4s ease-out infinite;pointer-events:none;
+  animation:ring 4.2s ease-out infinite;pointer-events:none;
 }
 @keyframes ring{
  0%{transform:translate(-50%,-50%) scale(.7);opacity:.0}
  30%{opacity:.4}
- 100%{transform:translate(-50%,-50%) scale(1.8);opacity:0}
+ 100%{transform:translate(-50%,-50%) scale(1.7);opacity:0}
 }
 @keyframes scan{from{transform:translateY(-100%)}to{transform:translateY(100%)}}
-.fade{animation:fade .7s ease}@keyframes fade{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-.hint{
-  position:absolute;bottom:26px;left:50%;transform:translateX(-50%);
-  font-size:11px;color:#7c7c84;letter-spacing:1px;text-align:center
+
+/* Animations */
+.fade{animation:fade .7s ease}
+@keyframes fade{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* Nav dots (minimal, no labels) */
+.navDots{
+  position:absolute;bottom:22px;left:50%;transform:translateX(-50%);
+  display:flex;gap:6px;justify-content:center;
 }
-.hint span{opacity:.7}
-.navDots{display:flex;gap:6px;justify-content:center;margin-top:6px}
 .navDot{
-  width:6px;height:6px;border-radius:999px;background:rgba(255,255,255,.16);
-  transition:background .25s ease,transform .25s ease
+  width:6px;height:6px;border-radius:999px;
+  background:rgba(148,163,184,.4);
+  transition:background .25s ease,transform .25s ease;
 }
-.navDot.active{background:#fff;transform:scale(1.2)}
+.navDot.active{
+  background:#e5e7eb;transform:scale(1.2);
+}
 </style>
 </head>
 <body>
@@ -119,20 +160,16 @@ h1{margin:14px 0 0;font-size:34px;line-height:1.02;letter-spacing:-1.4px;max-wid
       <div class="stage" id="stage">
         <div>
           <div class="headerRow">
-            <div>
-              <div class="kicker" id="kicker">Mental Sovereignty</div>
-              <div class="moneyTag" id="moneyTag"></div>
-            </div>
+            <div class="brand">MENTAL SOVEREIGNTY</div>
             <div class="slideIndex" id="slideIndex"></div>
           </div>
           <h1 id="title"></h1>
           <div class="sub" id="sub"></div>
-          <div class="overlayMeta" id="overlayMeta"></div>
           <div class="quote" id="quote"></div>
         </div>
         <div class="footer">
-          <div class="pill" id="pill"></div>
-          <div style="font-size:12px;color:var(--muted)" id="tag"></div>
+          <div class="pill" id="pill"><span class="dot"></span><span></span></div>
+          <div class="tag" id="tag"></div>
         </div>
       </div>
     </div>
@@ -140,22 +177,17 @@ h1{margin:14px 0 0;font-size:34px;line-height:1.02;letter-spacing:-1.4px;max-wid
 
   <div class="scan"></div>
   <div class="pulseRing"></div>
-  <div class="hint">
-    TAP / SWIPE UP TO ADVANCE<br/>
-    <span>Long‑press to auto‑cycle • Tilt device to shift perspective</span>
-    <div class="navDots" id="navDots"></div>
-  </div>
+  <div class="navDots" id="navDots"></div>
 </div>
 
 <script>
-// THEME ENGINE
+// THEMES
 const themes=[
- {bg1:'#111111',bg2:'#050505',bg3:'#000000',accent:'#d4af37'},
- {bg1:'#1a1a2e',bg2:'#0f172a',bg3:'#020617',accent:'#7c3aed'},
- {bg1:'#1a120b',bg2:'#0b0907',bg3:'#000000',accent:'#ff8a00'},
- {bg1:'#101820',bg2:'#050b14',bg3:'#000000',accent:'#00c2ff'},
- {bg1:'#18181b',bg2:'#09090b',bg3:'#000000',accent:'#ffffff'},
- {bg1:'#1c0f13',bg2:'#0a0507',bg3:'#000000',accent:'#ff4d6d'}
+ {bg1:'#020617',bg2:'#020617',bg3:'#000000',accent:'#38bdf8'},
+ {bg1:'#020617',bg2:'#020617',bg3:'#020617',accent:'#22c55e'},
+ {bg1:'#020617',bg2:'#020617',bg3:'#000000',accent:'#f97316'},
+ {bg1:'#020617',bg2:'#020617',bg3:'#000000',accent:'#a855f7'},
+ {bg1:'#020617',bg2:'#020617',bg3:'#000000',accent:'#e5e7eb'}
 ];
 function applyTheme(){
   const t=themes[Math.floor(Math.random()*themes.length)];
@@ -165,123 +197,114 @@ function applyTheme(){
   document.documentElement.style.setProperty('--accent',t.accent);
 }
 
-// MONEY-OVERLAY + MULTI-SLIDE ENGINE
-
-// Each "transmission" is a full multi-slide sequence.
-// Each slide carries a money-psychology overlay (but applied to internal architecture).
+// CONTENT ENGINE — HYBRID IDENTITY DOPAMINE
 const transmissions=[
   {
-    id:'internal_leverage',
-    kicker:'Internal Leverage',
-    moneyOverlayLabel:'Scarcity • Leverage • Identity',
+    id:'identity_pressure',
     slides:[
       {
-        role:'hook',
-        title:'You don’t have a money problem.',
-        sub:'You have an internal leverage problem.',
-        overlay:'This is scarcity, but not of cash — of clarity, conviction, and self‑direction.',
-        quote:'A fragmented identity cannot compound.',
-        cta:'Enter through the bio',
-        tag:'Internal ROI'
+        title:'You’re not unmotivated.<br>You’re living below your identity.',
+        sub:'Your mind shuts down when your life doesn’t match who you know you could be.',
+        quote:'Ambition dies in environments that insult it.',
+        cta:'Rise to your level',
+        tag:'Identity Architecture'
       },
       {
-        role:'scarcity',
-        title:'Most people are running<br>on borrowed conviction.',
-        sub:'They outsource their beliefs, then wonder why their life feels rented.',
-        overlay:'This is psychological scarcity: no owned perspective, no owned direction.',
-        quote:'If your mind is leased, your future is too.',
-        cta:'Reclaim the architecture',
-        tag:'Mental sovereignty'
+        title:'Your future self is losing patience.',
+        sub:'You feel “behind” because a bigger version of you has been ready for a while.',
+        quote:'The gap between who you are and who you know you could be is where your anxiety lives.',
+        cta:'Close the gap',
+        tag:'Future Self Protocol'
       },
       {
-        role:'leverage',
-        title:'Leverage is not followers.<br>Leverage is self‑alignment.',
-        sub:'When your nervous system trusts you, every decision carries more force.',
-        overlay:'This is internal leverage: one aligned move replaces a hundred anxious ones.',
-        quote:'A trusted self prints better outcomes than any strategy.',
-        cta:'Build nervous system trust',
-        tag:'Psychological leverage'
+        title:'You’re not lazy.<br>You’re misaligned.',
+        sub:'When your goals don’t feel like they belong to you, your effort will always collapse.',
+        quote:'Identity drives behaviour. Not willpower.',
+        cta:'Realign your targets',
+        tag:'Internal Alignment'
       },
       {
-        role:'identity',
-        title:'Money follows identity,<br>not effort.',
-        sub:'You cannot out‑work a self‑concept that doesn’t believe it deserves more.',
-        overlay:'Identity is the real balance sheet. Everything else is a reflection.',
-        quote:'Change the self that is earning, not just the way it earns.',
-        cta:'Enter through the bio',
-        tag:'Identity architecture'
-      },
-      {
-        role:'integration',
-        title:'Treat your mind<br>like an asset class.',
-        sub:'Clarity, self‑trust, and internal order are the highest‑yield investments you can make.',
-        overlay:'This is the money‑overlay: same mechanics, different battlefield.',
-        quote:'When your inner world compounds, the outer world has no choice.',
-        cta:'Step into the framework',
-        tag:'Sovereign engine'
+        title:'Your standards are too low<br>for the life you want.',
+        sub:'You keep trying to build a high‑end future on low‑end habits.',
+        quote:'Your life will never rise above what you tolerate from yourself.',
+        cta:'Raise the floor',
+        tag:'Standard Upgrade'
       }
     ]
   },
   {
-    id:'escape_velocity',
-    kicker:'Escape Velocity',
-    moneyOverlayLabel:'Escape • Trajectory • Inevitability',
+    id:'future_pull',
     slides:[
       {
-        role:'hook',
-        title:'You don’t need more hacks.<br>You need escape velocity.',
-        sub:'Most people are improving a life they secretly want to leave.',
-        overlay:'This is the “better cage” trap — optimisation without liberation.',
-        quote:'You can’t compound inside a reality you resent.',
-        cta:'See the architecture',
-        tag:'Trajectory design'
+        title:'Your next level is already built.<br>You’re just not in it yet.',
+        sub:'You’ve seen glimpses of the person you could be. That wasn’t a fantasy. That was a preview.',
+        quote:'Your future self is not a dream. It’s a version of you waiting for a decision.',
+        cta:'Step into it',
+        tag:'Future Self Online'
       },
       {
-        role:'scarcity',
-        title:'Time is your only<br>non‑refundable currency.',
-        sub:'But you spend it like it renews every scroll.',
-        overlay:'This is temporal scarcity — the real cost basis of your life.',
-        quote:'Every distraction is a quiet liquidation of your future.',
-        cta:'Audit your attention',
-        tag:'Attention economics'
+        title:'You’re not stuck.<br>You’re resisting who you’re becoming.',
+        sub:'Part of you wants to stay familiar. The rest of you is done pretending.',
+        quote:'Growth feels like loss when you’re still attached to your old identity.',
+        cta:'Let the old version go',
+        tag:'Identity Shedding'
       },
       {
-        role:'inevitability',
-        title:'Escape is not a moment.<br>It’s a trajectory.',
-        sub:'You don’t “get out” one day. You angle out, degree by degree.',
-        overlay:'This is inevitability: small, aligned moves that cannot help but compound.',
-        quote:'When the path is aligned, consistency stops feeling like discipline.',
-        cta:'Lock in the angle',
-        tag:'Inevitable outcomes'
+        title:'Your life feels wrong<br>because your identity is outdated.',
+        sub:'You’re running new desires on old self‑concept code.',
+        quote:'An upgraded life requires an upgraded identity first.',
+        cta:'Update the script',
+        tag:'Self‑Concept Rewrite'
       },
       {
-        role:'identity',
-        title:'You can’t leave a life<br>you still identify with.',
-        sub:'If your self‑image is built from the cage, freedom will feel unsafe.',
-        overlay:'Identity must escape first. Behaviour follows.',
-        quote:'Upgrade the self that chooses, not just the choices.',
-        cta:'Enter through the bio',
-        tag:'Self‑concept rewiring'
+        title:'You’re not behind.<br>You’re under‑expressed.',
+        sub:'There’s nothing wrong with your potential. It’s your expression that’s throttled.',
+        quote:'Your life changes the moment you stop hiding from your own capacity.',
+        cta:'Turn yourself up',
+        tag:'Full Expression'
+      }
+    ]
+  },
+  {
+    id:'self_trust',
+    slides:[
+      {
+        title:'You don’t need more discipline.<br>You need self‑trust.',
+        sub:'You can’t follow a plan you secretly believe you’ll abandon.',
+        quote:'Consistency is just proof that you trust yourself.',
+        cta:'Rebuild that trust',
+        tag:'Internal Integrity'
+      },
+      {
+        title:'You’re exhausted because you keep negotiating with yourself.',
+        sub:'Every time you break a promise to yourself, your energy drops.',
+        quote:'Self‑betrayal drains more power than any hard work ever will.',
+        cta:'Stop renegotiating',
+        tag:'Non‑Negotiable Standards'
+      },
+      {
+        title:'Your habits don’t match the person you say you want to be.',
+        sub:'Your identity is watching every choice you make and adjusting its belief in you.',
+        quote:'You’re teaching your future self what to expect from you.',
+        cta:'Send a different signal',
+        tag:'Behavioural Signal'
       }
     ]
   }
 ];
 
-// ENGINE STATE
+// STATE
 let currentTransmissionIndex=0;
 let currentSlideIndex=0;
 let autoTimer=null;
 let longPressTimer=null;
 
-// DOM REFS
+// DOM
 const titleEl=document.getElementById('title');
 const subEl=document.getElementById('sub');
 const quoteEl=document.getElementById('quote');
-const pillEl=document.getElementById('pill');
+const pillEl=document.getElementById('pill').querySelector('span:last-child');
 const tagEl=document.getElementById('tag');
-const kickerEl=document.getElementById('kicker');
-const moneyTagEl=document.getElementById('moneyTag');
-const overlayMetaEl=document.getElementById('overlayMeta');
 const slideIndexEl=document.getElementById('slideIndex');
 const feed=document.getElementById('feed');
 const stage=document.getElementById('stage');
@@ -298,23 +321,20 @@ function renderNavDots(){
   });
 }
 
-// RENDER ENGINE
+// RENDER
 function renderSlide(){
   const t=transmissions[currentTransmissionIndex];
   const s=t.slides[currentSlideIndex];
   applyTheme();
 
-  kickerEl.textContent=t.kicker;
-  moneyTagEl.innerHTML=`<span>${t.moneyOverlayLabel}</span>`;
   titleEl.innerHTML=s.title;
   subEl.textContent=s.sub;
-  overlayMetaEl.textContent=s.overlay;
   quoteEl.textContent=s.quote;
-  pillEl.innerHTML=`<span class="dot"></span>${s.cta}`;
+  pillEl.textContent=s.cta;
   tagEl.textContent=s.tag;
   slideIndexEl.textContent=`${currentSlideIndex+1} / ${t.slides.length}`;
 
-  document.querySelectorAll('h1,.sub,.quote,.footer,.overlayMeta,.headerRow')
+  document.querySelectorAll('h1,.sub,.quote,.footer,.headerRow')
     .forEach(el=>{
       el.classList.remove('fade');
       void el.offsetWidth;
@@ -329,8 +349,8 @@ function flash(){
   const f=document.createElement('div');
   f.style.position='absolute';
   f.style.inset='0';
-  f.style.background='rgba(255,255,255,.03)';
-  f.style.backdropFilter='blur(8px)';
+  f.style.background='rgba(148,163,184,.12)';
+  f.style.backdropFilter='blur(10px)';
   f.style.animation='fadeFlash .45s ease forwards';
   document.querySelector('.wrap').appendChild(f);
   setTimeout(()=>f.remove(),450);
@@ -352,20 +372,18 @@ function swipeTransition(cb){
   },200);
 }
 
-// ENGINE CONTROLS
+// CONTROLS
 function nextSlide(){
   const t=transmissions[currentTransmissionIndex];
   if(currentSlideIndex < t.slides.length-1){
     currentSlideIndex++;
   }else{
-    // move to next transmission
     currentTransmissionIndex=(currentTransmissionIndex+1)%transmissions.length;
     currentSlideIndex=0;
   }
   flash();
   swipeTransition(()=>renderSlide());
 }
-
 function prevSlide(){
   if(currentSlideIndex>0){
     currentSlideIndex--;
