@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Multi‑Mode Engine — Barebones</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,sans-serif;
+}
+
+body{
+  position:relative;
+}
+
+/* Background */
+.bg{
+  position:absolute;
+  inset:-30%;
+  filter:blur(80px);
+  opacity:0.9;
+  animation:drift 26s ease-in-out infinite alternate;
+}
+
+@keyframes drift{
+  from{transform:scale(1) translate(0,0);}
+  to{transform:scale(1.2) translate(-50px,-70px);}
+}
+
+/* Glass + noise */
+.overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom,rgba(255,255,255,.05),transparent);
+  backdrop-filter:blur(18px);
+}
+
+.noise{
+  position:absolute;
+  inset:0;
+  opacity:.04;
+  background-image:radial-gradient(circle, white 1px, transparent 1px);
+  background-size:4px 4px;
+}
+
+/* Slide container */
+.slide{
+  position:absolute;
+  inset:0;
+  padding:0 10vw;
+  padding-top:12vh;
+  padding-bottom:12vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  opacity:0;
+  transform:translateY(40px);
+  transition:opacity .7s ease, transform .7s ease;
+}
+
+.slide.active{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* Typography */
+.s1{
+  font-size:clamp(32px,7vw,72px);
+  line-height:1.05;
+  font-weight:700;
+  letter-spacing:-1.1px;
+  margin-bottom:18px;
+  text-wrap:balance;
+}
+
+.s2{
+  font-size:clamp(20px,4.4vw,34px);
+  line-height:1.32;
+  color:rgba(255,255,255,.82);
+  max-width:90%;
+  text-wrap:balance;
+}
+
+.list{
+  font-size:clamp(18px,4vw,28px);
+  line-height:1.4;
+  color:rgba(255,255,255,.85);
+  margin-top:10px;
+}
+
+.list-item{
+  margin-bottom:6px;
+}
+
+.cta{
+  font-size:clamp(26px,6vw,40px);
+  line-height:1.25;
+  font-weight:600;
+  color:#fff;
+  max-width:90%;
+}
+
+/* Mode label */
+.mode-label{
+  position:absolute;
+  top:4vh;
+  left:10vw;
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.55);
+}
+
+/* Navigation dots */
+.nav{
+  position:absolute;
+  bottom:5vh;
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  z-index:10;
+}
+
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  background:rgba(255,255,255,.25);
+  transition:all .25s ease;
+}
+
+.dot.active{
+  width:22px;
+  background:#fff;
+}
+
+/* Tap zones */
+.tap-left, .tap-right{
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:50%;
+  z-index:20;
+}
+
+.tap-left{ left:0; }
+.tap-right{ right:0; }
+
+/* Simple mode switch hint (optional) */
+.mode-hint{
+  position:absolute;
+  top:4vh;
+  right:10vw;
+  font-size:11px;
+  color:rgba(255,255,255,.45);
+  text-align:right;
+}
+</style>
+</head>
+<body>
+
+<div id="bg" class="bg"></div>
+<div class="overlay"></div>
+<div class="noise"></div>
+
+<div class="mode-label" id="modeLabel"></div>
+<div class="mode-hint">?mode=3-reason / how-to / framework</div>
+
+<div id="slides"></div>
+
+<div class="tap-left" id="prev"></div>
+<div class="tap-right" id="next"></div>
+
+<div class="nav" id="navDots"></div>
+
+<script>
+/* ---------------------------------------------------------
+   MULTI-MODE ENGINE — BAREBONES
+   - One shell
+   - Multiple modes
+   - One example output per mode
+   - Query param: ?mode=3-reason | how-to | framework
+   --------------------------------------------------------- */
+
+/* Themes per mode (simple mapping) */
+const THEMES = {
+  "3-reason": "radial-gradient(circle at 20% 0%,rgba(255,255,255,.12),transparent 55%),linear-gradient(180deg,#050505,#000)",
+  "how-to": "radial-gradient(circle at 10% 10%,rgba(120,150,255,.20),transparent 55%),linear-gradient(180deg,#020617,#000)",
+  "framework": "radial-gradient(circle at 80% 0%,rgba(255,120,180,.20),transparent 55%),linear-gradient(180deg,#14000a,#000)"
+};
+
+/* Universal slide schema:
+   type: "pair" | "list" | "cta"
+   s1, s2: text blocks
+   items: array of strings (for lists)
+*/
+
+/* MODE 1: 3-REASON ENGINE (barebones example) */
+function build3ReasonSlides(){
+  return [
+    {
+      type:"pair",
+      s1:"3 reasons you still feel stuck.",
+      s2:"If this sounds like you, these three are usually the real problem."
+    },
+    {
+      type:"pair",
+      s1:"#1",
+      s2:"You keep negotiating with your old identity instead of committing to your new one."
+    },
+    {
+      type:"pair",
+      s1:"#2",
+      s2:"You’re waiting to feel ready instead of moving while unprepared."
+    },
+    {
+      type:"pair",
+      s1:"#3",
+      s2:"You’re trying to change outcomes without changing who you are being day to day."
+    },
+    {
+      type:"cta",
+      s1:"Begin properly — the link in my bio is where you start."
+    }
+  ];
+}
+
+/* MODE 2: HOW-TO ENGINE (barebones example) */
+function buildHowToSlides(){
+  return [
+    {
+      type:"pair",
+      s1:"How to rebuild your self-trust.",
+      s2:"A simple sequence you can actually follow without burning out."
+    },
+    {
+      type:"list",
+      s1:"Step 1",
+      s2:"Shrink the promise.",
+      items:[
+        "Pick one micro-commitment you can keep even on a bad day.",
+        "Make it so small it feels almost insulting to your ambition."
+      ]
+    },
+    {
+      type:"list",
+      s1:"Step 2",
+      s2:"Stack evidence.",
+      items:[
+        "Track only: did I keep the promise, yes or no.",
+        "Your nervous system trusts repetition, not declarations."
+      ]
+    },
+    {
+      type:"list",
+      s1:"Step 3",
+      s2:"Increase the load slowly.",
+      items:[
+        "Once it feels automatic, raise the bar by 10–20%, not 10x.",
+        "You’re building a reputation with yourself, not chasing a high."
+      ]
+    },
+    {
+      type:"cta",
+      s1:"If you want this structured for you, the link in my bio is the next move."
+    }
+  ];
+}
+
+/* MODE 3: COPY-MY-FRAMEWORK ENGINE (barebones example) */
+function buildFrameworkSlides(){
+  return [
+    {
+      type:"pair",
+      s1:"My 3-layer content framework.",
+      s2:"You can steal this and plug your niche straight into it."
+    },
+    {
+      type:"list",
+      s1:"Layer 1 — Recognition",
+      s2:"Make them feel seen before you teach them anything.",
+      items:[
+        "Name the pattern they’re stuck in with brutal clarity.",
+        "Describe the emotional cost better than they can."
+      ]
+    },
+    {
+      type:"list",
+      s1:"Layer 2 — Reframe",
+      s2:"Shift how they see the problem, not just the solution.",
+      items:[
+        "Show why their current approach could never work long-term.",
+        "Introduce a cleaner lens that makes your method inevitable."
+      ]
+    },
+    {
+      type:"list",
+      s1:"Layer 3 — Direction",
+      s2:"Give them a next step that feels obvious, not heavy.",
+      items:[
+        "One action, one link, one decision.",
+        "Your offer is just the logical continuation of the reframe."
+      ]
+    },
+    {
+      type:"cta",
+      s1:"If you want to plug your offer into this framework, start at the link in my bio."
+    }
+  ];
+}
+
+/* MODE REGISTRY */
+const MODES = {
+  "3-reason": {
+    id:"3-reason",
+    label:"Mode: 3-Reason Engine",
+    buildSlides:build3ReasonSlides
+  },
+  "how-to": {
+    id:"how-to",
+    label:"Mode: How-To Engine",
+    buildSlides:buildHowToSlides
+  },
+  "framework": {
+    id:"framework",
+    label:"Mode: Copy-My-Framework Engine",
+    buildSlides:buildFrameworkSlides
+  }
+};
+
+/* MODE SELECTION (via query param, with fallback) */
+function getCurrentModeId(){
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get("mode");
+  if(mode && MODES[mode]) return mode;
+  return "3-reason"; // default
+}
+
+let currentModeId = getCurrentModeId();
+let currentSlides = MODES[currentModeId].buildSlides();
+let index = 0;
+
+/* DOM refs */
+const bgEl = document.getElementById("bg");
+const slidesContainer = document.getElementById("slides");
+const navDots = document.getElementById("navDots");
+const modeLabelEl = document.getElementById("modeLabel");
+
+/* Apply theme + label */
+function applyModeChrome(){
+  const theme = THEMES[currentModeId] || THEMES["3-reason"];
+  bgEl.style.background = theme;
+  modeLabelEl.textContent = MODES[currentModeId].label;
+}
+
+/* RENDER ENGINE */
+function render(){
+  slidesContainer.innerHTML = "";
+  navDots.innerHTML = "";
+
+  currentSlides.forEach((s,i)=>{
+    const el = document.createElement("div");
+    el.className = "slide" + (i===index ? " active" : "");
+
+    if(s.type === "pair"){
+      el.innerHTML = `
+        <div class="s1">${s.s1}</div>
+        <div class="s2">${s.s2}</div>
+      `;
+    } else if(s.type === "list"){
+      const itemsHtml = (s.items || []).map(item=>`<div class="list-item">• ${item}</div>`).join("");
+      el.innerHTML = `
+        <div class="s1">${s.s1}</div>
+        <div class="s2">${s.s2}</div>
+        <div class="list">${itemsHtml}</div>
+      `;
+    } else if(s.type === "cta"){
+      el.innerHTML = `<div class="cta">${s.s1}</div>`;
+    }
+
+    slidesContainer.appendChild(el);
+
+    const dot = document.createElement("div");
+    dot.className = "dot" + (i===index ? " active" : "");
+    navDots.appendChild(dot);
+  });
+}
+
+/* NAVIGATION */
+function next(){
+  index = (index + 1) % currentSlides.length;
+  render();
+}
+
+function prev(){
+  index = (index - 1 + currentSlides.length) % currentSlides.length;
+  render();
+}
+
+document.getElementById("next").onclick = next;
+document.getElementById("prev").onclick = prev;
+
+/* INIT */
+applyModeChrome();
+render();
+</script>
+
+</body>
+</html>
