@@ -34,6 +34,23 @@ https://copilot.microsoft.com/chats/nXi6KipQDKLW5Xs9tsg1m
 
 ---
 
+**CoPilot Chat:**  
+IG-Surface Mechanics Widgets Development Hub
+
+**CoPilot Chat Link:**  
+https://copilot.microsoft.com/chats/Pzb26escYkBYES6LfYEUk
+
+---
+
+## 📁 Widget Files
+
+- `reasonengineone.html` 
+- `reasonenginetwo.html`
+- `.html`
+
+---
+
+
 
 **ChatGPT Chat:**  
 Widget Hub - MSF Content Engine
