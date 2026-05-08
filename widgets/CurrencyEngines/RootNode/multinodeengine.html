@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport"
       content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Multi‑Mode Engine — Barebones</title>
+<title>Multi‑Mode Engine — Long‑Press Menu</title>
 
 <style>
 *{
@@ -162,13 +162,51 @@ body{
 .tap-left{ left:0; }
 .tap-right{ right:0; }
 
-/* Simple mode switch hint (optional) */
+/* Invisible long-press hotspot */
+#modeHotspot{
+  position:absolute;
+  top:0;
+  left:0;
+  width:22vw;
+  height:18vh;
+  z-index:50;
+}
+
+/* Floating mode menu */
+#modeMenu{
+  position:absolute;
+  top:6vh;
+  left:10vw;
+  background:rgba(0,0,0,.78);
+  padding:14px 18px;
+  border-radius:12px;
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.12);
+  display:none;
+  z-index:60;
+}
+
+.mode-item{
+  font-size:13px;
+  padding:6px 0;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.82);
+}
+.mode-item.active{
+  color:#fff;
+}
+.mode-item + .mode-item{
+  border-top:1px solid rgba(255,255,255,.08);
+}
+
+/* Optional tiny hint (can remove if you want it fully invisible) */
 .mode-hint{
   position:absolute;
   top:4vh;
   right:10vw;
-  font-size:11px;
-  color:rgba(255,255,255,.45);
+  font-size:10px;
+  color:rgba(255,255,255,.35);
   text-align:right;
 }
 </style>
@@ -180,7 +218,7 @@ body{
 <div class="noise"></div>
 
 <div class="mode-label" id="modeLabel"></div>
-<div class="mode-hint">?mode=3-reason / how-to / framework</div>
+<div class="mode-hint">hold top-left to switch mode</div>
 
 <div id="slides"></div>
 
@@ -189,29 +227,25 @@ body{
 
 <div class="nav" id="navDots"></div>
 
+<div id="modeHotspot"></div>
+<div id="modeMenu"></div>
+
 <script>
 /* ---------------------------------------------------------
-   MULTI-MODE ENGINE — BAREBONES
+   MULTI-MODE ENGINE — LONG-PRESS MENU
    - One shell
    - Multiple modes
-   - One example output per mode
-   - Query param: ?mode=3-reason | how-to | framework
+   - Long-press top-left to switch mode
    --------------------------------------------------------- */
 
-/* Themes per mode (simple mapping) */
+/* Themes per mode */
 const THEMES = {
   "3-reason": "radial-gradient(circle at 20% 0%,rgba(255,255,255,.12),transparent 55%),linear-gradient(180deg,#050505,#000)",
   "how-to": "radial-gradient(circle at 10% 10%,rgba(120,150,255,.20),transparent 55%),linear-gradient(180deg,#020617,#000)",
   "framework": "radial-gradient(circle at 80% 0%,rgba(255,120,180,.20),transparent 55%),linear-gradient(180deg,#14000a,#000)"
 };
 
-/* Universal slide schema:
-   type: "pair" | "list" | "cta"
-   s1, s2: text blocks
-   items: array of strings (for lists)
-*/
-
-/* MODE 1: 3-REASON ENGINE (barebones example) */
+/* MODE 1: 3-REASON ENGINE (example) */
 function build3ReasonSlides(){
   return [
     {
@@ -241,7 +275,7 @@ function build3ReasonSlides(){
   ];
 }
 
-/* MODE 2: HOW-TO ENGINE (barebones example) */
+/* MODE 2: HOW-TO ENGINE (example) */
 function buildHowToSlides(){
   return [
     {
@@ -283,7 +317,7 @@ function buildHowToSlides(){
   ];
 }
 
-/* MODE 3: COPY-MY-FRAMEWORK ENGINE (barebones example) */
+/* MODE 3: COPY-MY-FRAMEWORK ENGINE (example) */
 function buildFrameworkSlides(){
   return [
     {
@@ -329,30 +363,23 @@ function buildFrameworkSlides(){
 const MODES = {
   "3-reason": {
     id:"3-reason",
-    label:"Mode: 3-Reason Engine",
+    label:"MODE: 3-REASON ENGINE",
     buildSlides:build3ReasonSlides
   },
   "how-to": {
     id:"how-to",
-    label:"Mode: How-To Engine",
+    label:"MODE: HOW-TO ENGINE",
     buildSlides:buildHowToSlides
   },
   "framework": {
     id:"framework",
-    label:"Mode: Copy-My-Framework Engine",
+    label:"MODE: COPY-MY-FRAMEWORK ENGINE",
     buildSlides:buildFrameworkSlides
   }
 };
 
-/* MODE SELECTION (via query param, with fallback) */
-function getCurrentModeId(){
-  const params = new URLSearchParams(window.location.search);
-  const mode = params.get("mode");
-  if(mode && MODES[mode]) return mode;
-  return "3-reason"; // default
-}
-
-let currentModeId = getCurrentModeId();
+/* INITIAL MODE (no manual input required) */
+let currentModeId = "3-reason";
 let currentSlides = MODES[currentModeId].buildSlides();
 let index = 0;
 
@@ -361,6 +388,8 @@ const bgEl = document.getElementById("bg");
 const slidesContainer = document.getElementById("slides");
 const navDots = document.getElementById("navDots");
 const modeLabelEl = document.getElementById("modeLabel");
+const hotspot = document.getElementById("modeHotspot");
+const menu = document.getElementById("modeMenu");
 
 /* Apply theme + label */
 function applyModeChrome(){
@@ -415,6 +444,56 @@ function prev(){
 
 document.getElementById("next").onclick = next;
 document.getElementById("prev").onclick = prev;
+
+/* LONG-PRESS MODE MENU */
+let pressTimer = null;
+let menuVisible = false;
+
+function showMenu(){
+  menu.innerHTML = Object.keys(MODES).map(modeId => {
+    const activeClass = modeId === currentModeId ? "mode-item active" : "mode-item";
+    return `<div class="${activeClass}" data-mode="${modeId}">
+              ${MODES[modeId].label}
+            </div>`;
+  }).join("");
+
+  menu.style.display = "block";
+  menuVisible = true;
+}
+
+function hideMenu(){
+  menu.style.display = "none";
+  menuVisible = false;
+}
+
+function startPress(){
+  if(pressTimer) clearTimeout(pressTimer);
+  pressTimer = setTimeout(showMenu, 600);
+}
+
+function cancelPress(){
+  if(pressTimer) clearTimeout(pressTimer);
+}
+
+hotspot.addEventListener("touchstart", startPress);
+hotspot.addEventListener("mousedown", startPress);
+
+hotspot.addEventListener("touchend", cancelPress);
+hotspot.addEventListener("mouseup", cancelPress);
+hotspot.addEventListener("mouseleave", cancelPress);
+
+menu.addEventListener("click", e => {
+  const mode = e.target.getAttribute("data-mode");
+  if(!mode || !MODES[mode]) return;
+
+  currentModeId = mode;
+  currentSlides = MODES[currentModeId].buildSlides();
+  index = 0;
+
+  applyModeChrome();
+  render();
+  hideMenu();
+});
 
 /* INIT */
 applyModeChrome();
