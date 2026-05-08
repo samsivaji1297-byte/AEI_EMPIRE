@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>3-Reason Engine V1</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,sans-serif;
+}
+
+body{
+  position:relative;
+}
+
+/* Background */
+.bg{
+  position:absolute;
+  inset:-30%;
+  filter:blur(80px);
+  opacity:0.85;
+  animation:drift 28s ease-in-out infinite alternate;
+}
+
+@keyframes drift{
+  from{transform:scale(1) translate(0,0);}
+  to{transform:scale(1.25) translate(-60px,-80px);}
+}
+
+/* Glass + noise */
+.overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom,rgba(255,255,255,.04),transparent);
+  backdrop-filter:blur(18px);
+}
+
+.noise{
+  position:absolute;
+  inset:0;
+  opacity:.035;
+  background-image:radial-gradient(circle, white 1px, transparent 1px);
+  background-size:4px 4px;
+}
+
+/* Slide container */
+.slide{
+  position:absolute;
+  inset:0;
+  padding:0 10vw;
+  padding-top:12vh;
+  padding-bottom:12vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  opacity:0;
+  transform:translateY(40px);
+  transition:opacity .8s ease, transform .8s ease;
+}
+
+.slide.active{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* Typography */
+.s1{
+  font-size:clamp(34px,7vw,80px);
+  line-height:1.05;
+  font-weight:700;
+  letter-spacing:-1.2px;
+  margin-bottom:22px;
+  text-wrap:balance;
+}
+
+.s2{
+  font-size:clamp(22px,4.6vw,36px);
+  line-height:1.32;
+  color:rgba(255,255,255,.80);
+  max-width:90%;
+  text-wrap:balance;
+}
+
+/* CTA */
+.cta{
+  font-size:clamp(26px,6vw,42px);
+  line-height:1.25;
+  font-weight:600;
+  color:#fff;
+  max-width:90%;
+}
+
+/* Navigation dots */
+.nav{
+  position:absolute;
+  bottom:5vh;
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  z-index:10;
+}
+
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  background:rgba(255,255,255,.25);
+  transition:all .25s ease;
+}
+
+.dot.active{
+  width:22px;
+  background:#fff;
+}
+
+/* Tap zones */
+.tap-left, .tap-right{
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:50%;
+  z-index:20;
+}
+
+.tap-left{ left:0; }
+.tap-right{ right:0; }
+</style>
+</head>
+<body>
+
+<div id="bg" class="bg"></div>
+<div class="overlay"></div>
+<div class="noise"></div>
+
+<div id="slides"></div>
+
+<div class="tap-left" id="prev"></div>
+<div class="tap-right" id="next"></div>
+
+<div class="nav" id="navDots"></div>
+
+<script>
+/* ---------------------------------------------------------
+   3-REASON ENGINE V1
+   - Hook → #1 → #2 → #3 → CTA
+   - One-sentence payloads
+   - Fixed 5-slide structure
+   - Same sovereign aesthetic as Recognition Engine V3
+   --------------------------------------------------------- */
+
+/* Colour themes */
+const themes = [
+  { bg:"radial-gradient(circle at 20% 0%,rgba(255,255,255,.10),transparent 55%),linear-gradient(180deg,#050505,#000)" },
+  { bg:"radial-gradient(circle at 10% 10%,rgba(120,150,255,.18),transparent 55%),linear-gradient(180deg,#020617,#000)" },
+  { bg:"radial-gradient(circle at 80% 0%,rgba(200,200,200,.16),transparent 55%),linear-gradient(180deg,#0a0a0a,#1a1a1a)" },
+  { bg:"radial-gradient(circle at 15% 0%,rgba(255,80,120,.20),transparent 55%),linear-gradient(180deg,#1a0004,#000)" },
+  { bg:"radial-gradient(circle at 80% 10%,rgba(80,255,150,.18),transparent 55%),linear-gradient(180deg,#00140a,#000)" },
+  { bg:"radial-gradient(circle at 20% 0%,rgba(180,120,255,.20),transparent 55%),linear-gradient(180deg,#0f001a,#000)" }
+];
+
+/* HOOKS */
+const hookPool = [
+  "3 reasons you still feel stuck.",
+  "3 reasons you can’t stay consistent.",
+  "3 reasons you don’t trust yourself yet.",
+  "3 reasons you keep restarting your life.",
+  "3 reasons you feel behind all the time."
+];
+
+/* SETUP SENTENCES (light text under hook) */
+const setupPool = [
+  "If this feels like you, these will expose the real pattern.",
+  "You’ve felt this for a while — here’s why it keeps happening.",
+  "These three truths explain more than you think.",
+  "If you’re tired of repeating the same cycle, start here.",
+  "This is the part nobody ever tells you."
+];
+
+/* PAYLOADS (one sentence each) */
+const payloadPool = [
+  "You keep negotiating with your old identity instead of committing to your new one.",
+  "Your nervous system doesn’t trust the life you say you want yet.",
+  "You’re still trying to earn permission instead of making decisions.",
+  "You’re operating from borrowed expectations instead of your own truth.",
+  "You haven’t built a self-image that matches your goals.",
+  "You’re addicted to the emotional familiarity of struggle.",
+  "You’re waiting to feel ready instead of moving while unprepared.",
+  "You’re still living in reaction instead of direction.",
+  "You’re trying to change outcomes without changing identity.",
+  "You’re outsourcing your clarity to other people."
+];
+
+/* CTA POOL */
+const ctaPool = [
+  "Begin properly — the link in my bio will make the next step obvious.",
+  "If this hit, go to the link in my bio and start correctly.",
+  "Enter the protocol — the link in my bio is where you begin.",
+  "If this exposed you, the next step is in my bio.",
+  "Return to yourself — start with the link in my bio."
+];
+
+/* Utils */
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function pickDistinct(arr,count){
+  const copy=[...arr], out=[];
+  for(let i=0;i<count && copy.length>0;i++){
+    const idx=Math.floor(Math.random()*copy.length);
+    out.push(copy[idx]);
+    copy.splice(idx,1);
+  }
+  return out;
+}
+
+/* Build the 5-slide carousel */
+function buildSlides(){
+  const theme = pick(themes);
+  document.getElementById("bg").style.background = theme.bg;
+
+  const hook = pick(hookPool);
+  const setup = pick(setupPool);
+  const payloads = pickDistinct(payloadPool, 3);
+  const cta = pick(ctaPool);
+
+  const slides = [];
+
+  // Slide 1: Hook
+  slides.push({
+    type:"pair",
+    s1:hook,
+    s2:setup
+  });
+
+  // Slide 2: #1
+  slides.push({
+    type:"pair",
+    s1:"#1",
+    s2:payloads[0]
+  });
+
+  // Slide 3: #2
+  slides.push({
+    type:"pair",
+    s1:"#2",
+    s2:payloads[1]
+  });
+
+  // Slide 4: #3
+  slides.push({
+    type:"pair",
+    s1:"#3",
+    s2:payloads[2]
+  });
+
+  // Slide 5: CTA
+  slides.push({
+    type:"cta",
+    text:cta
+  });
+
+  return slides;
+}
+
+/* Render engine */
+const slidesContainer=document.getElementById("slides");
+const navDots=document.getElementById("navDots");
+let index=0;
+let currentSlides=buildSlides();
+
+function render(){
+  slidesContainer.innerHTML="";
+  navDots.innerHTML="";
+
+  currentSlides.forEach((s,i)=>{
+    const el=document.createElement("div");
+    el.className="slide"+(i===index?" active":"");
+
+    if(s.type==="pair"){
+      el.innerHTML=`
+        <div class="s1">${s.s1}</div>
+        <div class="s2">${s.s2}</div>
+      `;
+    } else {
+      el.innerHTML=`<div class="cta">${s.text}</div>`;
+    }
+
+    slidesContainer.appendChild(el);
+
+    const dot=document.createElement("div");
+    dot.className="dot"+(i===index?" active":"");
+    navDots.appendChild(dot);
+  });
+}
+
+function next(){ index=(index+1)%currentSlides.length; render(); }
+function prev(){ index=(index-1+currentSlides.length)%currentSlides.length; render(); }
+
+document.getElementById("next").onclick=next;
+document.getElementById("prev").onclick=prev;
+
+render();
+</script>
+
+</body>
+</html>
