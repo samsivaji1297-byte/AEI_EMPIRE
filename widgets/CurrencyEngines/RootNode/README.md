@@ -46,7 +46,8 @@ https://copilot.microsoft.com/chats/Pzb26escYkBYES6LfYEUk
 
 - `reasonengineone.html` 
 - `reasonenginetwo.html`
-- `.html`
+- `howtoengineone.html`
+- `30dayengineone.html` 
 
 ---
 
