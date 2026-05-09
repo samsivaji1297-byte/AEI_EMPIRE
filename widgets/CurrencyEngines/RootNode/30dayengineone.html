@@ -207,19 +207,8 @@ body{
 .tap-right{ right:0; }
 
 /* ---------------------------------------------------------
-   FINALMINDSET BRAND SIGNATURE
+   FINALMINDSET — MINIMAL COMMAND BAR
    --------------------------------------------------------- */
-
-.brand{
-  position:absolute;
-  bottom:2vh;
-  right:4vw;
-  font-size:12px;
-  letter-spacing:2px;
-  opacity:.35;
-  text-transform:uppercase;
-  pointer-events:none;
-}
 
 .brand-bar{
   position:absolute;
@@ -244,8 +233,6 @@ body{
 
   opacity:.42;
 }
-
-      
 </style>
 </head>
 <body>
@@ -257,7 +244,7 @@ body{
 <div class="overlay"></div>
 <div class="noise"></div>
 
-<!-- SOVEREIGN BRAND SIGNATURE -->
+<!-- MINIMAL COMMAND BAR -->
 <div class="brand-bar">FINALMINDSET</div>
 
 <div id="slides"></div>
@@ -267,25 +254,67 @@ body{
 
 <div class="nav" id="navDots"></div>
 
-<div class="brand">FinalMindset</div>
-
 <script>
 /* ---------------------------------------------------------
-   30-DAY ENGINE (EXAMPLE)
+   30-DAY ENGINE — MULTIPLE VARIATIONS
    --------------------------------------------------------- */
 
-const hook = "Do this for 30 days and your entire life will shift.";
-const setup = "Run these three moves daily — no intensity, just consistency.";
-
-const steps = [
-  "Pick one habit that takes less than 5 minutes and do it every day.",
-  "Remove one input that drains you and replace it with silence.",
-  "Track your actions, not your emotions — proof beats feelings."
+const hooks = [
+  "Do this for 30 days and your entire life will shift.",
+  "Run this for 30 days and you won’t recognise yourself.",
+  "Do this for 30 days and your discipline becomes automatic.",
+  "Do this for 30 days and your identity will catch up.",
+  "Do this for 30 days and momentum becomes your baseline."
 ];
 
-const cta = "If you’re serious, the link in my bio shows you how to run this properly.";
+const setups = [
+  "Run these three moves daily — no intensity, just consistency.",
+  "This is the simplest protocol to rebuild your life from zero.",
+  "If you’re tired of restarting, treat this as non-negotiable.",
+  "This is how you stabilise your life without burning out.",
+  "If you want separation, this is the cleanest way to get it."
+];
+
+const stepPool = [
+  "Pick one habit that takes less than 5 minutes and do it every day.",
+  "Remove one input that drains you and replace it with silence.",
+  "Track your actions, not your emotions — proof beats feelings.",
+  "Choose one identity you’re becoming and act in alignment once a day.",
+  "Replace scrolling with a 10-minute walk — clarity beats dopamine.",
+  "Write down one win every night — momentum compounds quietly.",
+  "Make your mornings boring — boredom is discipline in disguise.",
+  "Stop negotiating with yourself after the decision is made.",
+  "Reduce your inputs so your brain can finally hear itself think.",
+  "Do one thing that your future self would thank you for."
+];
+
+const ctas = [
+  "If you’re serious, the link in my bio shows you how to run this properly.",
+  "Save this and start today — the protocol is in my bio.",
+  "If this exposed you, the next step is waiting in my bio.",
+  "Run this for 30 days — the framework is in my bio.",
+  "If you’re done looping, the real work starts in my bio."
+];
+
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function pickDistinct(arr,count){
+  const copy=[...arr];
+  const out=[];
+  while(out.length<count && copy.length){
+    const idx=Math.floor(Math.random()*copy.length);
+    out.push(copy[idx]);
+    copy.splice(idx,1);
+  }
+  return out;
+}
 
 function buildSlides(){
+  const hook = pick(hooks);
+  const setup = pick(setups);
+  const steps = pickDistinct(stepPool,3);
+  const cta = pick(ctas);
+
   return [
     { type:"pair", s1:hook, s2:setup },
     { type:"pair", s1:"#1", s2:steps[0] },
