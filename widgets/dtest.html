@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sovereign Monolith Widget</title>
+  <title>Sovereign Steel Monolith</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet" />
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,11 +22,12 @@
 
     .monolith {
       width: 90vw;
-      max-width: 420px;
-      padding: 34px 30px;
+      max-width: 440px;
+      padding: 40px 34px 48px;
       background: #000;
       position: relative;
       animation: appear 0.12s ease-out forwards;
+      overflow: hidden;
     }
 
     /* Ultra-faint steel edge */
@@ -34,7 +35,17 @@
       content: "";
       position: absolute;
       inset: 0;
-      border: 1px solid rgba(180, 185, 195, 0.08);
+      border: 1px solid rgba(180,185,195,0.08);
+      pointer-events: none;
+    }
+
+    /* Ultra-faint steel grain */
+    .monolith::after {
+      content: "";
+      position: absolute;
+      inset: -40px;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+      mix-blend-mode: soft-light;
       pointer-events: none;
     }
 
@@ -45,7 +56,7 @@
 
     .line {
       display: flex;
-      gap: 12px;
+      gap: 14px;
       opacity: 0;
       animation: materialise 0.12s ease-out 0.1s forwards;
     }
@@ -55,20 +66,34 @@
     }
 
     .glyph {
-      width: 9px;
-      height: 9px;
+      width: 10px;
+      height: 10px;
       transform: rotate(45deg);
       background: #7f848a;
       flex-shrink: 0;
-      margin-top: 4px;
+      margin-top: 6px;
     }
 
     .text {
-      font-size: 17px;
-      line-height: 1.55;
-      letter-spacing: 0.02em;
-      font-weight: 350;
-      color: #c9ccd1;
+      font-size: 22px;
+      line-height: 1.45;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: #000; /* black interior */
+      -webkit-text-stroke: 1.2px #e5e7eb; /* thin steel outline */
+      text-shadow:
+        0px 0px 14px rgba(0,0,0,0.95),
+        0px 4px 8px rgba(0,0,0,0.85),
+        0px 0px 2px rgba(255,255,255,0.08);
+    }
+
+    .timestamp {
+      margin-top: 32px;
+      text-align: right;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(200,210,224,0.35);
     }
   </style>
 </head>
@@ -80,6 +105,10 @@
       <div class="text">
         I bow only to power, and to the birds that see everything.
       </div>
+    </div>
+
+    <div class="timestamp">
+      AEST // SYD — 14 MAY 2026 — CHANNEL: IV
     </div>
   </div>
 </body>
