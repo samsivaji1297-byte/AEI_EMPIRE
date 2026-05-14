@@ -2,241 +2,193 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Sovereign Output Widget</title>
+  <title>Sovereign Output Widget — Dark Steel Edition</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: radial-gradient(circle at top, #1b1b1f 0, #050507 40%, #000 100%);
-      color: #c8d2e0;
-      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #000;
       height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-family: "Inter", sans-serif;
       overflow: hidden;
     }
 
-    .widget-shell {
-      background: #050509;
-      border-radius: 18px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.02),
-        0 26px 60px rgba(0, 0, 0, 0.9);
-      padding: 22px 24px 24px;
-      max-width: 420px;
+    .widget {
       width: 90vw;
+      max-width: 430px;
+      background: #050506;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 26px 26px 30px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.02),
+        0 40px 80px rgba(0,0,0,0.9);
       position: relative;
       overflow: hidden;
     }
 
-    /* subtle noise / grain overlay */
-    .widget-shell::before {
+    /* Ambient grain */
+    .widget::before {
       content: "";
       position: absolute;
       inset: -40px;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='noStitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
       mix-blend-mode: soft-light;
-      opacity: 0.45;
+      opacity: 0.35;
       pointer-events: none;
     }
 
-    .widget-inner {
-      position: relative;
-      z-index: 1;
-    }
-
-    /* Header / emblem */
-    .header-row {
+    /* Header */
+    .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 18px;
+      margin-bottom: 22px;
     }
 
-    .brand-mark {
+    .mark {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
-    .iv-block {
-      position: relative;
-      width: 40px;
-      height: 40px;
+    .iv {
+      width: 44px;
+      height: 44px;
+      background: #020203;
       border-radius: 6px;
-      background: #020204;
-      box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.08),
-        0 10px 26px rgba(0, 0, 0, 0.95);
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08),
+        0 14px 30px rgba(0,0,0,1);
     }
 
-    .iv-outline {
+    .iv span {
+      font-size: 22px;
       font-weight: 600;
-      font-size: 20px;
-      letter-spacing: 0.08em;
-      color: #f5f7fb;
+      color: #d7d9df;
+      letter-spacing: 0.06em;
       text-shadow:
-        0 0 4px rgba(255, 255, 255, 0.35),
-        0 0 18px rgba(0, 0, 0, 1);
+        0 0 6px rgba(255,255,255,0.25),
+        0 0 18px rgba(0,0,0,1);
     }
 
-    .brand-label {
+    .label {
       display: flex;
       flex-direction: column;
       gap: 2px;
     }
 
-    .brand-title {
+    .label .t1 {
       font-size: 11px;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: rgba(200, 210, 224, 0.82);
+      color: rgba(200,210,224,0.75);
     }
 
-    .brand-sub {
+    .label .t2 {
       font-size: 10px;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: rgba(200, 210, 224, 0.45);
+      color: rgba(200,210,224,0.38);
     }
 
-    .status-pill {
+    .pill {
       font-size: 10px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      padding: 4px 10px;
+      padding: 5px 12px;
       border-radius: 999px;
-      border: 1px solid rgba(148, 187, 255, 0.4);
-      color: #9bb7ff;
-      background: radial-gradient(circle at top, rgba(148, 187, 255, 0.18), rgba(5, 7, 12, 0.9));
-      box-shadow: 0 0 18px rgba(148, 187, 255, 0.18);
+      border: 1px solid rgba(120,140,160,0.35);
+      color: #9aa4b3;
+      background: rgba(20,24,30,0.6);
     }
 
-    /* Output frame */
-    .output-frame {
-      margin-top: 4px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      background: radial-gradient(circle at top left, rgba(148, 187, 255, 0.12), rgba(3, 5, 10, 0.98));
-      padding: 16px 16px 14px;
+    /* Output block */
+    .frame {
+      margin-top: 6px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.05);
+      background: #0a0b0d;
+      padding: 20px 18px 18px;
       position: relative;
       overflow: hidden;
     }
 
-    .output-frame::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(120deg, rgba(148, 187, 255, 0.16), transparent 40%, transparent 60%, rgba(148, 187, 255, 0.08));
-      mix-blend-mode: soft-light;
-      opacity: 0;
-      animation: scanline 2.4s ease-out 0.2s forwards;
-      pointer-events: none;
-    }
-
-    @keyframes scanline {
-      0% {
-        opacity: 0;
-        transform: translateY(18px);
-      }
-      35% {
-        opacity: 0.45;
-        transform: translateY(0);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-18px);
-      }
-    }
-
-    .output-label {
+    .frame-label {
       font-size: 10px;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: rgba(200, 210, 224, 0.6);
-      margin-bottom: 8px;
+      color: rgba(200,210,224,0.55);
+      margin-bottom: 10px;
     }
 
-    .output-line {
+    .line {
       display: flex;
-      align-items: flex-start;
-      gap: 8px;
+      gap: 10px;
       opacity: 0;
       transform: translateY(4px);
-      animation: materialise 0.18s ease-out 0.18s forwards;
+      animation: materialise 0.22s ease-out 0.15s forwards;
     }
 
     @keyframes materialise {
-      0% {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .glyph {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       transform: rotate(45deg);
+      background: linear-gradient(135deg, #6f7a88, #aeb7c4);
       border-radius: 2px;
-      background: linear-gradient(135deg, #9bb7ff, #4a90e2);
       box-shadow:
-        0 0 6px rgba(148, 187, 255, 0.7),
-        0 0 14px rgba(0, 0, 0, 0.9);
-      margin-top: 4px;
+        0 0 6px rgba(160,170,185,0.5),
+        0 0 14px rgba(0,0,0,1);
+      margin-top: 6px;
       flex-shrink: 0;
     }
 
-    .output-text {
-      font-size: 13px;
-      line-height: 1.5;
-      letter-spacing: 0.06em;
-      color: #dde5f4;
+    .text {
+      font-size: 15px;
+      line-height: 1.55;
+      letter-spacing: 0.04em;
+      color: #d5d9e0;
     }
 
-    .output-text span {
-      color: #9bb7ff;
+    .text span {
+      color: #aeb7c4;
     }
 
-    /* Footer strip */
-    .footer-row {
-      margin-top: 14px;
+    /* Footer */
+    .footer {
+      margin-top: 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      opacity: 0.7;
+      opacity: 0.55;
     }
 
     .coord {
       font-size: 9px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: rgba(200, 210, 224, 0.45);
+      color: rgba(200,210,224,0.45);
     }
 
     .pulse {
-      width: 34px;
+      width: 36px;
       height: 2px;
+      background: linear-gradient(90deg, transparent, #aeb7c4, transparent);
       border-radius: 999px;
-      background: linear-gradient(90deg, transparent, #9bb7ff, transparent);
-      opacity: 0.7;
       position: relative;
       overflow: hidden;
     }
@@ -245,68 +197,45 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(90deg, transparent, #f5f7ff, transparent);
+      background: linear-gradient(90deg, transparent, #ffffff, transparent);
       transform: translateX(-100%);
-      animation: sweep 2.6s ease-in-out infinite;
+      animation: sweep 2.8s ease-in-out infinite;
     }
 
     @keyframes sweep {
-      0% {
-        transform: translateX(-100%);
-      }
-      50% {
-        transform: translateX(40%);
-      }
-      100% {
-        transform: translateX(120%);
-      }
-    }
-
-    @media (max-width: 420px) {
-      .widget-shell {
-        padding: 18px 18px 20px;
-        border-radius: 16px;
-      }
-      .iv-block {
-        width: 36px;
-        height: 36px;
-      }
-      .output-text {
-        font-size: 12px;
-      }
+      50% { transform: translateX(40%); }
+      100% { transform: translateX(120%); }
     }
   </style>
 </head>
+
 <body>
-  <div class="widget-shell">
-    <div class="widget-inner">
-      <div class="header-row">
-        <div class="brand-mark">
-          <div class="iv-block">
-            <div class="iv-outline">IV</div>
-          </div>
-          <div class="brand-label">
-            <div class="brand-title">SOVEREIGN OUTPUT</div>
-            <div class="brand-sub">URBAN CREED ENGINE</div>
-          </div>
-        </div>
-        <div class="status-pill">Transmission: Live</div>
-      </div>
-
-      <div class="output-frame">
-        <div class="output-label">Signal / Phrase</div>
-        <div class="output-line">
-          <div class="glyph"></div>
-          <div class="output-text">
-            I only bow to the <span>creed of power</span> and the <span>birds that never land</span>.
-          </div>
+  <div class="widget">
+    <div class="header">
+      <div class="mark">
+        <div class="iv"><span>IV</span></div>
+        <div class="label">
+          <div class="t1">SOVEREIGN OUTPUT</div>
+          <div class="t2">STEEL CREED ENGINE</div>
         </div>
       </div>
+      <div class="pill">Transmission: Live</div>
+    </div>
 
-      <div class="footer-row">
-        <div class="coord">AEST / SYD · CHANNEL: IV</div>
-        <div class="pulse"></div>
+    <div class="frame">
+      <div class="frame-label">Signal / Phrase</div>
+      <div class="line">
+        <div class="glyph"></div>
+        <div class="text">
+          I bow only to the <span>silent engines of power</span>  
+          and the <span>birds that watch from above</span>.
+        </div>
       </div>
+    </div>
+
+    <div class="footer">
+      <div class="coord">AEST / SYD · CHANNEL: IV</div>
+      <div class="pulse"></div>
     </div>
   </div>
 </body>
