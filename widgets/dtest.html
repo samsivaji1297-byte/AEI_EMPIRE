@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Sovereign Output Widget — Dark Steel Edition</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sovereign Monolith Widget</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet" />
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -20,222 +20,66 @@
       overflow: hidden;
     }
 
-    .widget {
+    .monolith {
       width: 90vw;
-      max-width: 430px;
-      background: #050506;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.05);
-      padding: 26px 26px 30px;
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,0.02),
-        0 40px 80px rgba(0,0,0,0.9);
+      max-width: 420px;
+      padding: 34px 30px;
+      background: #000;
       position: relative;
-      overflow: hidden;
+      animation: appear 0.12s ease-out forwards;
     }
 
-    /* Ambient grain */
-    .widget::before {
+    /* Ultra-faint steel edge */
+    .monolith::before {
       content: "";
       position: absolute;
-      inset: -40px;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
-      mix-blend-mode: soft-light;
-      opacity: 0.35;
+      inset: 0;
+      border: 1px solid rgba(180, 185, 195, 0.08);
       pointer-events: none;
     }
 
-    /* Header */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 22px;
-    }
-
-    .mark {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .iv {
-      width: 44px;
-      height: 44px;
-      background: #020203;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,0.08),
-        0 14px 30px rgba(0,0,0,1);
-    }
-
-    .iv span {
-      font-size: 22px;
-      font-weight: 600;
-      color: #d7d9df;
-      letter-spacing: 0.06em;
-      text-shadow:
-        0 0 6px rgba(255,255,255,0.25),
-        0 0 18px rgba(0,0,0,1);
-    }
-
-    .label {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .label .t1 {
-      font-size: 11px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: rgba(200,210,224,0.75);
-    }
-
-    .label .t2 {
-      font-size: 10px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: rgba(200,210,224,0.38);
-    }
-
-    .pill {
-      font-size: 10px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      padding: 5px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(120,140,160,0.35);
-      color: #9aa4b3;
-      background: rgba(20,24,30,0.6);
-    }
-
-    /* Output block */
-    .frame {
-      margin-top: 6px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.05);
-      background: #0a0b0d;
-      padding: 20px 18px 18px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .frame-label {
-      font-size: 10px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: rgba(200,210,224,0.55);
-      margin-bottom: 10px;
+    @keyframes appear {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     .line {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       opacity: 0;
-      transform: translateY(4px);
-      animation: materialise 0.22s ease-out 0.15s forwards;
+      animation: materialise 0.12s ease-out 0.1s forwards;
     }
 
     @keyframes materialise {
-      to { opacity: 1; transform: translateY(0); }
+      to { opacity: 1; }
     }
 
     .glyph {
-      width: 8px;
-      height: 8px;
+      width: 9px;
+      height: 9px;
       transform: rotate(45deg);
-      background: linear-gradient(135deg, #6f7a88, #aeb7c4);
-      border-radius: 2px;
-      box-shadow:
-        0 0 6px rgba(160,170,185,0.5),
-        0 0 14px rgba(0,0,0,1);
-      margin-top: 6px;
+      background: #7f848a;
       flex-shrink: 0;
+      margin-top: 4px;
     }
 
     .text {
-      font-size: 15px;
+      font-size: 17px;
       line-height: 1.55;
-      letter-spacing: 0.04em;
-      color: #d5d9e0;
-    }
-
-    .text span {
-      color: #aeb7c4;
-    }
-
-    /* Footer */
-    .footer {
-      margin-top: 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      opacity: 0.55;
-    }
-
-    .coord {
-      font-size: 9px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(200,210,224,0.45);
-    }
-
-    .pulse {
-      width: 36px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #aeb7c4, transparent);
-      border-radius: 999px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .pulse::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent, #ffffff, transparent);
-      transform: translateX(-100%);
-      animation: sweep 2.8s ease-in-out infinite;
-    }
-
-    @keyframes sweep {
-      50% { transform: translateX(40%); }
-      100% { transform: translateX(120%); }
+      letter-spacing: 0.02em;
+      font-weight: 350;
+      color: #c9ccd1;
     }
   </style>
 </head>
 
 <body>
-  <div class="widget">
-    <div class="header">
-      <div class="mark">
-        <div class="iv"><span>IV</span></div>
-        <div class="label">
-          <div class="t1">SOVEREIGN OUTPUT</div>
-          <div class="t2">STEEL CREED ENGINE</div>
-        </div>
+  <div class="monolith">
+    <div class="line">
+      <div class="glyph"></div>
+      <div class="text">
+        I bow only to power, and to the birds that see everything.
       </div>
-      <div class="pill">Transmission: Live</div>
-    </div>
-
-    <div class="frame">
-      <div class="frame-label">Signal / Phrase</div>
-      <div class="line">
-        <div class="glyph"></div>
-        <div class="text">
-          I bow only to the <span>silent engines of power</span>  
-          and the <span>birds that watch from above</span>.
-        </div>
-      </div>
-    </div>
-
-    <div class="footer">
-      <div class="coord">AEST / SYD · CHANNEL: IV</div>
-      <div class="pulse"></div>
     </div>
   </div>
 </body>
