@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport"
       content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Time-Based Engine — FinalMindset</title>
+<title>Category-Locked Engine — FinalMindset</title>
 
 <style>
 *{
@@ -28,7 +28,7 @@ body{
 }
 
 /* ---------------------------------------------------------
-   AESTHETIC LAYER (FROM YOUR V3)
+   AESTHETIC LAYER (V3)
    --------------------------------------------------------- */
 
 .bg{
@@ -249,44 +249,72 @@ body{
 
 <script>
 /* ---------------------------------------------------------
-   TIME-BASED ENGINE — SINGLE SEQUENCE
+   CATEGORY-LOCKED ENGINE — RESET + DISCIPLINE
    --------------------------------------------------------- */
 
-/* Viral-style, time-compressed hooks */
-const hooks = [
-  "Reset your entire life in 14 days.",
-  "Rebuild your discipline in 7 days.",
-  "Make your first 10k in the next 30 days.",
-  "Stop feeling lost in the next 24 hours.",
-  "Reset your mind in the next 48 hours."
-];
+const categories = {
+  reset: {
+    hooks: [
+      "Reset your entire life in 14 days.",
+      "Clear your head and stabilise your life in 7 days.",
+      "Stop feeling lost in the next 24 hours.",
+      "Reset your mind in the next 48 hours.",
+      "Give yourself 10 days and your life won’t feel this chaotic."
+    ],
+    punches: [
+      "Your brain is overloaded — that’s why you feel stuck.",
+      "You’re drowning in inputs you never chose.",
+      "Your life feels chaotic because your attention is scattered.",
+      "You wake up reactive and the whole day collapses.",
+      "You’re consuming more than you’re creating."
+    ],
+    tensions: [
+      "Too many inputs, no direction.",
+      "You can’t think clearly when your brain is in constant noise.",
+      "Every new input pulls you further from yourself.",
+      "You’ve normalised mental clutter as your baseline.",
+      "You keep trying to fix your life without fixing your inputs."
+    ],
+    collapses: [
+      "Cut 5 inputs → clarity returns instantly.",
+      "Reduce what you consume → your life stabilises.",
+      "Silence your feed for 48 hours → watch your mind reset.",
+      "Protect your first hour → the rest of the day follows.",
+      "Lower your inputs → your next move becomes obvious."
+    ]
+  },
 
-/* Punch line — the knife */
-const punches = [
-  "Your mornings are destroying your discipline.",
-  "Your environment is stronger than your willpower.",
-  "You don’t need more skills — you need one offer that solves one problem.",
-  "Your brain is overloaded — that’s why you feel stuck.",
-  "You wake up reactive, and it ruins the whole day."
-];
-
-/* Tension line — invisible GAP */
-const tensions = [
-  "You’re living in a space built for your old identity.",
-  "You’ve been selling effort instead of outcomes.",
-  "You’re consuming more than you’re creating.",
-  "Too many inputs, no direction.",
-  "You keep restarting instead of stabilising."
-];
-
-/* Collapse line — simple resolution */
-const collapses = [
-  "Change your first 10 minutes → everything stabilises.",
-  "Change the environment → the habits follow.",
-  "Switch to outcomes → people pay instantly.",
-  "Cut 5 inputs → clarity returns instantly.",
-  "Pick one target → momentum returns."
-];
+  discipline: {
+    hooks: [
+      "Rebuild your discipline in 7 days.",
+      "Become the person you keep promising to be in 30 days.",
+      "Fix your discipline without relying on motivation.",
+      "Stop betraying yourself every night.",
+      "Stabilise your habits in the next 14 days."
+    ],
+    punches: [
+      "Your environment is stronger than your willpower.",
+      "You don’t have a discipline problem — you have a standards problem.",
+      "You keep negotiating with yourself after the decision is made.",
+      "You act like your future self is a stranger.",
+      "You break more promises to yourself than to anyone else."
+    ],
+    tensions: [
+      "You can’t grow in a space built for your old identity.",
+      "Every time you break your word, your identity erodes.",
+      "You say you want change, but your environment says otherwise.",
+      "Your habits still belong to the person you’re trying to outgrow.",
+      "You’re asking for a new life while living like the old one."
+    ],
+    collapses: [
+      "Change the environment → the habits follow.",
+      "Raise your standards → your actions have no choice but to follow.",
+      "Decide once, act without negotiation.",
+      "Act like your future self today → identity catches up.",
+      "Treat your own word as law → discipline becomes automatic."
+    ]
+  }
+};
 
 /* Your original CTAs */
 const ctas = [
@@ -297,13 +325,22 @@ const ctas = [
   "If you’re done looping, the real work starts in my bio."
 ];
 
-function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function pick(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+function pickCategory(){
+  const keys = Object.keys(categories);
+  const idx = Math.floor(Math.random()*keys.length);
+  return categories[keys[idx]];
+}
 
 function buildSlides(){
-  const hook = pick(hooks);
-  const punch = pick(punches);
-  const tension = pick(tensions);
-  const collapse = pick(collapses);
+  const cat = pickCategory();
+  const hook = pick(cat.hooks);
+  const punch = pick(cat.punches);
+  const tension = pick(cat.tensions);
+  const collapse = pick(cat.collapses);
   const cta = pick(ctas);
 
   return [
@@ -316,41 +353,48 @@ function buildSlides(){
 }
 
 /* Render engine */
-const slidesContainer=document.getElementById("slides");
-const navDots=document.getElementById("navDots");
-let index=0;
-let currentSlides=buildSlides();
+const slidesContainer = document.getElementById("slides");
+const navDots = document.getElementById("navDots");
+let index = 0;
+let currentSlides = buildSlides();
 
 function render(){
-  slidesContainer.innerHTML="";
-  navDots.innerHTML="";
+  slidesContainer.innerHTML = "";
+  navDots.innerHTML = "";
 
   currentSlides.forEach((s,i)=>{
-    const el=document.createElement("div");
-    el.className="slide"+(i===index?" active":"");
+    const el = document.createElement("div");
+    el.className = "slide" + (i===index ? " active" : "");
 
-    if(s.type==="pair"){
-      el.innerHTML=`
+    if(s.type === "pair"){
+      el.innerHTML = `
         <div class="s1">${s.s1}</div>
         ${s.s2 ? `<div class="s2">${s.s2}</div>` : ""}
       `;
     } else {
-      el.innerHTML=`<div class="cta">${s.text}</div>`;
+      el.innerHTML = `<div class="cta">${s.text}</div>`;
     }
 
     slidesContainer.appendChild(el);
 
-    const dot=document.createElement("div");
-    dot.className="dot"+(i===index?" active":"");
+    const dot = document.createElement("div");
+    dot.className = "dot" + (i===index ? " active" : "");
     navDots.appendChild(dot);
   });
 }
 
-function next(){ index=(index+1)%currentSlides.length; render(); }
-function prev(){ index=(index-1+currentSlides.length)%currentSlides.length; render(); }
+function next(){
+  index = (index + 1) % currentSlides.length;
+  render();
+}
 
-document.getElementById("next").onclick=next;
-document.getElementById("prev").onclick=prev;
+function prev(){
+  index = (index - 1 + currentSlides.length) % currentSlides.length;
+  render();
+}
+
+document.getElementById("next").onclick = next;
+document.getElementById("prev").onclick = prev;
 
 render();
 </script>
